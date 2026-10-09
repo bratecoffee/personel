@@ -132,6 +132,18 @@
         <h2>Personel listesi</h2>
         <div id="employeeList" class="muted">Liste yükleniyor…</div>
       </div>
+      <div class="panel">
+        <h2>Personel PIN belirle</h2>
+        <form id="pinForm">
+          <label for="pinEmployeeId">Personel numarası</label>
+          <input id="pinEmployeeId" type="number" min="1" step="1" required placeholder="Örn. 1">
+
+          <label for="employeePin">4 haneli PIN</label>
+          <input id="employeePin" type="password" inputmode="numeric" pattern="[0-9]{4}" minlength="4" maxlength="4" required placeholder="4 haneli PIN">
+
+          <button id="pinButton" type="submit">PIN kaydet</button>
+        </form>
+      </div>
     </section>
   </main>
 
@@ -203,6 +215,10 @@
           name.className = "employee-name";
           name.textContent = employee.name;
 
+          const employeeNumber = document.createElement("div");
+          employeeNumber.className = "employee-rate";
+          employeeNumber.textContent = "Personel No: " + employee.id;
+
           const rate = document.createElement("div");
           rate.className = "employee-rate";
           rate.textContent = "Saatlik ücret: " +
@@ -210,7 +226,7 @@
               style: "currency", currency: "TRY"
             });
 
-          info.append(name, rate);
+          info.append(name, employeeNumber, rate);
 
           const remove = document.createElement("button");
           remove.className = "danger";
@@ -271,6 +287,35 @@
 
     $("refreshButton").addEventListener("click", loadEmployees);
 
+    $("pinForm").addEventListener("submit", async event => {
+      event.preventDefault();
+
+      const employeeId = Number($("pinEmployeeId").value);
+      const pin = $("employeePin").value;
+
+      if (!Number.isSafeInteger(employeeId) || employeeId < 1 ||
+          !/^\d{4}$/.test(pin)) {
+        alert("Personel numarası ve 4 haneli PIN gir.");
+        return;
+      }
+
+      $("pinButton").disabled = true;
+
+      try {
+        const data = await api("/api/admin/employee-pin", {
+          method: "POST",
+          body: JSON.stringify({ employeeId, pin })
+        });
+
+        alert(data.message);
+        $("pinForm").reset();
+      } catch (error) {
+        alert(error.message);
+      } finally {
+        $("pinButton").disabled = false;
+      }
+    });
+    
     function logout() {
       sessionToken = "";
       $("dashboard").classList.add("hidden");
