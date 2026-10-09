@@ -1,0 +1,635 @@
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BRATE COFFEE | Personel Yönetimi</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #15130f;
+      --panel: #211e18;
+      --gold: #d6ad68;
+      --text: #f7f2e9;
+      --muted: #aaa397;
+      --border: #393329;
+      --danger: #e58a7b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 16px/1.5 Arial, sans-serif;
+    }
+    header {
+      padding: 24px;
+      border-bottom: 1px solid var(--border);
+      background: #1b1813;
+    }
+    .wrap { width: min(960px, 92%); margin: auto; }
+    .brand { color: var(--gold); letter-spacing: 3px; font-weight: 800; }
+    h1 { font-size: clamp(24px, 4vw, 34px); margin: 8px 0 0; }
+    h2 { font-size: 20px; margin-top: 0; }
+    .muted { color: var(--muted); }
+    main { padding: 28px 0 60px; }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    label { display: block; margin: 14px 0 6px; color: var(--muted); }
+    input {
+      display: block;
+      width: 100%;
+      padding: 13px;
+      background: #15130f;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    button {
+      border: 0;
+      border-radius: 8px;
+      padding: 12px 16px;
+      background: var(--gold);
+      color: #20170b;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 15px;
+    }
+    button:disabled { opacity: .55; cursor: wait; }
+    .secondary { background: #393329; color: var(--text); }
+    .danger { background: #4b2823; color: #ffd4cd; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+    .hidden { display: none !important; }
+    .message { margin-top: 14px; white-space: pre-wrap; }
+    .error { color: var(--danger); }
+    .success { color: #a8d8a0; }
+    .employee {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 0;
+      border-top: 1px solid var(--border);
+    }
+    .employee-name { font-weight: 700; }
+    .employee-rate { color: var(--muted); font-size: 14px; }
+    .employee button { padding: 9px 12px; }
+    footer { color: var(--muted); font-size: 13px; text-align: center; padding: 18px; }
+    @media (max-width: 520px) {
+      .panel { padding: 18px; }
+      .employee { align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div class="brand">BRATE COFFEE</div>
+      <h1>Personel Yönetimi</h1>
+      <div class="muted">Mesai takip sistemi · Yönetici paneli</div>
+    </div>
+  </header>
+
+  <main class="wrap">   
+    <section class="panel" id="staffPanel">
+      <h2>Personel girişi</h2>
+      <p class="muted">Mesai işlemleri için personel numaranı ve PIN kodunu gir.</p>
+
+      <form id="staffLoginForm">
+        <label for="staffEmployeeId">Personel numarası</label>
+        <input id="staffEmployeeId" type="number" min="1" step="1" required placeholder="Örn. 1">
+
+        <label for="staffPin">4 haneli PIN</label>
+        <input id="staffPin" type="password" inputmode="numeric" pattern="[0-9]{4}" minlength="4" maxlength="4" required>
+
+        <div class="actions">
+          <button id="staffLoginButton" type="submit">Personel girişi</button>
+        </div>
+      </form>
+
+      <div id="staffMessage" class="message" role="status"></div>
+      
+      <div id="staffWorkPanel" class="hidden">
+        <h2>Mesai işlemleri</h2>
+
+        <label for="staffQrToken">Güncel QR kodundan alınan anahtar</label>
+        <input id="staffQrToken" type="text" autocomplete="off" placeholder="QR anahtarı">
+        <button id="scanQrButton" type="button">QR kodu tara</button>
+        <div id="qrScanner" class="hidden"></div>
+
+        <div class="actions">
+          <button id="clockInButton" type="button">Mesai başlat</button>
+          <button id="clockOutButton" class="secondary" type="button">Mesai bitir</button>
+          <button id="summaryButton" class="secondary" type="button">Aylık mesaim</button>
+          <button id="staffLogoutButton" class="danger" type="button">Çıkış yap</button>
+        </div>
+
+        <div id="staffWorkMessage" class="message" role="status"></div>
+        <div id="staffSummary" class="message"></div>
+      </div>
+
+    </section>
+    <section class="panel" id="loginPanel">
+      <h2>Yönetici girişi</h2>
+      <p class="muted">Devam etmek için yönetici şifreni gir.</p>
+      <form id="loginForm">
+        <label for="password">Yönetici şifresi</label>
+        <input id="password" type="password" autocomplete="current-password" required>
+        <div class="actions">
+          <button id="loginButton" type="submit">Giriş yap</button>
+        </div>
+      </form>
+      <div id="loginMessage" class="message" role="status"></div>
+    </section>
+
+    <section id="dashboard" class="hidden">
+      <div class="panel">
+  <h2>Mesai QR anahtarı</h2>
+  <p class="muted">
+    Her mesai işlemi için yeni bir anahtar oluştur.
+    Anahtar 10 saniye geçerlidir ve her personel için bir kez kullanılabilir.
+  </p>
+
+  <button id="generateQrButton" type="button">
+    Yeni QR anahtarı oluştur
+  </button>
+
+  <div id="qrMessage" class="message" role="status"></div>
+  <div id="qrTokenDisplay" class="message"></div>
+  <div id="qrCodeDisplay"></div>
+</div>
+      <div class="panel">
+        <h2>Yeni personel ekle</h2>
+        <form id="employeeForm">
+          <label for="employeeName">Ad soyad</label>
+          <input id="employeeName" maxlength="100" required placeholder="Örn. Ayşe Yılmaz">
+          <label for="hourlyRate">Saatlik ücret (TL)</label>
+          <input id="hourlyRate" type="number" min="0" max="1000000" step="0.01" required placeholder="Örn. 150">
+          <div class="actions">
+            <button id="addButton" type="submit">Personel ekle</button>
+            <button id="refreshButton" class="secondary" type="button">Listeyi yenile</button>
+            <button id="logoutButton" class="secondary" type="button">Çıkış yap</button>
+          </div>
+        </form>
+        <div id="employeeMessage" class="message" role="status"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Personel listesi</h2>
+        <div id="employeeList" class="muted">Liste yükleniyor…</div>
+      </div>
+      <div class="panel">
+        <h2>Personel PIN belirle</h2>
+        <form id="pinForm">
+          <label for="pinEmployeeId">Personel numarası</label>
+          <input id="pinEmployeeId" type="number" min="1" step="1" required placeholder="Örn. 1">
+
+          <label for="employeePin">4 haneli PIN</label>
+          <input id="employeePin" type="password" inputmode="numeric" pattern="[0-9]{4}" minlength="4" maxlength="4" required placeholder="4 haneli PIN">
+
+          <button id="pinButton" type="submit">PIN kaydet</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer>BRATE COFFEE · Personel bilgilerini yalnızca yetkili kişiler yönetmelidir.</footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <script>
+    const API = "https://personel-mesai-api.bratecoffee35.workers.dev";
+    let sessionToken = "";
+    
+    const $ = id => document.getElementById(id);
+    function showMessage(id, text, type = "") {
+      const el = $(id);
+      el.textContent = text;
+      el.className = "message " + type;
+    }
+
+    let staffSessionToken = "";
+
+    async function staffApi(path, options = {}) {
+      const headers = { ...(options.headers || {}) };
+
+      if (staffSessionToken) {
+        headers.Authorization = "Bearer " + staffSessionToken;
+      }
+
+      if (options.body) {
+        headers["Content-Type"] = "application/json";
+      }
+
+      const response = await fetch(API + path, {
+        ...options,
+        headers
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "İşlem başarısız oldu.");
+      }
+
+      return data;
+    }
+    
+    $("staffLoginForm").addEventListener("submit", async event => {
+      event.preventDefault();
+
+      const employeeId = Number($("staffEmployeeId").value);
+      const pin = $("staffPin").value;
+
+      $("staffLoginButton").disabled = true;
+      showMessage("staffMessage", "Giriş kontrol ediliyor…");
+
+      try {
+        const response = await fetch(API + "/api/staff/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ employeeId, pin })
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok || !data.success) {
+          throw new Error(data.message || "Personel girişi başarısız.");
+        }
+
+        staffSessionToken = data.token;
+        $("staffWorkPanel").classList.remove("hidden");
+        $("staffLoginForm").classList.add("hidden");
+        $("staffPin").value = "";
+        showMessage("staffMessage", "Giriş başarılı. Oturum 2 saat geçerlidir.", "success");
+      } catch (error) {
+        showMessage("staffMessage", error.message, "error");
+      } finally {
+        $("staffLoginButton").disabled = false;
+      }
+    });
+
+async function staffAttendance(action) {
+  const token = $("staffQrToken").value.trim();
+
+  if (!token) {
+    showMessage("staffWorkMessage", "Lütfen güncel QR anahtarını gir.", "error");
+    return;
+  }
+
+  if (!navigator.geolocation) {
+    showMessage("staffWorkMessage", "Bu cihaz konum özelliğini desteklemiyor.", "error");
+    return;
+  }
+
+  showMessage("staffWorkMessage", "Konum alınıyor…");
+
+  navigator.geolocation.getCurrentPosition(
+    async position => {
+      try {
+        const data = await staffApi("/api/attendance", {
+          method: "POST",
+          body: JSON.stringify({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            action,
+            token
+          })
+        });
+
+        $("staffQrToken").value = "";
+        showMessage(
+          "staffWorkMessage",
+          data.message || "Mesai işlemi başarılı.",
+          "success"
+        );
+      } catch (error) {
+        showMessage("staffWorkMessage", error.message, "error");
+      }
+    },
+    error => {
+      let message = "Konum alınamadı. Konum iznini ve cihaz ayarlarını kontrol et.";
+
+      if (error.code === 1) {
+        message = "Konum izni verilmedi. Tarayıcıdan konum iznini aç.";
+      } else if (error.code === 3) {
+        message = "Konum almak zaman aşımına uğradı. Tekrar dene.";
+      }
+
+      showMessage("staffWorkMessage", message, "error");
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 15000,
+      maximumAge: 0
+    }
+  );
+}
+
+$("clockInButton").addEventListener("click", () => {
+  staffAttendance("in");
+});
+
+$("clockOutButton").addEventListener("click", () => {
+  staffAttendance("out");
+});
+
+    let qrScannerInstance = null;
+
+$("scanQrButton").addEventListener("click", async () => {
+  if (typeof Html5Qrcode === "undefined") {
+    showMessage("staffWorkMessage", "QR tarama kütüphanesi yüklenemedi. Sayfayı yenile.", "error");
+    return;
+  }
+
+  $("qrScanner").classList.remove("hidden");
+  $("scanQrButton").disabled = true;
+
+  try {
+    qrScannerInstance = new Html5Qrcode("qrScanner");
+
+    await qrScannerInstance.start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: { width: 220, height: 220 } },
+      async decodedText => {
+        $("staffQrToken").value = decodedText;
+        showMessage("staffWorkMessage", "QR kodu okundu. Şimdi mesai işlemini seç.");
+
+        try {
+          await qrScannerInstance.stop();
+          qrScannerInstance.clear();
+        } catch (error) {}
+
+        $("qrScanner").classList.add("hidden");
+        $("scanQrButton").disabled = false;
+      },
+      () => {}
+    );
+  } catch (error) {
+    showMessage("staffWorkMessage", "Kamera açılamadı. Kamera iznini kontrol et ve sayfayı HTTPS üzerinden aç.", "error");
+    $("qrScanner").classList.add("hidden");
+    $("scanQrButton").disabled = false;
+  }
+});
+    
+    $("summaryButton").addEventListener("click", async () => {
+  showMessage("staffSummary", "Aylık mesai bilgileri yükleniyor…");
+
+  try {
+    const data = await staffApi("/api/summary");
+
+    const totalHours = Math.floor(data.totalMinutes / 60);
+    const remainingMinutes = data.totalMinutes % 60;
+    const earnings = (data.earningsKurus / 100).toLocaleString("tr-TR", {
+      style: "currency",
+      currency: "TRY"
+    });
+
+    showMessage(
+      "staffSummary",
+      `Bu ay toplam mesai: ${totalHours} saat ${remainingMinutes} dakika\nTahmini kazanç: ${earnings}`,
+      "success"
+    );
+  } catch (error) {
+    showMessage("staffSummary", error.message, "error");
+  }
+});
+
+$("staffLogoutButton").addEventListener("click", () => {
+  staffSessionToken = "";
+  $("staffWorkPanel").classList.add("hidden");
+  $("staffLoginForm").classList.remove("hidden");
+  $("staffQrToken").value = "";
+  $("staffPin").value = "";
+  showMessage("staffMessage", "Çıkış yapıldı.");
+  showMessage("staffWorkMessage", "");
+  showMessage("staffSummary", "");
+});
+    
+    async function api(path, options = {}) {
+      const headers = { ...(options.headers || {}) };
+      if (sessionToken) headers.Authorization = "Bearer " + sessionToken;
+      if (options.body) headers["Content-Type"] = "application/json";
+
+      const response = await fetch(API + path, { ...options, headers });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "İşlem başarısız oldu.");
+      }
+      return data;
+    }
+
+    $("loginForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      $("loginButton").disabled = true;
+      showMessage("loginMessage", "Giriş kontrol ediliyor…");
+      try {
+        const data = await api("/api/admin/login", {
+          method: "POST",
+          body: JSON.stringify({ password: $("password").value })
+        });
+        sessionToken = data.token;
+        $("password").value = "";
+        $("loginPanel").classList.add("hidden");
+        $("dashboard").classList.remove("hidden");
+        await loadEmployees();
+      } catch (error) {
+        showMessage("loginMessage", error.message, "error");
+      } finally {
+        $("loginButton").disabled = false;
+      }
+    });
+
+    async function loadEmployees() {
+      $("employeeList").textContent = "Liste yükleniyor…";
+      try {
+        const data = await api("/api/admin/employees");
+        const list = $("employeeList");
+        list.replaceChildren();
+
+        if (!data.employees.length) {
+          list.textContent = "Henüz kayıtlı personel yok.";
+          return;
+        }
+
+        for (const employee of data.employees) {
+          const row = document.createElement("div");
+          row.className = "employee";
+
+          const info = document.createElement("div");
+          const name = document.createElement("div");
+          name.className = "employee-name";
+          name.textContent = employee.name;
+
+          const employeeNumber = document.createElement("div");
+          employeeNumber.className = "employee-rate";
+          employeeNumber.textContent = "Personel No: " + employee.id;
+
+          const rate = document.createElement("div");
+          rate.className = "employee-rate";
+          rate.textContent = "Saatlik ücret: " +
+            (Number(employee.hourly_rate_kurus) / 100).toLocaleString("tr-TR", {
+              style: "currency", currency: "TRY"
+            });
+
+          info.append(name, employeeNumber, rate);
+
+          const remove = document.createElement("button");
+          remove.className = "danger";
+          remove.type = "button";
+          remove.textContent = "Kalıcı sil";
+          remove.addEventListener("click", async () => {
+            const confirmed = confirm(
+              employee.name + " adlı personel kalıcı olarak silinecek.\n\n" +
+              "Bu işlem personelin geçmiş mesai ve ilişkili kayıtlarını da siler. Geri alınamaz.\n\nDevam edilsin mi?"
+            );
+            if (!confirmed) return;
+
+            remove.disabled = true;
+            try {
+              await api("/api/admin/employees/" + employee.id, { method: "DELETE" });
+              showMessage("employeeMessage", "Personel kalıcı olarak silindi.", "success");
+              await loadEmployees();
+            } catch (error) {
+              showMessage("employeeMessage", error.message, "error");
+              remove.disabled = false;
+            }
+          });
+
+          row.append(info, remove);
+          list.append(row);
+        }
+      } catch (error) {
+        $("employeeList").textContent = error.message;
+        if (error.message.includes("Yönetici")) logout();
+      }
+    }
+
+    $("employeeForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      const name = $("employeeName").value.trim();
+      const hourlyRate = Number($("hourlyRate").value);
+
+      if (!name || !Number.isFinite(hourlyRate) || hourlyRate < 0) {
+        showMessage("employeeMessage", "Ad soyad ve geçerli saatlik ücret gir.", "error");
+        return;
+      }
+
+      $("addButton").disabled = true;
+      try {
+        await api("/api/admin/employees", {
+          method: "POST",
+          body: JSON.stringify({ name, hourlyRate })
+        });
+        $("employeeForm").reset();
+        showMessage("employeeMessage", "Personel başarıyla eklendi.", "success");
+        await loadEmployees();
+      } catch (error) {
+        showMessage("employeeMessage", error.message, "error");
+      } finally {
+        $("addButton").disabled = false;
+      }
+    });
+
+    $("refreshButton").addEventListener("click", loadEmployees);
+
+    let qrExpiryTimer = null;
+    $("generateQrButton").addEventListener("click", async () => {
+  const button = $("generateQrButton");
+
+  button.disabled = true;
+  $("qrTokenDisplay").textContent = "";
+  showMessage("qrMessage", "Yeni anahtar oluşturuluyor…");
+
+  try {
+    const data = await api("/api/admin/qr-token", {
+      method: "POST"
+    });
+
+$("qrTokenDisplay").textContent =
+  "QR anahtarı: " + data.token +
+  "\nSon kullanma zamanı: " +
+  new Date(data.expiresAt * 1000).toLocaleTimeString("tr-TR");
+
+$("qrCodeDisplay").replaceChildren();
+
+if (typeof QRCode === "undefined") {
+  throw new Error("QR kütüphanesi yüklenemedi. Sayfayı yenileyip tekrar dene.");
+}
+
+new QRCode($("qrCodeDisplay"), {
+  text: data.token,
+  width: 220,
+  height: 220,
+  correctLevel: QRCode.CorrectLevel.M
+});
+
+if (qrExpiryTimer) {
+  clearTimeout(qrExpiryTimer);
+}
+
+qrExpiryTimer = setTimeout(() => {
+  $("qrCodeDisplay").replaceChildren();
+  $("qrTokenDisplay").textContent = "QR kodunun süresi doldu. Yeni kod oluştur.";
+  showMessage("qrMessage", "QR kodunun 10 saniyelik süresi doldu.", "error");
+}, 10000);
+
+    showMessage(
+      "qrMessage",
+      "Anahtar oluşturuldu. 10 saniye içinde kullanılmalı.",
+      "success"
+    );
+  } catch (error) {
+    showMessage("qrMessage", error.message, "error");
+  } finally {
+    button.disabled = false;
+  }
+});
+
+    $("pinForm").addEventListener("submit", async event => {
+      event.preventDefault();
+
+      const employeeId = Number($("pinEmployeeId").value);
+      const pin = $("employeePin").value;
+
+      if (!Number.isSafeInteger(employeeId) || employeeId < 1 ||
+          !/^\d{4}$/.test(pin)) {
+        alert("Personel numarası ve 4 haneli PIN gir.");
+        return;
+      }
+
+      $("pinButton").disabled = true;
+
+      try {
+        const data = await api("/api/admin/employee-pin", {
+          method: "POST",
+          body: JSON.stringify({ employeeId, pin })
+        });
+
+        alert(data.message);
+        $("pinForm").reset();
+      } catch (error) {
+        alert(error.message);
+      } finally {
+        $("pinButton").disabled = false;
+      }
+    });
+    
+    function logout() {
+      sessionToken = "";
+      $("dashboard").classList.add("hidden");
+      $("loginPanel").classList.remove("hidden");
+      $("password").value = "";
+      showMessage("loginMessage", "Oturum kapatıldı.");
+    }
+    $("logoutButton").addEventListener("click", logout);
+  </script>
+</body>
+</html>
