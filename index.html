@@ -1,0 +1,284 @@
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BRATE COFFEE | Personel Yönetimi</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #15130f;
+      --panel: #211e18;
+      --gold: #d6ad68;
+      --text: #f7f2e9;
+      --muted: #aaa397;
+      --border: #393329;
+      --danger: #e58a7b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 16px/1.5 Arial, sans-serif;
+    }
+    header {
+      padding: 24px;
+      border-bottom: 1px solid var(--border);
+      background: #1b1813;
+    }
+    .wrap { width: min(960px, 92%); margin: auto; }
+    .brand { color: var(--gold); letter-spacing: 3px; font-weight: 800; }
+    h1 { font-size: clamp(24px, 4vw, 34px); margin: 8px 0 0; }
+    h2 { font-size: 20px; margin-top: 0; }
+    .muted { color: var(--muted); }
+    main { padding: 28px 0 60px; }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    label { display: block; margin: 14px 0 6px; color: var(--muted); }
+    input {
+      display: block;
+      width: 100%;
+      padding: 13px;
+      background: #15130f;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    button {
+      border: 0;
+      border-radius: 8px;
+      padding: 12px 16px;
+      background: var(--gold);
+      color: #20170b;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 15px;
+    }
+    button:disabled { opacity: .55; cursor: wait; }
+    .secondary { background: #393329; color: var(--text); }
+    .danger { background: #4b2823; color: #ffd4cd; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+    .hidden { display: none !important; }
+    .message { margin-top: 14px; white-space: pre-wrap; }
+    .error { color: var(--danger); }
+    .success { color: #a8d8a0; }
+    .employee {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 0;
+      border-top: 1px solid var(--border);
+    }
+    .employee-name { font-weight: 700; }
+    .employee-rate { color: var(--muted); font-size: 14px; }
+    .employee button { padding: 9px 12px; }
+    footer { color: var(--muted); font-size: 13px; text-align: center; padding: 18px; }
+    @media (max-width: 520px) {
+      .panel { padding: 18px; }
+      .employee { align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div class="brand">BRATE COFFEE</div>
+      <h1>Personel Yönetimi</h1>
+      <div class="muted">Mesai takip sistemi · Yönetici paneli</div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="panel" id="loginPanel">
+      <h2>Yönetici girişi</h2>
+      <p class="muted">Devam etmek için yönetici şifreni gir.</p>
+      <form id="loginForm">
+        <label for="password">Yönetici şifresi</label>
+        <input id="password" type="password" autocomplete="current-password" required>
+        <div class="actions">
+          <button id="loginButton" type="submit">Giriş yap</button>
+        </div>
+      </form>
+      <div id="loginMessage" class="message" role="status"></div>
+    </section>
+
+    <section id="dashboard" class="hidden">
+      <div class="panel">
+        <h2>Yeni personel ekle</h2>
+        <form id="employeeForm">
+          <label for="employeeName">Ad soyad</label>
+          <input id="employeeName" maxlength="100" required placeholder="Örn. Ayşe Yılmaz">
+          <label for="hourlyRate">Saatlik ücret (TL)</label>
+          <input id="hourlyRate" type="number" min="0" max="1000000" step="0.01" required placeholder="Örn. 150">
+          <div class="actions">
+            <button id="addButton" type="submit">Personel ekle</button>
+            <button id="refreshButton" class="secondary" type="button">Listeyi yenile</button>
+            <button id="logoutButton" class="secondary" type="button">Çıkış yap</button>
+          </div>
+        </form>
+        <div id="employeeMessage" class="message" role="status"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Personel listesi</h2>
+        <div id="employeeList" class="muted">Liste yükleniyor…</div>
+      </div>
+    </section>
+  </main>
+
+  <footer>BRATE COFFEE · Personel bilgilerini yalnızca yetkili kişiler yönetmelidir.</footer>
+
+  <script>
+    const API = "https://personel-mesai-api.bratecoffee35.workers.dev";
+    let sessionToken = "";
+
+    const $ = id => document.getElementById(id);
+    function showMessage(id, text, type = "") {
+      const el = $(id);
+      el.textContent = text;
+      el.className = "message " + type;
+    }
+
+    async function api(path, options = {}) {
+      const headers = { ...(options.headers || {}) };
+      if (sessionToken) headers.Authorization = "Bearer " + sessionToken;
+      if (options.body) headers["Content-Type"] = "application/json";
+
+      const response = await fetch(API + path, { ...options, headers });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "İşlem başarısız oldu.");
+      }
+      return data;
+    }
+
+    $("loginForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      $("loginButton").disabled = true;
+      showMessage("loginMessage", "Giriş kontrol ediliyor…");
+      try {
+        const data = await api("/api/admin/login", {
+          method: "POST",
+          body: JSON.stringify({ password: $("password").value })
+        });
+        sessionToken = data.token;
+        $("password").value = "";
+        $("loginPanel").classList.add("hidden");
+        $("dashboard").classList.remove("hidden");
+        await loadEmployees();
+      } catch (error) {
+        showMessage("loginMessage", error.message, "error");
+      } finally {
+        $("loginButton").disabled = false;
+      }
+    });
+
+    async function loadEmployees() {
+      $("employeeList").textContent = "Liste yükleniyor…";
+      try {
+        const data = await api("/api/admin/employees");
+        const list = $("employeeList");
+        list.replaceChildren();
+
+        if (!data.employees.length) {
+          list.textContent = "Henüz kayıtlı personel yok.";
+          return;
+        }
+
+        for (const employee of data.employees) {
+          const row = document.createElement("div");
+          row.className = "employee";
+
+          const info = document.createElement("div");
+          const name = document.createElement("div");
+          name.className = "employee-name";
+          name.textContent = employee.name;
+
+          const rate = document.createElement("div");
+          rate.className = "employee-rate";
+          rate.textContent = "Saatlik ücret: " +
+            (Number(employee.hourly_rate_kurus) / 100).toLocaleString("tr-TR", {
+              style: "currency", currency: "TRY"
+            });
+
+          info.append(name, rate);
+
+          const remove = document.createElement("button");
+          remove.className = "danger";
+          remove.type = "button";
+          remove.textContent = "Kalıcı sil";
+          remove.addEventListener("click", async () => {
+            const confirmed = confirm(
+              employee.name + " adlı personel kalıcı olarak silinecek.\n\n" +
+              "Bu işlem personelin geçmiş mesai ve ilişkili kayıtlarını da siler. Geri alınamaz.\n\nDevam edilsin mi?"
+            );
+            if (!confirmed) return;
+
+            remove.disabled = true;
+            try {
+              await api("/api/admin/employees/" + employee.id, { method: "DELETE" });
+              showMessage("employeeMessage", "Personel kalıcı olarak silindi.", "success");
+              await loadEmployees();
+            } catch (error) {
+              showMessage("employeeMessage", error.message, "error");
+              remove.disabled = false;
+            }
+          });
+
+          row.append(info, remove);
+          list.append(row);
+        }
+      } catch (error) {
+        $("employeeList").textContent = error.message;
+        if (error.message.includes("Yönetici")) logout();
+      }
+    }
+
+    $("employeeForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      const name = $("employeeName").value.trim();
+      const hourlyRate = Number($("hourlyRate").value);
+
+      if (!name || !Number.isFinite(hourlyRate) || hourlyRate < 0) {
+        showMessage("employeeMessage", "Ad soyad ve geçerli saatlik ücret gir.", "error");
+        return;
+      }
+
+      $("addButton").disabled = true;
+      try {
+        await api("/api/admin/employees", {
+          method: "POST",
+          body: JSON.stringify({ name, hourlyRate })
+        });
+        $("employeeForm").reset();
+        showMessage("employeeMessage", "Personel başarıyla eklendi.", "success");
+        await loadEmployees();
+      } catch (error) {
+        showMessage("employeeMessage", error.message, "error");
+      } finally {
+        $("addButton").disabled = false;
+      }
+    });
+
+    $("refreshButton").addEventListener("click", loadEmployees);
+
+    function logout() {
+      sessionToken = "";
+      $("dashboard").classList.add("hidden");
+      $("loginPanel").classList.remove("hidden");
+      $("password").value = "";
+      showMessage("loginMessage", "Oturum kapatıldı.");
+    }
+    $("logoutButton").addEventListener("click", logout);
+  </script>
+</body>
+</html>
