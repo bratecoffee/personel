@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Brate Coffee - Personel Takip</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body class="bg-gray-900 text-white min-h-screen flex items-center justify-center p-4">
 
@@ -14,14 +13,15 @@
     <h1 class="text-2xl font-bold mb-2 text-amber-500">Brate Coffee</h1>
     <p class="text-xs text-gray-400 mb-6">Giriş / Çıkış için QR kodu telefonunuzla okutun</p>
     
-    <div class="bg-white p-4 rounded-xl flex justify-center items-center my-4">
-      <div id="qrcode"></div>
+    <div class="bg-white p-4 rounded-xl flex justify-center items-center my-4 min-h-[220px]">
+      <img id="qr-img" src="" alt="QR Kod Yükleniyor..." class="w-52 h-52 object-contain hidden" />
+      <span id="qr-loading" class="text-gray-500 text-xs animate-pulse">QR Kod Hazırlanıyor...</span>
     </div>
     
     <p class="text-xs text-amber-400 font-mono mt-4">● Kod her 10 saniyede bir yenilenir</p>
   </div>
 
-  <!-- 2. PERSONEL MOBİL EKRANI: ŞİFRE VE MESAİ PANELİ (QR OKUTULUNCA AÇILIR) -->
+  <!-- 2. PERSONEL MOBİL EKRANI: ŞİFRE VE MESAİ PANELİ -->
   <div id="mobile-staff-screen" class="hidden bg-gray-800 p-6 rounded-2xl shadow-2xl border border-gray-700 max-w-sm w-full">
     
     <!-- PIN GiRİŞ ADIMI -->
@@ -44,11 +44,11 @@
       </div>
 
       <div class="space-y-3 mb-6">
-        <button onclick="submitShift('START')" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl shadow-lg transition text-lg flex justify-center items-center space-x-2">
-          <span>İŞE BAŞLAYALIM</span>
+        <button onclick="submitShift('START')" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl shadow-lg transition text-lg">
+          İŞE BAŞLAYALIM
         </button>
-        <button onclick="submitShift('STOP')" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl shadow-lg transition text-lg flex justify-center items-center space-x-2">
-          <span>PAYDOS</span>
+        <button onclick="submitShift('STOP')" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl shadow-lg transition text-lg">
+          PAYDOS
         </button>
       </div>
 
@@ -59,7 +59,7 @@
         <h4 class="font-bold text-gray-300 border-b border-gray-600 pb-1 mb-2">Bu Ayki Mesai Özeti</h4>
         <div class="flex justify-between text-gray-300">
           <span>Toplam Çalışma:</span>
-          <span id="total-hours" class="font-bold text-white">0 saat</span>
+          <span id="total-hours" class="font-bold text-white">0 Saat</span>
         </div>
         <div class="flex justify-between text-gray-300">
           <span>Hak Edilen Ücret:</span>
@@ -75,7 +75,7 @@
     const urlParams = new URLSearchParams(window.location.search);
     const qrTokenFromUrl = urlParams.get('token');
 
-    // Cihaz Kontrolü: QR okutularak mı gelindi yoksa PC ekranı mı?
+    // Cihaz Yönlendirmesi
     if (qrTokenFromUrl) {
       document.getElementById('pc-qr-screen').classList.add('hidden');
       document.getElementById('mobile-staff-screen').classList.remove('hidden');
@@ -83,7 +83,7 @@
       startQrLoop();
     }
 
-    // PC EKRANI İÇİN DİNAMİK QR ÜRETİCİ
+    // GÜVENİLİR DİNAMİK QR ÜRETİCİ (Resim API Yöntemi)
     let qrInterval;
     function startQrLoop() {
       clearInterval(qrInterval);
@@ -92,10 +92,16 @@
           const res = await fetch(`${API_URL}/api/qr/generate`);
           const data = await res.json();
           if (data.success) {
-            document.getElementById('qrcode').innerHTML = "";
-            // QR Kod içerisine personelin yönlendirileceği adresi gömüyoruz
-            const scanUrl = `${window.location.origin}${window.location.pathname}?token=${data.token}`;
-            new QRCode(document.getElementById("qrcode"), { text: scanUrl, width: 220, height: 220 });
+            const scanUrl = encodeURIComponent(`${window.location.origin}${window.location.pathname}?token=${data.token}`);
+            const qrImg = document.getElementById('qr-img');
+            const qrLoading = document.getElementById('qr-loading');
+
+            // QuickChart QR API ile anında resim oluştur
+            qrImg.src = `https://quickchart.io/qr?text=${scanUrl}&size=220&margin=1`;
+            qrImg.onload = () => {
+              qrImg.classList.remove('hidden');
+              if(qrLoading) qrLoading.classList.add('hidden');
+            };
           }
         } catch(e) {
           console.error("QR üretilemedi", e);
@@ -123,7 +129,6 @@
         document.getElementById('shift-section').classList.remove('hidden');
         document.getElementById('staff-name').innerText = data.staff_name;
 
-        // Hesaplamaları Yap
         let hours = 0, earned = 0;
         if(data.shifts) {
           data.shifts.forEach(s => {
@@ -139,7 +144,7 @@
       }
     }
 
-    // İŞE BAŞLAYALIM VE PAYDOS BUTON İŞLEMLERİ
+    // İŞE BAŞLAYALIM VE PAYDOS İŞLEMLERİ
     async function submitShift(actionType) {
       const pin = document.getElementById('staff-pin').value;
       const resDiv = document.getElementById('action-result');
@@ -160,12 +165,12 @@
         const data = await res.json();
         if (data.success) {
           resDiv.innerHTML = `<span class="text-green-400">${data.message}</span>`;
-          setTimeout(() => { loginStaff(); }, 2000); // Raporu güncelle
+          setTimeout(() => { loginStaff(); }, 2000);
         } else {
           resDiv.innerHTML = `<span class="text-red-400">${data.error}</span>`;
         }
       }, (err) => {
-        resDiv.innerHTML = `<span class="text-red-400">Konum alınamadı. GPS izni verin.</span>`;
+        resDiv.innerHTML = `<span class="text-red-400">Konum alınamadı. Lütfen telefondan GPS/Konum izni verin.</span>`;
       });
     }
 
