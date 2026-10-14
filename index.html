@@ -17,7 +17,16 @@
       <img id="qr-img" src="" alt="QR Kod" class="w-52 h-52 object-contain" />
     </div>
     
-    <p class="text-xs text-amber-400 font-mono mt-4">● Kod her 10 saniyede bir yenilenir</p>
+    <!-- CANLI GERİ SAYIM SAYACI -->
+    <div class="mt-4 p-3 bg-gray-900/60 rounded-xl border border-gray-700/50 flex items-center justify-center space-x-2">
+      <span class="relative flex h-3 w-3">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+      </span>
+      <p class="text-xs text-amber-400 font-mono">
+        QR Kod <span id="countdown" class="text-white font-bold text-sm underline px-1">10</span> saniye sonra yenilenecek
+      </p>
+    </div>
   </div>
 
   <!-- PERSONEL MOBİL EKRANI -->
@@ -53,7 +62,6 @@
   </div>
 
   <script>
-    const API_URL = "https://personel-mesai-api.bratecoffee35.workers.dev";
     const urlParams = new URLSearchParams(window.location.search);
     const qrTokenFromUrl = urlParams.get('token');
 
@@ -61,17 +69,34 @@
       document.getElementById('pc-qr-screen').classList.add('hidden');
       document.getElementById('mobile-staff-screen').classList.remove('hidden');
     } else {
-      startQrLoop();
+      startQrLoopWithCountdown();
     }
 
-    function startQrLoop() {
+    // 10'DAN GERİYE SAYAN GERİ SAYIM VE QR GÜNCELLEME DÖNGÜSÜ
+    function startQrLoopWithCountdown() {
+      let timeLeft = 10;
+      const countdownElem = document.getElementById('countdown');
+
       const updateQr = () => {
         const token = 'token_' + Math.floor(Date.now() / 1000);
         const scanUrl = encodeURIComponent(`${window.location.origin}${window.location.pathname}?token=${token}`);
         document.getElementById('qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${scanUrl}`;
       };
+
+      // İlk yüklemede QR üret
       updateQr();
-      setInterval(updateQr, 10000);
+
+      // Saniye saniye düşen sayaç döngüsü (Her 1 saniyede bir çalışır)
+      setInterval(() => {
+        timeLeft--;
+        if (timeLeft <= 0) {
+          updateQr();   // QR Kodu yenile
+          timeLeft = 10; // Sayacı tekrar 10'a kur
+        }
+        if (countdownElem) {
+          countdownElem.innerText = timeLeft;
+        }
+      }, 1000);
     }
 
     function loginStaff() {
@@ -93,7 +118,6 @@
       navigator.geolocation.getCurrentPosition((pos) => {
         const lat = pos.coords.latitude;
         const lng = pos.coords.longitude;
-        // Kafe Konum Kontrolü (38.461791, 27.211536)
         const distance = getDistance(lat, lng, 38.461791, 27.211536);
 
         if (distance <= 100) {
