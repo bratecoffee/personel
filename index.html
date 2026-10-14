@@ -213,7 +213,7 @@
       });
     }
 
-    // PERSONEL MESAİ SAATLERİNİ İNCELEME VE DEĞİŞTİRME
+    // TÜRKIYE SAATI HESAPLAMA VE GÖSTERME (UTC+3)
     let currentInspectedStaffId = null;
     async function inspectStaff(staffId) {
       currentInspectedStaffId = staffId;
@@ -235,8 +235,9 @@
         }
 
         data.shifts.forEach(shift => {
-          const inISO = new Date(shift.clock_in * 1000).toISOString().slice(0, 16);
-          const outISO = shift.clock_out ? new Date(shift.clock_out * 1000).toISOString().slice(0, 16) : "";
+          // Türkiye Saati (UTC+3) Yerel Zaman Dönüşümü
+          const inISO = toTurkeyISOString(shift.clock_in);
+          const outISO = shift.clock_out ? toTurkeyISOString(shift.clock_out) : "";
 
           list.innerHTML += `
             <div class="bg-gray-800 p-2.5 rounded border border-gray-700 space-y-2">
@@ -263,7 +264,15 @@
       }
     }
 
-    // YÖNETİCİ MESAİ SAATİNİ GÜNCELLEME İŞLEMİ
+    // Unix Timestamp'i Türkiye Yerel ISO Formatına Çeviren Yardımcı Fonksiyon
+    function toTurkeyISOString(timestamp) {
+      if(!timestamp) return "";
+      const date = new Date(timestamp * 1000);
+      const tzOffset = date.getTimezoneOffset() * 60000;
+      const localTime = new Date(date.getTime() - tzOffset);
+      return localTime.toISOString().slice(0, 16);
+    }
+
     async function updateShiftTime(shiftId) {
       const adminPass = document.getElementById('admin-pass').value;
       const inVal = document.getElementById(`in-${shiftId}`).value;
@@ -283,7 +292,6 @@
       }
     }
 
-    // MESAİ KAYDI SİLME
     async function deleteShift(shiftId) {
       if(!confirm("Bu mesai kaydını silmek istediğinize emin misiniz?")) return;
       const adminPass = document.getElementById('admin-pass').value;
