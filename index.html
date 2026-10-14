@@ -6,9 +6,14 @@
   <title>Brate Coffee - Personel Takip</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center p-4">
+<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center p-4 relative">
 
-  <!-- KAFE BİLGİSAYAR EKRANI: SADECE QR KOD -->
+  <!-- SAĞ ÜST KÖŞE YÖNETİCİ BUTONU -->
+  <button onclick="showAdminLogin()" class="absolute top-4 right-4 bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-amber-400 text-xs px-3 py-2 rounded-lg border border-gray-700 transition flex items-center space-x-1">
+    <span>🔒 Yönetici Girişi</span>
+  </button>
+
+  <!-- 1. KAFE BİLGİSAYAR EKRANI: SADECE QR KOD -->
   <div id="pc-qr-screen" class="text-center bg-gray-800 p-8 rounded-2xl shadow-2xl border border-gray-700 max-w-sm w-full">
     <h1 class="text-2xl font-bold mb-2 text-amber-500">Brate Coffee</h1>
     <p class="text-xs text-gray-400 mb-6">Giriş / Çıkış için QR kodu telefonunuzla okutun</p>
@@ -29,7 +34,7 @@
     </div>
   </div>
 
-  <!-- PERSONEL MOBİL EKRANI -->
+  <!-- 2. PERSONEL MOBİL EKRANI -->
   <div id="mobile-staff-screen" class="hidden bg-gray-800 p-6 rounded-2xl shadow-2xl border border-gray-700 max-w-sm w-full">
     <div id="pin-section">
       <h2 class="text-xl font-bold text-center text-amber-500 mb-4">Personel Girişi</h2>
@@ -61,7 +66,40 @@
     </div>
   </div>
 
+  <!-- 3. YÖNETİCİ PANELİ -->
+  <div id="admin-screen" class="hidden bg-gray-800 p-6 rounded-2xl shadow-2xl border border-gray-700 max-w-md w-full">
+    <!-- YÖNETİCİ ŞİFRE GİRİŞİ -->
+    <div id="admin-pin-section">
+      <h2 class="text-xl font-bold text-center text-amber-500 mb-4">Yönetici Girişi</h2>
+      <input type="password" id="admin-pin" class="w-full bg-gray-700 border border-gray-600 p-3 rounded-lg text-center text-2xl tracking-widest text-white mb-4 focus:outline-none focus:border-amber-500" placeholder="Yönetici PIN" maxlength="4">
+      <button onclick="verifyAdmin()" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 rounded-lg transition">Paneli Aç</button>
+      <button onclick="closeAdmin()" class="w-full mt-2 bg-gray-700 hover:bg-gray-600 text-gray-300 font-bold py-2 rounded-lg transition text-sm">İptal</button>
+      <p id="admin-login-error" class="text-red-400 text-xs text-center mt-3 hidden"></p>
+    </div>
+
+    <!-- YÖNETİCİ KONTROL PANELİ -->
+    <div id="admin-panel-section" class="hidden">
+      <div class="flex justify-between items-center border-b border-gray-700 pb-3 mb-4">
+        <h3 class="text-lg font-bold text-amber-400">Personel Yönetimi</h3>
+        <button onclick="closeAdmin()" class="text-xs text-gray-400 underline">Kapat</button>
+      </div>
+
+      <form onsubmit="addStaff(event)" class="space-y-3 mb-6">
+        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Yeni Personel Ekle</h4>
+        <input type="text" id="new-staff-name" placeholder="Ad Soyad" class="w-full bg-gray-700 border border-gray-600 p-2 rounded text-sm text-white" required>
+        <div class="grid grid-cols-2 gap-2">
+          <input type="password" id="new-staff-pin" placeholder="PIN (4 Haneli)" class="bg-gray-700 border border-gray-600 p-2 rounded text-sm text-white" maxlength="4" required>
+          <input type="number" step="0.01" id="new-staff-rate" placeholder="Saatlik Ücret (TL)" class="bg-gray-700 border border-gray-600 p-2 rounded text-sm text-white" required>
+        </div>
+        <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded text-sm transition">+ Personeli Kaydet</button>
+      </form>
+
+      <p id="admin-msg" class="text-xs text-center font-semibold mb-2"></p>
+    </div>
+  </div>
+
   <script>
+    const API_URL = "https://personel-mesai-api.bratecoffee35.workers.dev";
     const urlParams = new URLSearchParams(window.location.search);
     const qrTokenFromUrl = urlParams.get('token');
 
@@ -72,7 +110,6 @@
       startQrLoopWithCountdown();
     }
 
-    // 10'DAN GERİYE SAYAN GERİ SAYIM VE QR GÜNCELLEME DÖNGÜSÜ
     function startQrLoopWithCountdown() {
       let timeLeft = 10;
       const countdownElem = document.getElementById('countdown');
@@ -83,20 +120,80 @@
         document.getElementById('qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${scanUrl}`;
       };
 
-      // İlk yüklemede QR üret
       updateQr();
 
-      // Saniye saniye düşen sayaç döngüsü (Her 1 saniyede bir çalışır)
       setInterval(() => {
         timeLeft--;
         if (timeLeft <= 0) {
-          updateQr();   // QR Kodu yenile
-          timeLeft = 10; // Sayacı tekrar 10'a kur
+          updateQr();
+          timeLeft = 10;
         }
         if (countdownElem) {
           countdownElem.innerText = timeLeft;
         }
       }, 1000);
+    }
+
+    // YÖNETİCİ EKRANINI AÇMA / KAPATMA
+    function showAdminLogin() {
+      document.getElementById('pc-qr-screen').classList.add('hidden');
+      document.getElementById('mobile-staff-screen').classList.add('hidden');
+      document.getElementById('admin-screen').classList.remove('hidden');
+    }
+
+    function closeAdmin() {
+      document.getElementById('admin-screen').classList.add('hidden');
+      if (qrTokenFromUrl) {
+        document.getElementById('mobile-staff-screen').classList.remove('hidden');
+      } else {
+        document.getElementById('pc-qr-screen').classList.remove('hidden');
+      }
+    }
+
+    function verifyAdmin() {
+      const pin = document.getElementById('admin-pin').value;
+      const err = document.getElementById('admin-login-error');
+      // Varsayılan Yönetici PIN Kodu: 0000
+      if (pin === "0000") {
+        document.getElementById('admin-pin-section').classList.add('hidden');
+        document.getElementById('admin-panel-section').classList.remove('hidden');
+        err.classList.add('hidden');
+      } else {
+        err.innerText = "Hatalı Yönetici PIN Kodu!";
+        err.classList.remove('hidden');
+      }
+    }
+
+    async function addStaff(e) {
+      e.preventDefault();
+      const msg = document.getElementById('admin-msg');
+      msg.innerText = "Kaydediliyor...";
+
+      try {
+        const res = await fetch(`${API_URL}/api/admin/staff/add`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            full_name: document.getElementById('new-staff-name').value,
+            pin_code: document.getElementById('new-staff-pin').value,
+            hourly_rate: parseFloat(document.getElementById('new-staff-rate').value)
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          msg.className = "text-xs text-center font-semibold mb-2 text-green-400";
+          msg.innerText = "Personel başarıyla veritabanına eklendi!";
+          document.getElementById('new-staff-name').value = "";
+          document.getElementById('new-staff-pin').value = "";
+          document.getElementById('new-staff-rate').value = "";
+        } else {
+          msg.className = "text-xs text-center font-semibold mb-2 text-red-400";
+          msg.innerText = "Hata oluştu veya bu PIN kullanılıyor.";
+        }
+      } catch (err) {
+        msg.className = "text-xs text-center font-semibold mb-2 text-red-400";
+        msg.innerText = "Bağlantı hatası!";
+      }
     }
 
     function loginStaff() {
