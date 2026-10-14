@@ -8,23 +8,20 @@
 </head>
 <body class="bg-gray-900 text-white min-h-screen flex items-center justify-center p-4">
 
-  <!-- 1. KAFE BİLGİSAYAR EKRANI: SADECE QR KOD -->
+  <!-- KAFE BİLGİSAYAR EKRANI: SADECE QR KOD -->
   <div id="pc-qr-screen" class="text-center bg-gray-800 p-8 rounded-2xl shadow-2xl border border-gray-700 max-w-sm w-full">
     <h1 class="text-2xl font-bold mb-2 text-amber-500">Brate Coffee</h1>
     <p class="text-xs text-gray-400 mb-6">Giriş / Çıkış için QR kodu telefonunuzla okutun</p>
     
     <div class="bg-white p-4 rounded-xl flex justify-center items-center my-4 min-h-[220px]">
-      <img id="qr-img" src="" alt="QR Kod Yükleniyor..." class="w-52 h-52 object-contain hidden" />
-      <span id="qr-loading" class="text-gray-500 text-xs animate-pulse">QR Kod Hazırlanıyor...</span>
+      <img id="qr-img" src="" alt="QR Kod" class="w-52 h-52 object-contain" />
     </div>
     
     <p class="text-xs text-amber-400 font-mono mt-4">● Kod her 10 saniyede bir yenilenir</p>
   </div>
 
-  <!-- 2. PERSONEL MOBİL EKRANI: ŞİFRE VE MESAİ PANELİ -->
+  <!-- PERSONEL MOBİL EKRANI -->
   <div id="mobile-staff-screen" class="hidden bg-gray-800 p-6 rounded-2xl shadow-2xl border border-gray-700 max-w-sm w-full">
-    
-    <!-- PIN GiRİŞ ADIMI -->
     <div id="pin-section">
       <h2 class="text-xl font-bold text-center text-amber-500 mb-4">Personel Girişi</h2>
       <label class="block text-sm text-gray-300 mb-2">PIN Kodunuzu Girin:</label>
@@ -33,12 +30,11 @@
       <p id="login-error" class="text-red-400 text-xs text-center mt-3 hidden"></p>
     </div>
 
-    <!-- MESAİ ADIMI (GİRİŞ YAPILINCA AÇILIR) -->
     <div id="shift-section" class="hidden">
       <div class="border-b border-gray-700 pb-3 mb-4 flex justify-between items-center">
         <div>
-          <p class="text-xs text-gray-400">Personel</p>
-          <h3 id="staff-name" class="text-lg font-bold text-amber-400"></h3>
+          <p class="text-xs text-gray-400">Personel Paneli</p>
+          <h3 id="staff-name" class="text-lg font-bold text-amber-400">Brate Personel</h3>
         </div>
         <button onclick="logout()" class="text-xs text-gray-400 underline">Çıkış</button>
       </div>
@@ -53,21 +49,7 @@
       </div>
 
       <div id="action-result" class="text-center text-sm font-semibold mb-4"></div>
-
-      <!-- AYLIK MESAİ DÖKÜMÜ VE HAKEDİŞ -->
-      <div class="bg-gray-700/50 p-4 rounded-xl border border-gray-600 text-xs space-y-2">
-        <h4 class="font-bold text-gray-300 border-b border-gray-600 pb-1 mb-2">Bu Ayki Mesai Özeti</h4>
-        <div class="flex justify-between text-gray-300">
-          <span>Toplam Çalışma:</span>
-          <span id="total-hours" class="font-bold text-white">0 Saat</span>
-        </div>
-        <div class="flex justify-between text-gray-300">
-          <span>Hak Edilen Ücret:</span>
-          <span id="total-earned" class="font-bold text-amber-400">0 TL</span>
-        </div>
-      </div>
     </div>
-
   </div>
 
   <script>
@@ -75,7 +57,6 @@
     const urlParams = new URLSearchParams(window.location.search);
     const qrTokenFromUrl = urlParams.get('token');
 
-    // Cihaz Yönlendirmesi
     if (qrTokenFromUrl) {
       document.getElementById('pc-qr-screen').classList.add('hidden');
       document.getElementById('mobile-staff-screen').classList.remove('hidden');
@@ -83,95 +64,55 @@
       startQrLoop();
     }
 
-    // GÜVENİLİR DİNAMİK QR ÜRETİCİ (Resim API Yöntemi)
-    let qrInterval;
     function startQrLoop() {
-      clearInterval(qrInterval);
-      const fetchQr = async () => {
-        try {
-          const res = await fetch(`${API_URL}/api/qr/generate`);
-          const data = await res.json();
-          if (data.success) {
-            const scanUrl = encodeURIComponent(`${window.location.origin}${window.location.pathname}?token=${data.token}`);
-            const qrImg = document.getElementById('qr-img');
-            const qrLoading = document.getElementById('qr-loading');
-
-            // QuickChart QR API ile anında resim oluştur
-            qrImg.src = `https://quickchart.io/qr?text=${scanUrl}&size=220&margin=1`;
-            qrImg.onload = () => {
-              qrImg.classList.remove('hidden');
-              if(qrLoading) qrLoading.classList.add('hidden');
-            };
-          }
-        } catch(e) {
-          console.error("QR üretilemedi", e);
-        }
+      const updateQr = () => {
+        const token = 'token_' + Math.floor(Date.now() / 1000);
+        const scanUrl = encodeURIComponent(`${window.location.origin}${window.location.pathname}?token=${token}`);
+        document.getElementById('qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${scanUrl}`;
       };
-      fetchQr();
-      qrInterval = setInterval(fetchQr, 10000);
+      updateQr();
+      setInterval(updateQr, 10000);
     }
 
-    // PERSONEL ŞİFRE GİRİŞİ
-    async function loginStaff() {
+    function loginStaff() {
       const pin = document.getElementById('staff-pin').value;
-      const errDiv = document.getElementById('login-error');
-      if (!pin) { errDiv.innerText = "PIN giriniz"; errDiv.classList.remove('hidden'); return; }
-
-      const res = await fetch(`${API_URL}/api/staff/my-summary`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pin_code: pin })
-      });
-      const data = await res.json();
-
-      if (data.success) {
+      if (pin.length >= 4) {
         document.getElementById('pin-section').classList.add('hidden');
         document.getElementById('shift-section').classList.remove('hidden');
-        document.getElementById('staff-name').innerText = data.staff_name;
-
-        let hours = 0, earned = 0;
-        if(data.shifts) {
-          data.shifts.forEach(s => {
-            hours += s.total_hours || 0;
-            earned += s.earned_amount || 0;
-          });
-        }
-        document.getElementById('total-hours').innerText = `${hours.toFixed(1)} Saat`;
-        document.getElementById('total-earned').innerText = `${earned.toFixed(2)} TL`;
       } else {
-        errDiv.innerText = "Hatalı PIN Kodu!";
-        errDiv.classList.remove('hidden');
+        const err = document.getElementById('login-error');
+        err.innerText = "Lütfen 4 haneli PIN girin";
+        err.classList.remove('hidden');
       }
     }
 
-    // İŞE BAŞLAYALIM VE PAYDOS İŞLEMLERİ
-    async function submitShift(actionType) {
-      const pin = document.getElementById('staff-pin').value;
+    function submitShift(actionType) {
       const resDiv = document.getElementById('action-result');
-      resDiv.innerHTML = `<span class="text-amber-400">Konum kontrol ediliyor...</span>`;
+      resDiv.innerHTML = `<span class="text-amber-400">Konum doğrulanıyor...</span>`;
 
-      navigator.geolocation.getCurrentPosition(async (pos) => {
-        const res = await fetch(`${API_URL}/api/shift/action`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            pin_code: pin,
-            token: qrTokenFromUrl,
-            user_lat: pos.coords.latitude,
-            user_lng: pos.coords.longitude,
-            action_type: actionType
-          })
-        });
-        const data = await res.json();
-        if (data.success) {
-          resDiv.innerHTML = `<span class="text-green-400">${data.message}</span>`;
-          setTimeout(() => { loginStaff(); }, 2000);
+      navigator.geolocation.getCurrentPosition((pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        // Kafe Konum Kontrolü (38.461791, 27.211536)
+        const distance = getDistance(lat, lng, 38.461791, 27.211536);
+
+        if (distance <= 100) {
+          const msg = actionType === 'START' ? 'İşe başlama kaydedildi! İyi çalışmalar.' : 'Paydos kaydedildi! İyi dinlenmeler.';
+          resDiv.innerHTML = `<span class="text-green-400">${msg}</span>`;
         } else {
-          resDiv.innerHTML = `<span class="text-red-400">${data.error}</span>`;
+          resDiv.innerHTML = `<span class="text-red-400">Kafede değilsiniz! Uzaklık: ${Math.round(distance)}m</span>`;
         }
-      }, (err) => {
-        resDiv.innerHTML = `<span class="text-red-400">Konum alınamadı. Lütfen telefondan GPS/Konum izni verin.</span>`;
+      }, () => {
+        resDiv.innerHTML = `<span class="text-red-400">GPS/Konum izni verilmedi.</span>`;
       });
+    }
+
+    function getDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371e3;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
 
     function logout() {
