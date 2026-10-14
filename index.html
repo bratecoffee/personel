@@ -8,28 +8,21 @@
 </head>
 <body class="bg-gray-900 text-white min-h-screen flex items-center justify-center p-4 relative">
 
-  <!-- SAĞ ÜST KÖŞE YÖNETİCİ BUTONU -->
-  <button onclick="showAdminLogin()" class="absolute top-4 right-4 bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-amber-400 text-xs px-3 py-2 rounded-lg border border-gray-700 transition flex items-center space-x-1">
-    <span>🔒 Yönetici Girişi</span>
+  <!-- SAĞ ÜST YÖNETİCİ BUTONU -->
+  <button onclick="showAdminLogin()" class="absolute top-4 right-4 bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-amber-400 text-xs px-3 py-2 rounded-lg border border-gray-700 transition">
+    🔒 Yönetici Girişi
   </button>
 
-  <!-- 1. KAFE BİLGİSAYAR EKRANI: SADECE QR KOD -->
+  <!-- 1. KAFE EKRANI: CANLI QR VE SAYAC -->
   <div id="pc-qr-screen" class="text-center bg-gray-800 p-8 rounded-2xl shadow-2xl border border-gray-700 max-w-sm w-full">
     <h1 class="text-2xl font-bold mb-2 text-amber-500">Brate Coffee</h1>
-    <p class="text-xs text-gray-400 mb-6">Giriş / Çıkış için QR kodu telefonunuzla okutun</p>
-    
+    <p class="text-xs text-gray-400 mb-6">Giriş / Çıkış için QR kodu okutun</p>
     <div class="bg-white p-4 rounded-xl flex justify-center items-center my-4 min-h-[220px]">
       <img id="qr-img" src="" alt="QR Kod" class="w-52 h-52 object-contain" />
     </div>
-    
     <div class="mt-4 p-3 bg-gray-900/60 rounded-xl border border-gray-700/50 flex items-center justify-center space-x-2">
-      <span class="relative flex h-3 w-3">
-        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-        <span class="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
-      </span>
-      <p class="text-xs text-amber-400 font-mono">
-        QR Kod <span id="countdown" class="text-white font-bold text-sm underline px-1">10</span> saniye sonra yenilenecek
-      </p>
+      <span class="relative flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span></span>
+      <p class="text-xs text-amber-400 font-mono">QR Kod <span id="countdown" class="text-white font-bold underline px-1">10</span> saniye sonra yenilenecek</p>
     </div>
   </div>
 
@@ -37,7 +30,7 @@
   <div id="mobile-staff-screen" class="hidden bg-gray-800 p-6 rounded-2xl shadow-2xl border border-gray-700 max-w-sm w-full">
     <div id="location-check-section" class="text-center py-4">
       <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-500 mx-auto mb-4"></div>
-      <p class="text-sm text-gray-300">Kafede olup olmadığınız kontrol ediliyor...</p>
+      <p class="text-sm text-gray-300">Konumunuz kontrol ediliyor...</p>
     </div>
 
     <div id="pin-section" class="hidden text-center">
@@ -45,36 +38,26 @@
         <h2 id="welcome-msg" class="text-xl font-bold text-amber-400 mb-1">Hoş Geldiniz!</h2>
         <p class="text-xs text-gray-300">İyi Çalışmalar Dileriz ☕</p>
       </div>
-
-      <label class="block text-sm text-gray-300 mb-2 text-left">PIN Kodunuzu Girin:</label>
-      <input type="password" id="staff-pin" class="w-full bg-gray-700 border border-gray-600 p-3 rounded-lg text-center text-2xl tracking-widest text-white mb-4 focus:outline-none focus:border-amber-500" placeholder="****" maxlength="4">
+      <label class="block text-sm text-gray-300 mb-2 text-left">PIN Kodunuz:</label>
+      <input type="password" id="staff-pin" class="w-full bg-gray-700 border border-gray-600 p-3 rounded-lg text-center text-2xl tracking-widest text-white mb-4" placeholder="****" maxlength="4">
       <button onclick="loginStaff()" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 rounded-lg transition">Giriş Yap</button>
       <p id="login-error" class="text-red-400 text-xs text-center mt-3 hidden"></p>
     </div>
 
     <div id="shift-section" class="hidden">
       <div class="border-b border-gray-700 pb-3 mb-4 flex justify-between items-center">
-        <div>
-          <p class="text-xs text-gray-400">Personel Paneli</p>
-          <h3 id="staff-name" class="text-lg font-bold text-amber-400">Brate Personel</h3>
-        </div>
+        <div><p class="text-xs text-gray-400">Personel</p><h3 id="staff-name" class="text-lg font-bold text-amber-400"></h3></div>
         <button onclick="logout()" class="text-xs text-gray-400 underline">Çıkış</button>
       </div>
-
       <div class="space-y-3 mb-6">
-        <button onclick="submitShift('START')" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl shadow-lg transition text-lg">
-          İŞE BAŞLAYALIM
-        </button>
-        <button onclick="submitShift('STOP')" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl shadow-lg transition text-lg">
-          PAYDOS
-        </button>
+        <button onclick="submitShift('START')" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl shadow-lg transition text-lg">İŞE BAŞLAYALIM</button>
+        <button onclick="submitShift('STOP')" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl shadow-lg transition text-lg">PAYDOS</button>
       </div>
-
       <div id="action-result" class="text-center text-sm font-semibold mb-4"></div>
     </div>
   </div>
 
-  <!-- 3. YÖNETİCİ PANELİ -->
+  <!-- 3. TAM YÖNETİCİ PANELİ -->
   <div id="admin-screen" class="hidden bg-gray-800 p-6 rounded-2xl shadow-2xl border border-gray-700 max-w-md w-full">
     <div class="flex justify-between items-center border-b border-gray-700 pb-3 mb-4">
       <h3 class="text-lg font-bold text-amber-400">Yönetici Paneli</h3>
@@ -82,29 +65,33 @@
     </div>
 
     <form onsubmit="loadAdminDashboard(event)" id="admin-auth-form" class="space-y-3 mb-4">
-      <div>
-        <label class="block text-xs text-gray-400 mb-1">Yönetici Şifreniz:</label>
-        <input type="password" id="admin-pass" placeholder="Yönetici Şifreniz" class="w-full bg-gray-700 border border-gray-600 p-2.5 rounded text-sm text-white" required>
-      </div>
+      <input type="password" id="admin-pass" placeholder="Yönetici Şifreniz" class="w-full bg-gray-700 border border-gray-600 p-2.5 rounded text-sm text-white" required>
       <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 rounded text-sm transition">Giriş Yap</button>
     </form>
 
     <div id="admin-content" class="hidden space-y-6">
-      <form onsubmit="addStaffSecure(event)" class="space-y-2 bg-gray-700/40 p-3 rounded-xl border border-gray-600">
-        <h4 class="text-xs font-bold text-amber-400 uppercase">Yeni Personel Ekle</h4>
-        <input type="text" id="new-staff-name" placeholder="Personel Adı Soyadı" class="w-full bg-gray-700 border border-gray-600 p-2 rounded text-xs text-white" required>
+      <!-- PERSONEL EKLEME / DÜZENLEME FORMU -->
+      <form onsubmit="saveStaffForm(event)" class="space-y-2 bg-gray-700/40 p-3 rounded-xl border border-gray-600">
+        <h4 id="form-title" class="text-xs font-bold text-amber-400 uppercase">Yeni Personel Ekle</h4>
+        <input type="hidden" id="edit-staff-id">
+        <input type="text" id="form-staff-name" placeholder="Personel Adı Soyadı" class="w-full bg-gray-700 border border-gray-600 p-2 rounded text-xs text-white" required>
         <div class="grid grid-cols-2 gap-2">
-          <input type="password" id="new-staff-pin" placeholder="PIN (4 Haneli)" class="bg-gray-700 border border-gray-600 p-2 rounded text-xs text-white" maxlength="4" required>
-          <input type="number" step="0.01" id="new-staff-rate" placeholder="Saatlik Ücret (TL)" class="bg-gray-700 border border-gray-600 p-2 rounded text-xs text-white" required>
+          <input type="password" id="form-staff-pin" placeholder="PIN (4 Haneli)" class="bg-gray-700 border border-gray-600 p-2 rounded text-xs text-white" maxlength="4" required>
+          <input type="number" step="0.01" id="form-staff-rate" placeholder="Saatlik Ücret (TL)" class="bg-gray-700 border border-gray-600 p-2 rounded text-xs text-white" required>
         </div>
-        <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded text-xs transition">+ Personeli Kaydet</button>
+        <div class="flex space-x-2">
+          <button type="submit" id="btn-save-staff" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded text-xs transition">+ Kaydet</button>
+          <button type="button" id="btn-cancel-edit" onclick="resetForm()" class="hidden w-1/3 bg-gray-600 text-white font-bold py-2 rounded text-xs">İptal</button>
+        </div>
       </form>
 
+      <!-- PERSONEL LİSTESİ -->
       <div>
         <h4 class="text-xs font-bold text-gray-400 uppercase mb-2">Kayıtlı Personeller</h4>
         <div id="staff-list-container" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
       </div>
 
+      <!-- MESAİ İNCELEME MODALI -->
       <div id="staff-detail-modal" class="hidden bg-gray-900 p-4 rounded-xl border border-amber-500/50">
         <div class="flex justify-between items-center mb-2 pb-2 border-b border-gray-700">
           <h5 id="detail-staff-name" class="font-bold text-amber-400 text-sm"></h5>
@@ -113,7 +100,6 @@
         <div id="detail-shifts-list" class="text-xs space-y-2 max-h-48 overflow-y-auto"></div>
       </div>
     </div>
-
     <p id="admin-msg" class="text-xs text-center font-semibold mt-2"></p>
   </div>
 
@@ -132,32 +118,22 @@
 
     function startQrLoopWithCountdown() {
       let timeLeft = 10;
-      const countdownElem = document.getElementById('countdown');
-
       const updateQr = () => {
         const token = 'token_' + Math.floor(Date.now() / 1000);
         const scanUrl = encodeURIComponent(`${window.location.origin}${window.location.pathname}?token=${token}`);
         document.getElementById('qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${scanUrl}`;
       };
-
       updateQr();
-
       setInterval(() => {
         timeLeft--;
-        if (timeLeft <= 0) {
-          updateQr();
-          timeLeft = 10;
-        }
-        if (countdownElem) countdownElem.innerText = timeLeft;
+        if (timeLeft <= 0) { updateQr(); timeLeft = 10; }
+        if (document.getElementById('countdown')) document.getElementById('countdown').innerText = timeLeft;
       }, 1000);
     }
 
     function verifyLocationAndGreet() {
       navigator.geolocation.getCurrentPosition((pos) => {
-        const lat = pos.coords.latitude;
-        const lng = pos.coords.longitude;
-        const distance = getDistance(lat, lng, 38.461791, 27.211536);
-
+        const distance = getDistance(pos.coords.latitude, pos.coords.longitude, 38.461791, 27.211536);
         if (distance <= 100) {
           document.getElementById('location-check-section').classList.add('hidden');
           document.getElementById('pin-section').classList.remove('hidden');
@@ -171,81 +147,55 @@
 
     async function loginStaff() {
       const pin = document.getElementById('staff-pin').value;
-      const err = document.getElementById('login-error');
-
       const res = await fetch(`${API_URL}/api/staff/my-summary`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ pin_code: pin })
       });
       const data = await res.json();
-
       if (data.success) {
         document.getElementById('welcome-msg').innerText = `Hoş Geldiniz ${data.staff_name}!`;
         document.getElementById('staff-name').innerText = data.staff_name;
         document.getElementById('pin-section').classList.add('hidden');
         document.getElementById('shift-section').classList.remove('hidden');
       } else {
-        err.innerText = "Hatalı PIN Kodu!";
-        err.classList.remove('hidden');
+        document.getElementById('login-error').innerText = "Hatalı PIN!";
+        document.getElementById('login-error').classList.remove('hidden');
       }
     }
 
-    // GERÇEK MESAİ KAYDI GÖNDERME
     async function submitShift(actionType) {
       const pin = document.getElementById('staff-pin').value;
       const resDiv = document.getElementById('action-result');
-      resDiv.innerHTML = `<span class="text-amber-400">Veritabanına kaydediliyor...</span>`;
-
-      try {
-        const res = await fetch(`${API_URL}/api/shift/action`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ pin_code: pin, action_type: actionType })
-        });
-        const data = await res.json();
-        if (data.success) {
-          resDiv.innerHTML = `<span class="text-green-400">${data.message}</span>`;
-        } else {
-          resDiv.innerHTML = `<span class="text-red-400">${data.error}</span>`;
-        }
-      } catch (e) {
-        resDiv.innerHTML = `<span class="text-red-400">Bağlantı hatası oluştu.</span>`;
-      }
+      resDiv.innerHTML = `<span class="text-amber-400">Kaydediliyor...</span>`;
+      const res = await fetch(`${API_URL}/api/shift/action`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pin_code: pin, action_type: actionType })
+      });
+      const data = await res.json();
+      if (data.success) resDiv.innerHTML = `<span class="text-green-400">${data.message}</span>`;
+      else resDiv.innerHTML = `<span class="text-red-400">${data.error}</span>`;
     }
 
     async function loadAdminDashboard(e) {
-      e.preventDefault();
+      if(e) e.preventDefault();
       const adminPass = document.getElementById('admin-pass').value;
-      const msg = document.getElementById('admin-msg');
-
       const res = await fetch(`${API_URL}/api/admin/staff/list`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ admin_pin: adminPass })
       });
       const data = await res.json();
-
       if (data.success) {
         document.getElementById('admin-auth-form').classList.add('hidden');
         document.getElementById('admin-content').classList.remove('hidden');
         renderStaffList(data.staff);
-        msg.innerText = "";
       } else {
-        msg.className = "text-xs text-center font-semibold text-red-400";
-        msg.innerText = "Hatalı Yönetici Şifresi!";
+        document.getElementById('admin-msg').innerText = "Hatalı Yönetici Şifresi!";
       }
     }
 
     function renderStaffList(staffArray) {
       const container = document.getElementById('staff-list-container');
       container.innerHTML = "";
-
-      if (staffArray.length === 0) {
-        container.innerHTML = `<p class="text-xs text-gray-500 text-center py-2">Kayıtlı personel yok.</p>`;
-        return;
-      }
-
       staffArray.forEach(s => {
         container.innerHTML += `
           <div class="flex justify-between items-center bg-gray-700/60 p-2.5 rounded-lg border border-gray-600">
@@ -254,6 +204,7 @@
               <p class="text-[10px] text-gray-400">PIN: ${s.pin_code} | ${s.hourly_rate} TL/saat</p>
             </div>
             <div class="space-x-1">
+              <button onclick="editStaff(${s.id}, '${s.full_name}', '${s.pin_code}', ${s.hourly_rate})" class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] px-2 py-1 rounded">Düzenle</button>
               <button onclick="inspectStaff(${s.id})" class="bg-amber-600 hover:bg-amber-700 text-white text-[10px] px-2 py-1 rounded">İncele</button>
               <button onclick="deleteStaff(${s.id})" class="bg-red-600 hover:bg-red-700 text-white text-[10px] px-2 py-1 rounded">Sil</button>
             </div>
@@ -262,88 +213,92 @@
       });
     }
 
+    function editStaff(id, name, pin, rate) {
+      document.getElementById('edit-staff-id').value = id;
+      document.getElementById('form-staff-name').value = name;
+      document.getElementById('form-staff-pin').value = pin;
+      document.getElementById('form-staff-rate').value = rate;
+      document.getElementById('form-title').innerText = "Personel Bilgilerini Güncelle";
+      document.getElementById('btn-save-staff').innerText = "Güncellemeyi Kaydet";
+      document.getElementById('btn-cancel-edit').classList.remove('hidden');
+    }
+
+    function resetForm() {
+      document.getElementById('edit-staff-id').value = "";
+      document.getElementById('form-staff-name').value = "";
+      document.getElementById('form-staff-pin').value = "";
+      document.getElementById('form-staff-rate').value = "";
+      document.getElementById('form-title').innerText = "Yeni Personel Ekle";
+      document.getElementById('btn-save-staff').innerText = "+ Kaydet";
+      document.getElementById('btn-cancel-edit').classList.add('hidden');
+    }
+
+    async function saveStaffForm(e) {
+      e.preventDefault();
+      const adminPass = document.getElementById('admin-pass').value;
+      const staffId = document.getElementById('edit-staff-id').value;
+      const endpoint = staffId ? "/api/admin/staff/update" : "/api/admin/staff/add";
+
+      const payload = {
+        admin_pin: adminPass,
+        staff_id: staffId ? parseInt(staffId) : undefined,
+        full_name: document.getElementById('form-staff-name').value,
+        pin_code: document.getElementById('form-staff-pin').value,
+        hourly_rate: parseFloat(document.getElementById('form-staff-rate').value)
+      };
+
+      const res = await fetch(`${API_URL}${endpoint}`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if(data.success) {
+        resetForm();
+        loadAdminDashboard();
+      }
+    }
+
     async function inspectStaff(staffId) {
       const adminPass = document.getElementById('admin-pass').value;
       const res = await fetch(`${API_URL}/api/admin/staff/detail`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ admin_pin: adminPass, staff_id: staffId })
       });
       const data = await res.json();
-
       if(data.success) {
         document.getElementById('staff-detail-modal').classList.remove('hidden');
         document.getElementById('detail-staff-name').innerText = `${data.staff.full_name} - Mesai Dökümü`;
-        
         const list = document.getElementById('detail-shifts-list');
         list.innerHTML = "";
-        
         if(!data.shifts || data.shifts.length === 0) {
           list.innerHTML = `<p class="text-gray-500 py-1">Henüz mesai kaydı yok.</p>`;
           return;
         }
-
         data.shifts.forEach(shift => {
           const inDate = new Date(shift.clock_in * 1000);
           const formattedIn = inDate.toLocaleDateString('tr-TR') + ' ' + inDate.toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'});
-          
           let formattedOut = "Devam Ediyor...";
           if (shift.clock_out) {
             const outDate = new Date(shift.clock_out * 1000);
             formattedOut = outDate.toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'});
           }
-
-          const hours = shift.total_hours ? `${shift.total_hours} sa` : "-";
-          const earned = shift.earned_amount ? `${shift.earned_amount} TL` : "-";
-          
           list.innerHTML += `
             <div class="bg-gray-800 p-2 rounded border border-gray-700">
-              <div class="flex justify-between font-bold text-amber-400">
-                <span>📅 ${formattedIn}</span>
-                <span>🚪 Çıkış: ${formattedOut}</span>
-              </div>
-              <div class="flex justify-between text-gray-300 mt-1">
-                <span>⏱ Süre: ${hours}</span>
-                <span class="text-green-400 font-bold">💰 Kazanç: ${earned}</span>
-              </div>
-            </div>
-          `;
+              <div class="flex justify-between font-bold text-amber-400"><span>📅 ${formattedIn}</span><span>🚪 Çıkış: ${formattedOut}</span></div>
+              <div class="flex justify-between text-gray-300 mt-1"><span>⏱ Süre: ${shift.total_hours || '-'} sa</span><span class="text-green-400 font-bold">💰 Kazanç: ${shift.earned_amount || '-'} TL</span></div>
+            </div>`;
         });
       }
     }
 
-    async function addStaffSecure(e) {
-      e.preventDefault();
-      const adminPass = document.getElementById('admin-pass').value;
-      const res = await fetch(`${API_URL}/api/admin/staff/add`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          admin_pin: adminPass,
-          full_name: document.getElementById('new-staff-name').value,
-          pin_code: document.getElementById('new-staff-pin').value,
-          hourly_rate: parseFloat(document.getElementById('new-staff-rate').value)
-        })
-      });
-      const data = await res.json();
-      if (data.success) {
-        document.getElementById('new-staff-name').value = "";
-        document.getElementById('new-staff-pin').value = "";
-        document.getElementById('new-staff-rate').value = "";
-        loadAdminDashboard(new Event('submit'));
-      }
-    }
-
     async function deleteStaff(staffId) {
-      if(!confirm("Personeli silmek istediğinize emin misiniz?")) return;
+      if(!confirm("Silmek istediğinize emin misiniz?")) return;
       const adminPass = document.getElementById('admin-pass').value;
-      const res = await fetch(`${API_URL}/api/admin/staff/delete`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      await fetch(`${API_URL}/api/admin/staff/delete`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ admin_pin: adminPass, staff_id: staffId })
       });
-      const data = await res.json();
-      if(data.success) loadAdminDashboard(new Event('submit'));
+      loadAdminDashboard();
     }
 
     function getDistance(lat1, lon1, lat2, lon2) {
@@ -362,16 +317,11 @@
 
     function closeAdmin() {
       document.getElementById('admin-screen').classList.add('hidden');
-      if (qrTokenFromUrl) {
-        document.getElementById('mobile-staff-screen').classList.remove('hidden');
-      } else {
-        document.getElementById('pc-qr-screen').classList.remove('hidden');
-      }
+      if (qrTokenFromUrl) document.getElementById('mobile-staff-screen').classList.remove('hidden');
+      else document.getElementById('pc-qr-screen').classList.remove('hidden');
     }
 
-    function logout() {
-      window.location.href = window.location.pathname;
-    }
+    function logout() { window.location.href = window.location.pathname; }
   </script>
 </body>
 </html>
