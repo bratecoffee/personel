@@ -22,7 +22,6 @@
       <img id="qr-img" src="" alt="QR Kod" class="w-52 h-52 object-contain" />
     </div>
     
-    <!-- CANLI GERİ SAYIM SAYACI -->
     <div class="mt-4 p-3 bg-gray-900/60 rounded-xl border border-gray-700/50 flex items-center justify-center space-x-2">
       <span class="relative flex h-3 w-3">
         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
@@ -34,18 +33,14 @@
     </div>
   </div>
 
-  <!-- 2. PERSONEL MOBİL EKRANI (QR OKUTULUNCA AÇILAN KİŞİYE ÖZEL KARŞILAMA) -->
+  <!-- 2. PERSONEL MOBİL EKRANI -->
   <div id="mobile-staff-screen" class="hidden bg-gray-800 p-6 rounded-2xl shadow-2xl border border-gray-700 max-w-sm w-full">
-    
-    <!-- DOKUNUM VE KONUM DOĞRULAMA ADIMI -->
     <div id="location-check-section" class="text-center py-4">
       <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-500 mx-auto mb-4"></div>
       <p class="text-sm text-gray-300">Kafede olup olmadığınız kontrol ediliyor...</p>
     </div>
 
-    <!-- PIN GİRİŞ VE KİŞİYE ÖZEL KARŞILAMA EKRANI -->
     <div id="pin-section" class="hidden text-center">
-      <!-- KİŞİYE ÖZEL HOŞ GELDİN MESAJI -->
       <div class="bg-amber-900/40 border border-amber-500/30 p-4 rounded-xl mb-6">
         <h2 id="welcome-msg" class="text-xl font-bold text-amber-400 mb-1">Hoş Geldiniz!</h2>
         <p class="text-xs text-gray-300">İyi Çalışmalar Dileriz ☕</p>
@@ -57,7 +52,6 @@
       <p id="login-error" class="text-red-400 text-xs text-center mt-3 hidden"></p>
     </div>
 
-    <!-- MESAİ ADIMI -->
     <div id="shift-section" class="hidden">
       <div class="border-b border-gray-700 pb-3 mb-4 flex justify-between items-center">
         <div>
@@ -80,34 +74,57 @@
     </div>
   </div>
 
-  <!-- 3. YÖNETİCİ PANELİ -->
+  <!-- 3. YÖNETİCİ PANELİ VE PERSONEL LİSTESİ -->
   <div id="admin-screen" class="hidden bg-gray-800 p-6 rounded-2xl shadow-2xl border border-gray-700 max-w-md w-full">
     <div class="flex justify-between items-center border-b border-gray-700 pb-3 mb-4">
       <h3 class="text-lg font-bold text-amber-400">Yönetici Paneli</h3>
       <button onclick="closeAdmin()" class="text-xs text-gray-400 underline">Kapat</button>
     </div>
 
-    <form onsubmit="addStaffSecure(event)" class="space-y-3 mb-4">
-      <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Yeni Personel Ekle</h4>
-      
+    <form onsubmit="loadAdminDashboard(event)" id="admin-auth-form" class="space-y-3 mb-4">
       <div>
         <label class="block text-xs text-gray-400 mb-1">Yönetici Şifreniz:</label>
-        <input type="password" id="admin-pass" placeholder="Yönetici Şifreniz" class="w-full bg-gray-700 border border-gray-600 p-2 rounded text-sm text-white" required>
+        <input type="password" id="admin-pass" placeholder="Yönetici Şifreniz" class="w-full bg-gray-700 border border-gray-600 p-2.5 rounded text-sm text-white" required>
       </div>
-
-      <hr class="border-gray-700 my-2">
-
-      <input type="text" id="new-staff-name" placeholder="Personel Ad Soyad (Örn: Sude)" class="w-full bg-gray-700 border border-gray-600 p-2 rounded text-sm text-white" required>
-      
-      <div class="grid grid-cols-2 gap-2">
-        <input type="password" id="new-staff-pin" placeholder="Personel PIN (4 Haneli)" class="bg-gray-700 border border-gray-600 p-2 rounded text-sm text-white" maxlength="4" required>
-        <input type="number" step="0.01" id="new-staff-rate" placeholder="Saatlik Ücret (TL)" class="bg-gray-700 border border-gray-600 p-2 rounded text-sm text-white" required>
-      </div>
-      
-      <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded text-sm transition mt-2">+ Personeli Kaydet</button>
+      <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 rounded text-sm transition">Giriş Yap</button>
     </form>
 
-    <p id="admin-msg" class="text-xs text-center font-semibold mb-2"></p>
+    <!-- YÖNETİCİ İÇERİK EKRANI (ŞİFRE DOĞRULANINCA AÇILIR) -->
+    <div id="admin-content" class="hidden space-y-6">
+      
+      <!-- PERSONEL EKLEME FORMU -->
+      <form onsubmit="addStaffSecure(event)" class="space-y-2 bg-gray-700/40 p-3 rounded-xl border border-gray-600">
+        <h4 class="text-xs font-bold text-amber-400 uppercase">Yeni Personel Ekle</h4>
+        <input type="text" id="new-staff-name" placeholder="Personel Adı Soyadı" class="w-full bg-gray-700 border border-gray-600 p-2 rounded text-xs text-white" required>
+        <div class="grid grid-cols-2 gap-2">
+          <input type="password" id="new-staff-pin" placeholder="PIN (4 Haneli)" class="bg-gray-700 border border-gray-600 p-2 rounded text-xs text-white" maxlength="4" required>
+          <input type="number" step="0.01" id="new-staff-rate" placeholder="Saatlik Ücret (TL)" class="bg-gray-700 border border-gray-600 p-2 rounded text-xs text-white" required>
+        </div>
+        <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded text-xs transition">+ Personeli Kaydet</button>
+      </form>
+
+      <!-- KAYITLI PERSONEL LİSTESİ -->
+      <div>
+        <h4 class="text-xs font-bold text-gray-400 uppercase mb-2">Kayıtlı Personeller</h4>
+        <div id="staff-list-container" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+          <!-- Personeller JavaScript ile Buraya Dizilir -->
+        </div>
+      </div>
+
+      <!-- SEÇİLEN PERSONELİN DETAY VE MESAİ İNCELEME PENCERESİ -->
+      <div id="staff-detail-modal" class="hidden bg-gray-900 p-4 rounded-xl border border-amber-500/50">
+        <div class="flex justify-between items-center mb-2 pb-2 border-b border-gray-700">
+          <h5 id="detail-staff-name" class="font-bold text-amber-400 text-sm"></h5>
+          <button onclick="document.getElementById('staff-detail-modal').classList.add('hidden')" class="text-xs text-gray-400">Kapat</button>
+        </div>
+        <div id="detail-shifts-list" class="text-xs space-y-1 max-h-36 overflow-y-auto">
+          <!-- Mesai Detayları Buraya Eklenir -->
+        </div>
+      </div>
+
+    </div>
+
+    <p id="admin-msg" class="text-xs text-center font-semibold mt-2"></p>
   </div>
 
   <script>
@@ -147,7 +164,6 @@
       }, 1000);
     }
 
-    // KONUM VE KARŞILAMA KONTROLÜ
     function verifyLocationAndGreet() {
       navigator.geolocation.getCurrentPosition((pos) => {
         const lat = pos.coords.latitude;
@@ -160,18 +176,145 @@
         } else {
           document.getElementById('location-check-section').innerHTML = `
             <p class="text-red-400 font-bold mb-2">Kafede Değilsiniz!</p>
-            <p class="text-xs text-gray-400">Kafeden uzaklığınız: ${Math.round(distance)}m. Lütfen kafelere yaklaşın.</p>
+            <p class="text-xs text-gray-400">Uzaklığınız: ${Math.round(distance)}m. Lütfen kafeye yaklaşın.</p>
           `;
         }
       }, () => {
         document.getElementById('location-check-section').innerHTML = `
           <p class="text-red-400 font-bold mb-2">Konum Alınamadı!</p>
-          <p class="text-xs text-gray-400">Lütfen telefonunuzdan konum (GPS) izni verin.</p>
+          <p class="text-xs text-gray-400">Lütfen GPS izni verin.</p>
         `;
       });
     }
 
-    // PERSONEL GİRİŞ YAPTIĞINDA ADINI GÖSTER
+    // YÖNETİCİ PANELİNE GİRİŞ VE PERSONELLERİ YÜKLEME
+    async function loadAdminDashboard(e) {
+      e.preventDefault();
+      const adminPass = document.getElementById('admin-pass').value;
+      const msg = document.getElementById('admin-msg');
+
+      const res = await fetch(`${API_URL}/api/admin/staff/list`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ admin_pin: adminPass })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        document.getElementById('admin-auth-form').classList.add('hidden');
+        document.getElementById('admin-content').classList.remove('hidden');
+        renderStaffList(data.staff);
+        msg.innerText = "";
+      } else {
+        msg.className = "text-xs text-center font-semibold text-red-400";
+        msg.innerText = "Hatalı Yönetici Şifresi!";
+      }
+    }
+
+    // PERSONEL LİSTESİNİ EKRANA DİZ
+    function renderStaffList(staffArray) {
+      const container = document.getElementById('staff-list-container');
+      container.innerHTML = "";
+
+      if (staffArray.length === 0) {
+        container.innerHTML = `<p class="text-xs text-gray-500 text-center py-2">Kayıtlı personel yok.</p>`;
+        return;
+      }
+
+      staffArray.forEach(s => {
+        container.innerHTML += `
+          <div class="flex justify-between items-center bg-gray-700/60 p-2.5 rounded-lg border border-gray-600">
+            <div>
+              <p class="text-xs font-bold text-white">${s.full_name}</p>
+              <p class="text-[10px] text-gray-400">PIN: ${s.pin_code} | Ücret: ${s.hourly_rate} TL/saat</p>
+            </div>
+            <div class="space-x-1">
+              <button onclick="inspectStaff(${s.id})" class="bg-amber-600 hover:bg-amber-700 text-white text-[10px] px-2 py-1 rounded">İncele</button>
+              <button onclick="deleteStaff(${s.id})" class="bg-red-600 hover:bg-red-700 text-white text-[10px] px-2 py-1 rounded">Sil</button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    // PERSONELİ SİL (ARŞİVE KALDIR)
+    async function deleteStaff(staffId) {
+      if(!confirm("Bu personeli silmek ve arşive kaldırmak istediğinize emin misiniz?")) return;
+      
+      const adminPass = document.getElementById('admin-pass').value;
+      const res = await fetch(`${API_URL}/api/admin/staff/delete`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ admin_pin: adminPass, staff_id: staffId })
+      });
+      const data = await res.json();
+      if(data.success) {
+        alert("Personel silindi!");
+        loadAdminDashboard(new Event('submit'));
+      }
+    }
+
+    // PERSONEL MESAİ SAYFASINI İNCELE
+    async function inspectStaff(staffId) {
+      const adminPass = document.getElementById('admin-pass').value;
+      const res = await fetch(`${API_URL}/api/admin/staff/detail`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ admin_pin: adminPass, staff_id: staffId })
+      });
+      const data = await res.json();
+
+      if(data.success) {
+        document.getElementById('staff-detail-modal').classList.remove('hidden');
+        document.getElementById('detail-staff-name').innerText = `${data.staff.full_name} - Mesai Geçmişi`;
+        
+        const list = document.getElementById('detail-shifts-list');
+        list.innerHTML = "";
+        
+        if(!data.shifts || data.shifts.length === 0) {
+          list.innerHTML = `<p class="text-gray-500 py-1">Henüz mesai kaydı yok.</p>`;
+          return;
+        }
+
+        data.shifts.forEach(shift => {
+          const date = new Date(shift.clock_in * 1000).toLocaleDateString('tr-TR');
+          const hours = shift.total_hours ? `${shift.total_hours} sa` : "Devam Ediyor";
+          const earned = shift.earned_amount ? `${shift.earned_amount} TL` : "-";
+          
+          list.innerHTML += `
+            <div class="flex justify-between border-b border-gray-800 pb-1 text-gray-300">
+              <span>📅 ${date}</span>
+              <span>⏱ ${hours}</span>
+              <span class="text-amber-400 font-bold">${earned}</span>
+            </div>
+          `;
+        });
+      }
+    }
+
+    // YENİ PERSONEL EKLEME
+    async function addStaffSecure(e) {
+      e.preventDefault();
+      const adminPass = document.getElementById('admin-pass').value;
+      const res = await fetch(`${API_URL}/api/admin/staff/add`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          admin_pin: adminPass,
+          full_name: document.getElementById('new-staff-name').value,
+          pin_code: document.getElementById('new-staff-pin').value,
+          hourly_rate: parseFloat(document.getElementById('new-staff-rate').value)
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById('new-staff-name').value = "";
+        document.getElementById('new-staff-pin').value = "";
+        document.getElementById('new-staff-rate').value = "";
+        loadAdminDashboard(new Event('submit'));
+      }
+    }
+
     async function loginStaff() {
       const pin = document.getElementById('staff-pin').value;
       const err = document.getElementById('login-error');
@@ -182,28 +325,21 @@
         return;
       }
 
-      try {
-        const res = await fetch(`${API_URL}/api/staff/my-summary`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ pin_code: pin })
-        });
-        const data = await res.json();
+      const res = await fetch(`${API_URL}/api/staff/my-summary`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pin_code: pin })
+      });
+      const data = await res.json();
 
-        if (data.success) {
-          document.getElementById('welcome-msg').innerText = `Hoş Geldiniz ${data.staff_name}!`;
-          document.getElementById('staff-name').innerText = data.staff_name;
-          document.getElementById('pin-section').classList.add('hidden');
-          document.getElementById('shift-section').classList.remove('hidden');
-        } else {
-          err.innerText = "Hatalı PIN Kodu!";
-          err.classList.remove('hidden');
-        }
-      } catch (e) {
-        // Çevrimdışı/Yedek Mod Desteği
-        document.getElementById('welcome-msg').innerText = `Hoş Geldiniz!`;
+      if (data.success) {
+        document.getElementById('welcome-msg').innerText = `Hoş Geldiniz ${data.staff_name}!`;
+        document.getElementById('staff-name').innerText = data.staff_name;
         document.getElementById('pin-section').classList.add('hidden');
         document.getElementById('shift-section').classList.remove('hidden');
+      } else {
+        err.innerText = "Hatalı PIN Kodu!";
+        err.classList.remove('hidden');
       }
     }
 
@@ -233,42 +369,6 @@
         document.getElementById('mobile-staff-screen').classList.remove('hidden');
       } else {
         document.getElementById('pc-qr-screen').classList.remove('hidden');
-      }
-    }
-
-    async function addStaffSecure(e) {
-      e.preventDefault();
-      const msg = document.getElementById('admin-msg');
-      msg.className = "text-xs text-center font-semibold mb-2 text-amber-400";
-      msg.innerText = "Kaydediliyor...";
-
-      const adminPass = document.getElementById('admin-pass').value;
-
-      try {
-        const res = await fetch(`${API_URL}/api/admin/staff/add`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            admin_pin: adminPass,
-            full_name: document.getElementById('new-staff-name').value,
-            pin_code: document.getElementById('new-staff-pin').value,
-            hourly_rate: parseFloat(document.getElementById('new-staff-rate').value)
-          })
-        });
-        const data = await res.json();
-        if (data.success) {
-          msg.className = "text-xs text-center font-semibold mb-2 text-green-400";
-          msg.innerText = "Personel veritabanına eklendi!";
-          document.getElementById('new-staff-name').value = "";
-          document.getElementById('new-staff-pin').value = "";
-          document.getElementById('new-staff-rate').value = "";
-        } else {
-          msg.className = "text-xs text-center font-semibold mb-2 text-red-400";
-          msg.innerText = "Hata oluştu veya yetkisiz erişim.";
-        }
-      } catch (err) {
-        msg.className = "text-xs text-center font-semibold mb-2 text-red-400";
-        msg.innerText = "İşlem yapıldı.";
       }
     }
 
