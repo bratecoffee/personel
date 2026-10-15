@@ -9,12 +9,7 @@
 </head>
 <body class="bg-gray-900 text-white min-h-screen flex items-center justify-center p-4 relative">
 
-  <!-- SAĞ ÜST YÖNETİCİ BUTONU (Sadece Ana Sayfa/QR Ekranında Görünür) -->
-  <button id="admin-login-btn" onclick="showAdminLogin()" class="absolute top-4 right-4 bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-amber-400 text-xs px-3 py-2 rounded-lg border border-gray-700 transition">
-    🔒 Yönetici Girişi
-  </button>
-
-  <!-- 1. KAFE EKRANI (QR KOD) -->
+  <!-- 1. KAFE EKRANI (QR KOD) - Yönetici Girişi kaldırıldı -->
   <div id="pc-qr-screen" class="text-center bg-gray-800 p-8 rounded-2xl shadow-2xl border border-gray-700 max-w-sm w-full">
     <h1 class="text-2xl font-bold mb-2 text-amber-500">Brate Coffee</h1>
     <p class="text-xs text-gray-400 mb-6">Giriş / Çıkış için QR kodu okutun</p>
@@ -53,11 +48,16 @@
 
     <!-- MESAİ ADIMI VE ÖZET -->
     <div id="shift-section" class="hidden">
-      <div class="bg-gradient-to-r from-amber-600/30 to-amber-900/40 border border-amber-500/50 p-4 rounded-xl mb-6 text-center">
+      <div class="bg-gradient-to-r from-amber-600/30 to-amber-900/40 border border-amber-500/50 p-4 rounded-xl mb-6 text-center relative">
         <p class="text-xs text-amber-300 font-medium uppercase tracking-wider mb-1">Brate Coffee Ekibi</p>
         <h2 id="welcome-msg" class="text-2xl font-extrabold text-white">Hoş Geldin!</h2>
         <p class="text-xs text-gray-300 mt-1">Harika bir gün olsun, iyi çalışmalar ☕</p>
       </div>
+
+      <!-- SADECE YETKİLİ / YÖNETİCİ PERSONELE GÖRÜNEN YÖNETİCİ PANELİ BUTONU -->
+      <button id="btn-admin-access" onclick="openAdminPanel()" class="hidden w-full mb-4 bg-purple-700 hover:bg-purple-800 text-white font-bold py-2.5 rounded-xl border border-purple-500 shadow-lg text-xs transition flex items-center justify-center space-x-1">
+        <span>🔒 Yönetici Paneli</span>
+      </button>
 
       <div class="border-b border-gray-700 pb-2 mb-4 flex justify-between items-center">
         <span id="staff-name" class="text-xs font-semibold text-gray-400"></span>
@@ -90,15 +90,10 @@
   <div id="admin-screen" class="hidden bg-gray-800 p-6 rounded-2xl shadow-2xl border border-gray-700 max-w-lg w-full">
     <div class="flex justify-between items-center border-b border-gray-700 pb-3 mb-4">
       <h3 class="text-lg font-bold text-amber-400">Yönetici Paneli</h3>
-      <button onclick="closeAdmin()" class="text-xs text-gray-400 underline">Kapat</button>
+      <button onclick="closeAdmin()" class="text-xs text-gray-400 underline">Geri Dön</button>
     </div>
 
-    <form onsubmit="loadAdminDashboard(event)" id="admin-auth-form" class="space-y-3 mb-4">
-      <input type="password" id="admin-pass" placeholder="Yönetici Şifreniz" class="w-full bg-gray-700 border border-gray-600 p-2.5 rounded text-sm text-white" required>
-      <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 rounded text-sm transition">Giriş Yap</button>
-    </form>
-
-    <div id="admin-content" class="hidden space-y-6">
+    <div id="admin-content" class="space-y-6">
       <form onsubmit="saveStaffForm(event)" class="space-y-2 bg-gray-700/40 p-3 rounded-xl border border-gray-600">
         <h4 id="form-title" class="text-xs font-bold text-amber-400 uppercase">Yeni Personel Ekle</h4>
         <input type="hidden" id="edit-staff-id">
@@ -107,6 +102,10 @@
         <div class="grid grid-cols-2 gap-2">
           <input type="password" id="form-staff-pin" placeholder="PIN (4 Haneli)" class="bg-gray-700 border border-gray-600 p-2 rounded text-xs text-white" maxlength="4" required>
           <input type="number" step="0.01" id="form-staff-rate" placeholder="Saatlik Ücret (TL)" class="bg-gray-700 border border-gray-600 p-2 rounded text-xs text-white" required>
+        </div>
+        <div class="flex items-center space-x-2 py-1">
+          <input type="checkbox" id="form-staff-is-admin" class="w-4 h-4 rounded accent-amber-500">
+          <label for="form-staff-is-admin" class="text-xs text-amber-300 font-semibold">Bu personele Yönetici Yetkisi ver</label>
         </div>
         <div class="flex space-x-2">
           <button type="submit" id="btn-save-staff" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded text-xs transition">+ Kaydet</button>
@@ -157,12 +156,9 @@
       return devId;
     }
 
-    // PERSONEL QR OKUTUP GELDİYSE YÖNETİCİ BUTONUNU GİZLE
     if (qrTokenFromUrl) {
       document.getElementById('pc-qr-screen').classList.add('hidden');
       document.getElementById('mobile-staff-screen').classList.remove('hidden');
-      const adminBtn = document.getElementById('admin-login-btn');
-      if (adminBtn) adminBtn.classList.add('hidden');
       verifyLocationAndGreet();
     } else {
       startQrLoopWithCountdown();
@@ -187,9 +183,7 @@
               correctLevel: QRCode.CorrectLevel.H
             });
           }
-        } catch(e) {
-          console.error("QR üretme hatası:", e);
-        }
+        } catch(e) {}
       };
 
       fetchAndDrawQr();
@@ -237,6 +231,14 @@
         document.getElementById('shift-section').classList.remove('hidden');
         err.classList.add('hidden');
 
+        // YÖNETİCİ YETKİ KONTROLÜ: is_admin 1 ise mor butonu göster
+        const adminBtn = document.getElementById('btn-admin-access');
+        if (data.is_admin === 1) {
+          adminBtn.classList.remove('hidden');
+        } else {
+          adminBtn.classList.add('hidden');
+        }
+
         if (data.shifts && Array.isArray(data.shifts)) {
           let totalH = 0, totalE = 0;
           data.shifts.forEach(s => {
@@ -250,6 +252,17 @@
         err.innerText = data.error || "Hatalı PIN!";
         err.classList.remove('hidden');
       }
+    }
+
+    function openAdminPanel() {
+      document.getElementById('mobile-staff-screen').classList.add('hidden');
+      document.getElementById('admin-screen').classList.remove('hidden');
+      loadAdminDashboard();
+    }
+
+    function closeAdmin() {
+      document.getElementById('admin-screen').classList.add('hidden');
+      document.getElementById('mobile-staff-screen').classList.remove('hidden');
     }
 
     async function submitShift(actionType) {
@@ -270,20 +283,13 @@
       }
     }
 
-    async function loadAdminDashboard(e) {
-      if(e) e.preventDefault();
-      const adminPass = document.getElementById('admin-pass').value;
+    async function loadAdminDashboard() {
       const res = await fetch(`${API_URL}/api/admin/staff/list`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ admin_pin: adminPass })
+        method: "POST", headers: { "Content-Type": "application/json" }
       });
       const data = await res.json();
       if (data.success) {
-        document.getElementById('admin-auth-form').classList.add('hidden');
-        document.getElementById('admin-content').classList.remove('hidden');
         renderStaffList(data.staff);
-      } else {
-        document.getElementById('admin-msg').innerText = "Hatalı Yönetici Şifresi!";
       }
     }
 
@@ -292,15 +298,16 @@
       container.innerHTML = "";
       staffArray.forEach(s => {
         const phone = s.phone_number ? s.phone_number : 'Tel Yok';
+        const adminTag = s.is_admin ? '<span class="bg-purple-900 text-purple-200 text-[9px] px-1 rounded ml-1 font-bold">YÖNETİCİ</span>' : '';
         container.innerHTML += `
           <div class="flex justify-between items-center bg-gray-700/60 p-2.5 rounded-lg border border-gray-600">
             <div>
-              <p class="text-xs font-bold text-white">${s.full_name}</p>
+              <p class="text-xs font-bold text-white">${s.full_name} ${adminTag}</p>
               <p class="text-[10px] text-gray-400">Tel: ${phone} | PIN: ${s.pin_code} | ${s.hourly_rate} TL/saat</p>
             </div>
             <div class="space-x-1 flex items-center">
               <button onclick="resetDevice(${s.id})" title="Yeni telefona geçiş izni ver" class="bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] px-1.5 py-1 rounded">📱 Cihaz Sıfırla</button>
-              <button onclick="editStaff(${s.id}, '${s.full_name}', '${phone}', '${s.pin_code}', ${s.hourly_rate})" class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] px-2 py-1 rounded">Düzenle</button>
+              <button onclick="editStaff(${s.id}, '${s.full_name}', '${phone}', '${s.pin_code}', ${s.hourly_rate}, ${s.is_admin || 0})" class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] px-2 py-1 rounded">Düzenle</button>
               <button onclick="inspectStaff(${s.id})" class="bg-amber-600 hover:bg-amber-700 text-white text-[10px] px-2 py-1 rounded">Mesailer</button>
               <button onclick="deleteStaff(${s.id})" class="bg-red-600 hover:bg-red-700 text-white text-[10px] px-2 py-1 rounded">Sil</button>
             </div>
@@ -311,10 +318,9 @@
 
     async function resetDevice(staffId) {
       if(!confirm("Bu personelin cihaz kilidini kaldırmak istediğinize emin misiniz?")) return;
-      const adminPass = document.getElementById('admin-pass').value;
       const res = await fetch(`${API_URL}/api/admin/staff/reset-device`, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ admin_pin: adminPass, staff_id: staffId })
+        body: JSON.stringify({ staff_id: staffId })
       });
       const data = await res.json();
       if(data.success) alert("Cihaz kilidi sıfırlandı!");
@@ -323,10 +329,9 @@
     let currentInspectedStaffId = null;
     async function inspectStaff(staffId) {
       currentInspectedStaffId = staffId;
-      const adminPass = document.getElementById('admin-pass').value;
       const res = await fetch(`${API_URL}/api/admin/staff/detail`, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ admin_pin: adminPass, staff_id: staffId })
+        body: JSON.stringify({ staff_id: staffId })
       });
       const data = await res.json();
       if(data.success) {
@@ -389,7 +394,6 @@
     }
 
     async function updateShiftTime(shiftId) {
-      const adminPass = document.getElementById('admin-pass').value;
       const inVal = document.getElementById(`in-${shiftId}`).value;
       const outVal = document.getElementById(`out-${shiftId}`).value;
 
@@ -398,7 +402,7 @@
 
       const res = await fetch(`${API_URL}/api/admin/shift/update`, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ admin_pin: adminPass, shift_id: shiftId, clock_in: clockIn, clock_out: clockOut })
+        body: JSON.stringify({ shift_id: shiftId, clock_in: clockIn, clock_out: clockOut })
       });
       const data = await res.json();
       if(data.success) {
@@ -409,20 +413,20 @@
 
     async function deleteShift(shiftId) {
       if(!confirm("Silmek istediğinize emin misiniz?")) return;
-      const adminPass = document.getElementById('admin-pass').value;
       await fetch(`${API_URL}/api/admin/shift/delete`, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ admin_pin: adminPass, shift_id: shiftId })
+        body: JSON.stringify({ shift_id: shiftId })
       });
       inspectStaff(currentInspectedStaffId);
     }
 
-    function editStaff(id, name, phone, pin, rate) {
+    function editStaff(id, name, phone, pin, rate, isAdmin) {
       document.getElementById('edit-staff-id').value = id;
       document.getElementById('form-staff-name').value = name;
       document.getElementById('form-staff-phone').value = phone !== 'Tel Yok' ? phone : '';
       document.getElementById('form-staff-pin').value = pin;
       document.getElementById('form-staff-rate').value = rate;
+      document.getElementById('form-staff-is-admin').checked = isAdmin === 1;
       document.getElementById('form-title').innerText = "Personel Bilgilerini Güncelle";
       document.getElementById('btn-save-staff').innerText = "Güncellemeyi Kaydet";
       document.getElementById('btn-cancel-edit').classList.remove('hidden');
@@ -434,6 +438,7 @@
       document.getElementById('form-staff-phone').value = "";
       document.getElementById('form-staff-pin').value = "";
       document.getElementById('form-staff-rate').value = "";
+      document.getElementById('form-staff-is-admin').checked = false;
       document.getElementById('form-title').innerText = "Yeni Personel Ekle";
       document.getElementById('btn-save-staff').innerText = "+ Kaydet";
       document.getElementById('btn-cancel-edit').classList.add('hidden');
@@ -441,17 +446,16 @@
 
     async function saveStaffForm(e) {
       e.preventDefault();
-      const adminPass = document.getElementById('admin-pass').value;
       const staffId = document.getElementById('edit-staff-id').value;
       const endpoint = staffId ? "/api/admin/staff/update" : "/api/admin/staff/add";
 
       const payload = {
-        admin_pin: adminPass,
         staff_id: staffId ? parseInt(staffId) : undefined,
         full_name: document.getElementById('form-staff-name').value,
         phone_number: document.getElementById('form-staff-phone').value,
         pin_code: document.getElementById('form-staff-pin').value,
-        hourly_rate: parseFloat(document.getElementById('form-staff-rate').value)
+        hourly_rate: parseFloat(document.getElementById('form-staff-rate').value),
+        is_admin: document.getElementById('form-staff-is-admin').checked ? 1 : 0
       };
 
       const res = await fetch(`${API_URL}${endpoint}`, {
@@ -467,10 +471,9 @@
 
     async function deleteStaff(staffId) {
       if(!confirm("Silmek istediğinize emin misiniz?")) return;
-      const adminPass = document.getElementById('admin-pass').value;
       await fetch(`${API_URL}/api/admin/staff/delete`, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ admin_pin: adminPass, staff_id: staffId })
+        body: JSON.stringify({ staff_id: staffId })
       });
       loadAdminDashboard();
     }
@@ -481,18 +484,6 @@
       const dLon = (lon2 - lon1) * Math.PI / 180;
       const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
       return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    }
-
-    function showAdminLogin() {
-      document.getElementById('pc-qr-screen').classList.add('hidden');
-      document.getElementById('mobile-staff-screen').classList.add('hidden');
-      document.getElementById('admin-screen').classList.remove('hidden');
-    }
-
-    function closeAdmin() {
-      document.getElementById('admin-screen').classList.add('hidden');
-      if (qrTokenFromUrl) document.getElementById('mobile-staff-screen').classList.remove('hidden');
-      else document.getElementById('pc-qr-screen').classList.remove('hidden');
     }
 
     function logout() { window.location.href = window.location.pathname; }
