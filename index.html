@@ -33,10 +33,11 @@
       <p class="text-sm text-gray-300">Konumunuz kontrol ediliyor...</p>
     </div>
 
+    <!-- PIN GİRİŞİ -->
     <div id="pin-section" class="hidden text-center">
-      <div class="bg-amber-900/40 border border-amber-500/30 p-4 rounded-xl mb-6">
-        <h2 id="welcome-msg" class="text-xl font-bold text-amber-400 mb-1">Hoş Geldiniz!</h2>
-        <p class="text-xs text-gray-300">İyi Çalışmalar Dileriz ☕</p>
+      <div class="bg-amber-900/30 border border-amber-500/40 p-4 rounded-xl mb-6">
+        <h2 class="text-xl font-bold text-amber-400 mb-1">Brate Coffee ☕</h2>
+        <p class="text-xs text-gray-300">Giriş yapmak için PIN kodunuzu girin</p>
       </div>
       <label class="block text-sm text-gray-300 mb-2 text-left">PIN Kodunuz:</label>
       <input type="password" id="staff-pin" class="w-full bg-gray-700 border border-gray-600 p-3 rounded-lg text-center text-2xl tracking-widest text-white mb-4" placeholder="****" maxlength="4">
@@ -44,11 +45,19 @@
       <p id="login-error" class="text-red-400 text-xs text-center mt-3 hidden"></p>
     </div>
 
+    <!-- MESAİ ADIMI VE ŞIK KİŞİYE ÖZEL KARŞILAMA -->
     <div id="shift-section" class="hidden">
-      <div class="border-b border-gray-700 pb-3 mb-4 flex justify-between items-center">
-        <div><p class="text-xs text-gray-400">Personel</p><h3 id="staff-name" class="text-lg font-bold text-amber-400"></h3></div>
-        <button onclick="logout()" class="text-xs text-gray-400 underline">Çıkış</button>
+      <div class="bg-gradient-to-r from-amber-600/30 to-amber-900/40 border border-amber-500/50 p-4 rounded-xl mb-6 text-center">
+        <p class="text-xs text-amber-300 font-medium uppercase tracking-wider mb-1">Brate Coffee Ekibi</p>
+        <h2 id="welcome-msg" class="text-2xl font-extrabold text-white">Hoş Geldin!</h2>
+        <p class="text-xs text-gray-300 mt-1">Harika bir gün olsun, iyi çalışmalar ☕</p>
       </div>
+
+      <div class="border-b border-gray-700 pb-2 mb-4 flex justify-between items-center">
+        <span id="staff-name" class="text-xs font-semibold text-gray-400"></span>
+        <button onclick="logout()" class="text-xs text-amber-400 underline">Çıkış Yap</button>
+      </div>
+
       <div class="space-y-3 mb-6">
         <button onclick="submitShift('START')" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl shadow-lg transition text-lg">İŞE BAŞLAYALIM</button>
         <button onclick="submitShift('STOP')" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl shadow-lg transition text-lg">PAYDOS</button>
@@ -70,7 +79,6 @@
     </form>
 
     <div id="admin-content" class="hidden space-y-6">
-      <!-- PERSONEL EKLE/DÜZENLE -->
       <form onsubmit="saveStaffForm(event)" class="space-y-2 bg-gray-700/40 p-3 rounded-xl border border-gray-600">
         <h4 id="form-title" class="text-xs font-bold text-amber-400 uppercase">Yeni Personel Ekle</h4>
         <input type="hidden" id="edit-staff-id">
@@ -85,13 +93,11 @@
         </div>
       </form>
 
-      <!-- PERSONEL LİSTESİ -->
       <div>
         <h4 class="text-xs font-bold text-gray-400 uppercase mb-2">Kayıtlı Personeller</h4>
         <div id="staff-list-container" class="space-y-2 max-h-40 overflow-y-auto pr-1"></div>
       </div>
 
-      <!-- MESAİ İNCELEME VE SAAT DEĞİŞTİRME PENCERESİ -->
       <div id="staff-detail-modal" class="hidden bg-gray-900 p-4 rounded-xl border border-amber-500/50">
         <div class="flex justify-between items-center mb-2 pb-2 border-b border-gray-700">
           <h5 id="detail-staff-name" class="font-bold text-amber-400 text-sm"></h5>
@@ -107,6 +113,16 @@
     const API_URL = "https://personel-mesai-api.bratecoffee35.workers.dev";
     const urlParams = new URLSearchParams(window.location.search);
     const qrTokenFromUrl = urlParams.get('token');
+
+    // BENZERSİZ CİHAZ KİMLİĞİ (FINGERPRINT) OLUŞTUR / OKU
+    function getDeviceId() {
+      let devId = localStorage.getItem('brate_device_id');
+      if(!devId) {
+        devId = 'dev_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+        localStorage.setItem('brate_device_id', devId);
+      }
+      return devId;
+    }
 
     if (qrTokenFromUrl) {
       document.getElementById('pc-qr-screen').classList.add('hidden');
@@ -147,19 +163,23 @@
 
     async function loginStaff() {
       const pin = document.getElementById('staff-pin').value;
+      const err = document.getElementById('login-error');
+      
       const res = await fetch(`${API_URL}/api/staff/my-summary`, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pin_code: pin })
+        body: JSON.stringify({ pin_code: pin, device_id: getDeviceId() })
       });
       const data = await res.json();
+
       if (data.success) {
-        document.getElementById('welcome-msg').innerText = `Hoş Geldiniz ${data.staff_name}!`;
-        document.getElementById('staff-name').innerText = data.staff_name;
+        document.getElementById('welcome-msg').innerText = `Hoş Geldin ${data.staff_name}!`;
+        document.getElementById('staff-name').innerText = `Personel: ${data.staff_name}`;
         document.getElementById('pin-section').classList.add('hidden');
         document.getElementById('shift-section').classList.remove('hidden');
+        err.classList.add('hidden');
       } else {
-        document.getElementById('login-error').innerText = "Hatalı PIN!";
-        document.getElementById('login-error').classList.remove('hidden');
+        err.innerText = data.error || "Hatalı PIN!";
+        err.classList.remove('hidden');
       }
     }
 
@@ -167,9 +187,10 @@
       const pin = document.getElementById('staff-pin').value;
       const resDiv = document.getElementById('action-result');
       resDiv.innerHTML = `<span class="text-amber-400">Kaydediliyor...</span>`;
+
       const res = await fetch(`${API_URL}/api/shift/action`, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pin_code: pin, action_type: actionType })
+        body: JSON.stringify({ pin_code: pin, action_type: actionType, device_id: getDeviceId() })
       });
       const data = await res.json();
       if (data.success) resDiv.innerHTML = `<span class="text-green-400">${data.message}</span>`;
@@ -203,7 +224,8 @@
               <p class="text-xs font-bold text-white">${s.full_name}</p>
               <p class="text-[10px] text-gray-400">PIN: ${s.pin_code} | ${s.hourly_rate} TL/saat</p>
             </div>
-            <div class="space-x-1">
+            <div class="space-x-1 flex items-center">
+              <button onclick="resetDevice(${s.id})" title="Yeni telefona geçiş izni ver" class="bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] px-1.5 py-1 rounded">📱 Cihaz Sıfırla</button>
               <button onclick="editStaff(${s.id}, '${s.full_name}', '${s.pin_code}', ${s.hourly_rate})" class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] px-2 py-1 rounded">Düzenle</button>
               <button onclick="inspectStaff(${s.id})" class="bg-amber-600 hover:bg-amber-700 text-white text-[10px] px-2 py-1 rounded">Mesailer</button>
               <button onclick="deleteStaff(${s.id})" class="bg-red-600 hover:bg-red-700 text-white text-[10px] px-2 py-1 rounded">Sil</button>
@@ -213,7 +235,17 @@
       });
     }
 
-    // TÜRKIYE SAATI HESAPLAMA VE GÖSTERME (UTC+3)
+    async function resetDevice(staffId) {
+      if(!confirm("Bu personelin cihaz kilidini kaldırmak istediğinize emin misiniz?")) return;
+      const adminPass = document.getElementById('admin-pass').value;
+      const res = await fetch(`${API_URL}/api/admin/staff/reset-device`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ admin_pin: adminPass, staff_id: staffId })
+      });
+      const data = await res.json();
+      if(data.success) alert("Cihaz kilidi sıfırlandı! Personel yeni telefonundan giriş yapabilir.");
+    }
+
     let currentInspectedStaffId = null;
     async function inspectStaff(staffId) {
       currentInspectedStaffId = staffId;
@@ -235,7 +267,6 @@
         }
 
         data.shifts.forEach(shift => {
-          // Türkiye Saati (UTC+3) Yerel Zaman Dönüşümü
           const inISO = toTurkeyISOString(shift.clock_in);
           const outISO = shift.clock_out ? toTurkeyISOString(shift.clock_out) : "";
 
@@ -264,7 +295,6 @@
       }
     }
 
-    // Unix Timestamp'i Türkiye Yerel ISO Formatına Çeviren Yardımcı Fonksiyon
     function toTurkeyISOString(timestamp) {
       if(!timestamp) return "";
       const date = new Date(timestamp * 1000);
@@ -287,13 +317,13 @@
       });
       const data = await res.json();
       if(data.success) {
-        alert("Mesai saati başarıyla güncellendi!");
+        alert("Mesai saati güncellendi!");
         inspectStaff(currentInspectedStaffId);
       }
     }
 
     async function deleteShift(shiftId) {
-      if(!confirm("Bu mesai kaydını silmek istediğinize emin misiniz?")) return;
+      if(!confirm("Silmek istediğinize emin misiniz?")) return;
       const adminPass = document.getElementById('admin-pass').value;
       await fetch(`${API_URL}/api/admin/shift/delete`, {
         method: "POST", headers: { "Content-Type": "application/json" },
