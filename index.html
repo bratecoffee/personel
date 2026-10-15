@@ -45,7 +45,7 @@
       <p id="login-error" class="text-red-400 text-xs text-center mt-3 hidden"></p>
     </div>
 
-    <!-- MESAİ ADIMI VE ŞIK KİŞİYE ÖZEL KARŞILAMA -->
+    <!-- MESAİ ADIMI VE KİŞİYE ÖZEL KARŞILAMA -->
     <div id="shift-section" class="hidden">
       <div class="bg-gradient-to-r from-amber-600/30 to-amber-900/40 border border-amber-500/50 p-4 rounded-xl mb-6 text-center">
         <p class="text-xs text-amber-300 font-medium uppercase tracking-wider mb-1">Brate Coffee Ekibi</p>
@@ -114,7 +114,6 @@
     const urlParams = new URLSearchParams(window.location.search);
     const qrTokenFromUrl = urlParams.get('token');
 
-    // BENZERSİZ CİHAZ KİMLİĞİ (FINGERPRINT) OLUŞTUR / OKU
     function getDeviceId() {
       let devId = localStorage.getItem('brate_device_id');
       if(!devId) {
@@ -147,14 +146,18 @@
       }, 1000);
     }
 
+    // 100 KM KONUM KONTROLÜ
     function verifyLocationAndGreet() {
       navigator.geolocation.getCurrentPosition((pos) => {
-        const distance = getDistance(pos.coords.latitude, pos.coords.longitude, 38.461791, 27.211536);
-        if (distance <= 100) {
+        const distanceMeters = getDistance(pos.coords.latitude, pos.coords.longitude, 38.461791, 27.211536);
+        const distanceKm = distanceMeters / 1000;
+
+        // 100 KM Kontrolü (100.000 metre)
+        if (distanceMeters <= 100000) {
           document.getElementById('location-check-section').classList.add('hidden');
           document.getElementById('pin-section').classList.remove('hidden');
         } else {
-          document.getElementById('location-check-section').innerHTML = `<p class="text-red-400 font-bold">Kafede Değilsiniz! Uzaklık: ${Math.round(distance)}m</p>`;
+          document.getElementById('location-check-section').innerHTML = `<p class="text-red-400 font-bold">100 KM Alanı Dışındasınız!</p><p class="text-xs text-gray-400 mt-1">Uzaklığınız: ${Math.round(distanceKm)} km</p>`;
         }
       }, () => {
         document.getElementById('location-check-section').innerHTML = `<p class="text-red-400 font-bold">GPS/Konum izni verilmedi.</p>`;
@@ -243,7 +246,7 @@
         body: JSON.stringify({ admin_pin: adminPass, staff_id: staffId })
       });
       const data = await res.json();
-      if(data.success) alert("Cihaz kilidi sıfırlandı! Personel yeni telefonundan giriş yapabilir.");
+      if(data.success) alert("Cihaz kilidi sıfırlandı!");
     }
 
     let currentInspectedStaffId = null;
@@ -403,11 +406,4 @@
 
     function closeAdmin() {
       document.getElementById('admin-screen').classList.add('hidden');
-      if (qrTokenFromUrl) document.getElementById('mobile-staff-screen').classList.remove('hidden');
-      else document.getElementById('pc-qr-screen').classList.remove('hidden');
-    }
-
-    function logout() { window.location.href = window.location.pathname; }
-  </script>
-</body>
-</html>
+      if (qrTokenFromUrl) document.getElementById('mobile
