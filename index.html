@@ -189,6 +189,7 @@
       });
     }
 
+    // PERSONEL GİRİŞİ VE BİREBİR TOPLAM HESAPLAMA
     async function loginStaff() {
       const pin = document.getElementById('staff-pin').value;
       const err = document.getElementById('login-error');
@@ -206,8 +207,8 @@
         document.getElementById('shift-section').classList.remove('hidden');
         err.classList.add('hidden');
 
-        // Toplam çalışma süresi ve kazancı hesapla
-        if (data.shifts && data.shifts.length > 0) {
+        // Gelen mesaileri toplayıp yaz
+        if (data.shifts && Array.isArray(data.shifts)) {
           let totalH = 0, totalE = 0;
           data.shifts.forEach(s => {
             if (s.total_hours) totalH += parseFloat(s.total_hours);
@@ -234,6 +235,7 @@
       const data = await res.json();
       if (data.success) {
         resDiv.innerHTML = `<span class="text-green-400">${data.message}</span>`;
+        // İşlem sonrası özeti anında güncelle
         loginStaff();
       } else {
         resDiv.innerHTML = `<span class="text-red-400">${data.error}</span>`;
