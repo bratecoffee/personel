@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Brate Coffee - Personel Takip</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Yerel QR Kod Oluşturucu Kütüphanesi -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body class="bg-gray-900 text-white min-h-screen flex items-center justify-center p-4 relative">
 
@@ -13,13 +15,15 @@
     🔒 Yönetici Girişi
   </button>
 
-  <!-- 1. KAFE EKRANI -->
+  <!-- 1. KAFE EKRANI (QR KOD) -->
   <div id="pc-qr-screen" class="text-center bg-gray-800 p-8 rounded-2xl shadow-2xl border border-gray-700 max-w-sm w-full">
     <h1 class="text-2xl font-bold mb-2 text-amber-500">Brate Coffee</h1>
     <p class="text-xs text-gray-400 mb-6">Giriş / Çıkış için QR kodu okutun</p>
+    
     <div class="bg-white p-4 rounded-xl flex justify-center items-center my-4 min-h-[220px]">
-      <img id="qr-img" src="" alt="QR Kod" class="w-52 h-52 object-contain" />
+      <div id="qrcode-box" class="flex justify-center items-center"></div>
     </div>
+    
     <div class="mt-4 p-3 bg-gray-900/60 rounded-xl border border-gray-700/50 flex items-center justify-center space-x-2">
       <span class="relative flex h-3 w-3">
         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
@@ -48,7 +52,7 @@
       <p id="login-error" class="text-red-400 text-xs text-center mt-3 hidden"></p>
     </div>
 
-    <!-- MESAİ ADIMI, KARŞILAMA VE ÖZET TOPLAMLAR -->
+    <!-- MESAİ ADIMI VE ÖZET -->
     <div id="shift-section" class="hidden">
       <div class="bg-gradient-to-r from-amber-600/30 to-amber-900/40 border border-amber-500/50 p-4 rounded-xl mb-6 text-center">
         <p class="text-xs text-amber-300 font-medium uppercase tracking-wider mb-1">Brate Coffee Ekibi</p>
@@ -68,7 +72,7 @@
       
       <div id="action-result" class="text-center text-sm font-semibold mb-4"></div>
 
-      <!-- TOPLAM SÜRE VE KAZANÇ KARTI -->
+      <!-- PERSONEL ÖZETİ -->
       <div id="staff-totals-card" class="bg-gray-700/50 p-4 rounded-xl border border-gray-600 text-xs space-y-2">
         <h4 class="font-bold text-gray-300 border-b border-gray-600 pb-1 mb-2">Toplam Mesai Özeti</h4>
         <div class="flex justify-between text-gray-300">
@@ -116,14 +120,13 @@
         <div id="staff-list-container" class="space-y-2 max-h-40 overflow-y-auto pr-1"></div>
       </div>
 
-      <!-- MESAİ DETAY VE TOPLAM ÖZET MODALI -->
+      <!-- MESAİ DETAY VE YÖNETİCİ ÖZET MODALI -->
       <div id="staff-detail-modal" class="hidden bg-gray-900 p-4 rounded-xl border border-amber-500/50">
         <div class="flex justify-between items-center mb-2 pb-2 border-b border-gray-700">
           <h5 id="detail-staff-name" class="font-bold text-amber-400 text-sm"></h5>
           <button onclick="document.getElementById('staff-detail-modal').classList.add('hidden')" class="text-xs text-gray-400">Kapat</button>
         </div>
 
-        <!-- YÖNETİCİ İÇİN TOPLAM ÖZET KARTI -->
         <div class="bg-gray-800 p-3 rounded-lg border border-gray-700 mb-3 text-xs space-y-1">
           <div class="flex justify-between text-gray-300">
             <span>Genel Toplam Çalışma:</span>
@@ -163,6 +166,7 @@
       startQrLoopWithCountdown();
     }
 
+    // TARAYICI İÇİNDE QR KOD ÜRETİMİ (HARİCİ SERVİSSİZ)
     function startQrLoopWithCountdown() {
       let timeLeft = 10;
       const fetchAndDrawQr = async () => {
@@ -170,10 +174,21 @@
           const res = await fetch(`${API_URL}/api/qr/generate`);
           const data = await res.json();
           if (data.success) {
-            const scanUrl = encodeURIComponent(`${window.location.origin}${window.location.pathname}?token=${data.token}`);
-            document.getElementById('qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${scanUrl}`;
+            const scanUrl = `${window.location.origin}${window.location.pathname}?token=${data.token}`;
+            const qrBox = document.getElementById('qrcode-box');
+            qrBox.innerHTML = "";
+            new QRCode(qrBox, {
+              text: scanUrl,
+              width: 200,
+              height: 200,
+              colorDark: "#000000",
+              colorLight: "#ffffff",
+              correctLevel: QRCode.CorrectLevel.H
+            });
           }
-        } catch(e) {}
+        } catch(e) {
+          console.error("QR üretme hatası:", e);
+        }
       };
 
       fetchAndDrawQr();
@@ -359,7 +374,6 @@
           `;
         });
 
-        // Yönetici ekranı toplamlarını güncelle
         document.getElementById('admin-total-hours').innerText = `${sumHours.toFixed(2)} Saat`;
         document.getElementById('admin-total-earned').innerText = `${sumEarned.toFixed(2)} TL`;
       }
@@ -452,4 +466,35 @@
 
     async function deleteStaff(staffId) {
       if(!confirm("Silmek istediğinize emin misiniz?")) return;
-      const adminPass = document.
+      const adminPass = document.getElementById('admin-pass').value;
+      await fetch(`${API_URL}/api/admin/staff/delete`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ admin_pin: adminPass, staff_id: staffId })
+      });
+      loadAdminDashboard();
+    }
+
+    function getDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371e3;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
+
+    function showAdminLogin() {
+      document.getElementById('pc-qr-screen').classList.add('hidden');
+      document.getElementById('mobile-staff-screen').classList.add('hidden');
+      document.getElementById('admin-screen').classList.remove('hidden');
+    }
+
+    function closeAdmin() {
+      document.getElementById('admin-screen').classList.add('hidden');
+      if (qrTokenFromUrl) document.getElementById('mobile-staff-screen').classList.remove('hidden');
+      else document.getElementById('pc-qr-screen').classList.remove('hidden');
+    }
+
+    function logout() { window.location.href = window.location.pathname; }
+  </script>
+</body>
+</html>
