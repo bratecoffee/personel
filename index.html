@@ -100,6 +100,7 @@
         <h4 id="form-title" class="text-xs font-bold text-amber-400 uppercase">Yeni Personel Ekle</h4>
         <input type="hidden" id="edit-staff-id">
         <input type="text" id="form-staff-name" placeholder="Personel Adı Soyadı" class="w-full bg-gray-700 border border-gray-600 p-2 rounded text-xs text-white" required>
+        <input type="tel" id="form-staff-phone" placeholder="Cep Telefon No (05XX XXX XX XX)" class="w-full bg-gray-700 border border-gray-600 p-2 rounded text-xs text-white">
         <div class="grid grid-cols-2 gap-2">
           <input type="password" id="form-staff-pin" placeholder="PIN (4 Haneli)" class="bg-gray-700 border border-gray-600 p-2 rounded text-xs text-white" maxlength="4" required>
           <input type="number" step="0.01" id="form-staff-rate" placeholder="Saatlik Ücret (TL)" class="bg-gray-700 border border-gray-600 p-2 rounded text-xs text-white" required>
@@ -189,7 +190,6 @@
       });
     }
 
-    // PERSONEL GİRİŞİ VE BİREBİR TOPLAM HESAPLAMA
     async function loginStaff() {
       const pin = document.getElementById('staff-pin').value;
       const err = document.getElementById('login-error');
@@ -207,7 +207,6 @@
         document.getElementById('shift-section').classList.remove('hidden');
         err.classList.add('hidden');
 
-        // Gelen mesaileri toplayıp yaz
         if (data.shifts && Array.isArray(data.shifts)) {
           let totalH = 0, totalE = 0;
           data.shifts.forEach(s => {
@@ -235,7 +234,6 @@
       const data = await res.json();
       if (data.success) {
         resDiv.innerHTML = `<span class="text-green-400">${data.message}</span>`;
-        // İşlem sonrası özeti anında güncelle
         loginStaff();
       } else {
         resDiv.innerHTML = `<span class="text-red-400">${data.error}</span>`;
@@ -263,15 +261,16 @@
       const container = document.getElementById('staff-list-container');
       container.innerHTML = "";
       staffArray.forEach(s => {
+        const phone = s.phone_number ? s.phone_number : 'Tel Yok';
         container.innerHTML += `
           <div class="flex justify-between items-center bg-gray-700/60 p-2.5 rounded-lg border border-gray-600">
             <div>
               <p class="text-xs font-bold text-white">${s.full_name}</p>
-              <p class="text-[10px] text-gray-400">PIN: ${s.pin_code} | ${s.hourly_rate} TL/saat</p>
+              <p class="text-[10px] text-gray-400">Tel: ${phone} | PIN: ${s.pin_code} | ${s.hourly_rate} TL/saat</p>
             </div>
             <div class="space-x-1 flex items-center">
               <button onclick="resetDevice(${s.id})" title="Yeni telefona geçiş izni ver" class="bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] px-1.5 py-1 rounded">📱 Cihaz Sıfırla</button>
-              <button onclick="editStaff(${s.id}, '${s.full_name}', '${s.pin_code}', ${s.hourly_rate})" class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] px-2 py-1 rounded">Düzenle</button>
+              <button onclick="editStaff(${s.id}, '${s.full_name}', '${phone}', '${s.pin_code}', ${s.hourly_rate})" class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] px-2 py-1 rounded">Düzenle</button>
               <button onclick="inspectStaff(${s.id})" class="bg-amber-600 hover:bg-amber-700 text-white text-[10px] px-2 py-1 rounded">Mesailer</button>
               <button onclick="deleteStaff(${s.id})" class="bg-red-600 hover:bg-red-700 text-white text-[10px] px-2 py-1 rounded">Sil</button>
             </div>
@@ -377,9 +376,10 @@
       inspectStaff(currentInspectedStaffId);
     }
 
-    function editStaff(id, name, pin, rate) {
+    function editStaff(id, name, phone, pin, rate) {
       document.getElementById('edit-staff-id').value = id;
       document.getElementById('form-staff-name').value = name;
+      document.getElementById('form-staff-phone').value = phone !== 'Tel Yok' ? phone : '';
       document.getElementById('form-staff-pin').value = pin;
       document.getElementById('form-staff-rate').value = rate;
       document.getElementById('form-title').innerText = "Personel Bilgilerini Güncelle";
@@ -390,6 +390,7 @@
     function resetForm() {
       document.getElementById('edit-staff-id').value = "";
       document.getElementById('form-staff-name').value = "";
+      document.getElementById('form-staff-phone').value = "";
       document.getElementById('form-staff-pin').value = "";
       document.getElementById('form-staff-rate').value = "";
       document.getElementById('form-title').innerText = "Yeni Personel Ekle";
@@ -407,6 +408,7 @@
         admin_pin: adminPass,
         staff_id: staffId ? parseInt(staffId) : undefined,
         full_name: document.getElementById('form-staff-name').value,
+        phone_number: document.getElementById('form-staff-phone').value,
         pin_code: document.getElementById('form-staff-pin').value,
         hourly_rate: parseFloat(document.getElementById('form-staff-rate').value)
       };
