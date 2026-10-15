@@ -9,7 +9,7 @@
 </head>
 <body class="bg-gray-900 text-white min-h-screen flex items-center justify-center p-4 relative">
 
-  <!-- 1. KAFE EKRANI (QR KOD) - Yönetici Girişi kaldırıldı -->
+  <!-- 1. KAFE EKRANI (QR KOD) -->
   <div id="pc-qr-screen" class="text-center bg-gray-800 p-8 rounded-2xl shadow-2xl border border-gray-700 max-w-sm w-full">
     <h1 class="text-2xl font-bold mb-2 text-amber-500">Brate Coffee</h1>
     <p class="text-xs text-gray-400 mb-6">Giriş / Çıkış için QR kodu okutun</p>
@@ -29,13 +29,9 @@
 
   <!-- 2. PERSONEL MOBİL EKRANI -->
   <div id="mobile-staff-screen" class="hidden bg-gray-800 p-6 rounded-2xl shadow-2xl border border-gray-700 max-w-sm w-full">
-    <div id="location-check-section" class="text-center py-4">
-      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-500 mx-auto mb-4"></div>
-      <p class="text-sm text-gray-300">Konumunuz kontrol ediliyor...</p>
-    </div>
-
-    <!-- PIN GİRİŞİ -->
-    <div id="pin-section" class="hidden text-center">
+    
+    <!-- PIN GİRİŞİ (HERKES İÇİN DOĞRUDAN AÇILIR) -->
+    <div id="pin-section" class="text-center">
       <div class="bg-amber-900/30 border border-amber-500/40 p-4 rounded-xl mb-6">
         <h2 class="text-xl font-bold text-amber-400 mb-1">Brate Coffee ☕</h2>
         <p class="text-xs text-gray-300">Giriş yapmak için PIN kodunuzu girin</p>
@@ -54,7 +50,7 @@
         <p class="text-xs text-gray-300 mt-1">Harika bir gün olsun, iyi çalışmalar ☕</p>
       </div>
 
-      <!-- SADECE YETKİLİ / YÖNETİCİ PERSONELE GÖRÜNEN YÖNETİCİ PANELİ BUTONU -->
+      <!-- SADECE YETKİLİ PERSONELE GÖRÜNEN BUTON -->
       <button id="btn-admin-access" onclick="openAdminPanel()" class="hidden w-full mb-4 bg-purple-700 hover:bg-purple-800 text-white font-bold py-2.5 rounded-xl border border-purple-500 shadow-lg text-xs transition flex items-center justify-center space-x-1">
         <span>🔒 Yönetici Paneli</span>
       </button>
@@ -118,7 +114,6 @@
         <div id="staff-list-container" class="space-y-2 max-h-40 overflow-y-auto pr-1"></div>
       </div>
 
-      <!-- MESAİ DETAY VE YÖNETİCİ ÖZET MODALI -->
       <div id="staff-detail-modal" class="hidden bg-gray-900 p-4 rounded-xl border border-amber-500/50">
         <div class="flex justify-between items-center mb-2 pb-2 border-b border-gray-700">
           <h5 id="detail-staff-name" class="font-bold text-amber-400 text-sm"></h5>
@@ -147,6 +142,9 @@
     const urlParams = new URLSearchParams(window.location.search);
     const qrTokenFromUrl = urlParams.get('token');
 
+    let userLat = null;
+    let userLng = null;
+
     function getDeviceId() {
       let devId = localStorage.getItem('brate_device_id');
       if(!devId) {
@@ -159,7 +157,13 @@
     if (qrTokenFromUrl) {
       document.getElementById('pc-qr-screen').classList.add('hidden');
       document.getElementById('mobile-staff-screen').classList.remove('hidden');
-      verifyLocationAndGreet();
+      // Konum bilgisini arka planda iste
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((pos) => {
+          userLat = pos.coords.latitude;
+          userLng = pos.coords.longitude;
+        }, () => {});
+      }
     } else {
       startQrLoopWithCountdown();
     }
@@ -200,20 +204,6 @@
       }, 1000);
     }
 
-    function verifyLocationAndGreet() {
-      navigator.geolocation.getCurrentPosition((pos) => {
-        const distanceMeters = getDistance(pos.coords.latitude, pos.coords.longitude, 38.461791, 27.211536);
-        if (distanceMeters <= 100000) {
-          document.getElementById('location-check-section').classList.add('hidden');
-          document.getElementById('pin-section').classList.remove('hidden');
-        } else {
-          document.getElementById('location-check-section').innerHTML = `<p class="text-red-400 font-bold">100 KM Alanı Dışındasınız!</p>`;
-        }
-      }, () => {
-        document.getElementById('location-check-section').innerHTML = `<p class="text-red-400 font-bold">GPS/Konum izni verilmedi.</p>`;
-      });
-    }
-
     async function loginStaff() {
       const pin = document.getElementById('staff-pin').value;
       const err = document.getElementById('login-error');
@@ -231,7 +221,6 @@
         document.getElementById('shift-section').classList.remove('hidden');
         err.classList.add('hidden');
 
-        // YÖNETİCİ YETKİ KONTROLÜ: is_admin 1 ise mor butonu göster
         const adminBtn = document.getElementById('btn-admin-access');
         if (data.is_admin === 1) {
           adminBtn.classList.remove('hidden');
@@ -268,11 +257,17 @@
     async function submitShift(actionType) {
       const pin = document.getElementById('staff-pin').value;
       const resDiv = document.getElementById('action-result');
-      resDiv.innerHTML = `<span class="text-amber-400">Kaydediliyor...</span>`;
+      resDiv.innerHTML = `<span class="text-amber-400">Konum ve İşlem Kontrol Ediliyor...</span>`;
 
       const res = await fetch(`${API_URL}/api/shift/action`, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pin_code: pin, action_type: actionType, device_id: getDeviceId() })
+        body: JSON.stringify({ 
+          pin_code: pin, 
+          action_type: actionType, 
+          device_id: getDeviceId(),
+          lat: userLat,
+          lng: userLng
+        })
       });
       const data = await res.json();
       if (data.success) {
@@ -476,14 +471,6 @@
         body: JSON.stringify({ staff_id: staffId })
       });
       loadAdminDashboard();
-    }
-
-    function getDistance(lat1, lon1, lat2, lon2) {
-      const R = 6371e3;
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLon = (lon2 - lon1) * Math.PI / 180;
-      const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
-      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
 
     function logout() { window.location.href = window.location.pathname; }
