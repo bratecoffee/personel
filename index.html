@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Brate Coffee - Personel Takip</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body class="bg-gray-900 text-white min-h-screen flex items-center justify-center p-4 relative">
 
@@ -19,10 +18,13 @@
     <h1 class="text-2xl font-bold mb-2 text-amber-500">Brate Coffee</h1>
     <p class="text-xs text-gray-400 mb-6">Giriş / Çıkış için QR kodu okutun</p>
     <div class="bg-white p-4 rounded-xl flex justify-center items-center my-4 min-h-[220px]">
-      <div id="qrcode-box" class="flex justify-center items-center"></div>
+      <img id="qr-img" src="" alt="QR Kod" class="w-52 h-52 object-contain" />
     </div>
     <div class="mt-4 p-3 bg-gray-900/60 rounded-xl border border-gray-700/50 flex items-center justify-center space-x-2">
-      <span class="relative flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span></span>
+      <span class="relative flex h-3 w-3">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+      </span>
       <p class="text-xs text-amber-400 font-mono">QR Kod <span id="countdown" class="text-white font-bold underline px-1">10</span> saniye sonra yenilenecek</p>
     </div>
   </div>
@@ -153,18 +155,23 @@
           const res = await fetch(`${API_URL}/api/qr/generate`);
           const data = await res.json();
           if (data.success) {
-            const scanUrl = `${window.location.origin}${window.location.pathname}?token=${data.token}`;
-            const qrContainer = document.getElementById('qrcode-box');
-            qrContainer.innerHTML = "";
-            new QRCode(qrContainer, { text: scanUrl, width: 200, height: 200 });
+            const scanUrl = encodeURIComponent(`${window.location.origin}${window.location.pathname}?token=${data.token}`);
+            document.getElementById('qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${scanUrl}`;
           }
         } catch(e) {}
       };
+
       fetchAndDrawQr();
+
       setInterval(() => {
         timeLeft--;
-        if (timeLeft <= 0) { fetchAndDrawQr(); timeLeft = 10; }
-        if (document.getElementById('countdown')) document.getElementById('countdown').innerText = timeLeft;
+        if (timeLeft <= 0) {
+          fetchAndDrawQr();
+          timeLeft = 10;
+        }
+        if (document.getElementById('countdown')) {
+          document.getElementById('countdown').innerText = timeLeft;
+        }
       }, 1000);
     }
 
@@ -199,34 +206,20 @@
         document.getElementById('shift-section').classList.remove('hidden');
         err.classList.add('hidden');
 
-        // Personelin toplamlarını PIN ile doğru çekip hesapla
-        fetchAndRenderStaffTotalsByPin(pin);
-      } else {
-        err.innerText = data.error || "Hatalı PIN!";
-        err.classList.remove('hidden');
-      }
-    }
-
-    // TOPLAM ÇALIŞMA VE ÜCRET HESAPLAYICI (PIN BAZLI TAM HESAP)
-    async function fetchAndRenderStaffTotalsByPin(pin) {
-      try {
-        const res = await fetch(`${API_URL}/api/staff/my-summary`, {
-          method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ pin_code: pin, device_id: getDeviceId() })
-        });
-        const data = await res.json();
-        
-        // Eğer özet API'si detayları dönüyorsa hesapla
-        if(data.success && data.shifts) {
+        // Toplam çalışma süresi ve kazancı hesapla
+        if (data.shifts && data.shifts.length > 0) {
           let totalH = 0, totalE = 0;
           data.shifts.forEach(s => {
-            if(s.total_hours) totalH += parseFloat(s.total_hours);
-            if(s.earned_amount) totalE += parseFloat(s.earned_amount);
+            if (s.total_hours) totalH += parseFloat(s.total_hours);
+            if (s.earned_amount) totalE += parseFloat(s.earned_amount);
           });
           document.getElementById('total-hours').innerText = `${totalH.toFixed(2)} Saat`;
           document.getElementById('total-earned').innerText = `${totalE.toFixed(2)} TL`;
         }
-      } catch(e){}
+      } else {
+        err.innerText = data.error || "Hatalı PIN!";
+        err.classList.remove('hidden');
+      }
     }
 
     async function submitShift(actionType) {
@@ -272,11 +265,11 @@
           <div class="flex justify-between items-center bg-gray-700/60 p-2.5 rounded-lg border border-gray-600">
             <div>
               <p class="text-xs font-bold text-white">${s.full_name}</p>
-              <p class="text-[10px] text-gray-400">PIN: ${s.pin_code} \vert{}${s.hourly_rate} TL/saat</p>
+              <p class="text-[10px] text-gray-400">PIN: ${s.pin_code} | ${s.hourly_rate} TL/saat</p>
             </div>
             <div class="space-x-1 flex items-center">
               <button onclick="resetDevice(${s.id})" title="Yeni telefona geçiş izni ver" class="bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] px-1.5 py-1 rounded">📱 Cihaz Sıfırla</button>
-              <button onclick="editStaff(${s.id}, '${s.full_name}', '${s.pin_code}',${s.hourly_rate})" class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] px-2 py-1 rounded">Düzenle</button>
+              <button onclick="editStaff(${s.id}, '${s.full_name}', '${s.pin_code}', ${s.hourly_rate})" class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] px-2 py-1 rounded">Düzenle</button>
               <button onclick="inspectStaff(${s.id})" class="bg-amber-600 hover:bg-amber-700 text-white text-[10px] px-2 py-1 rounded">Mesailer</button>
               <button onclick="deleteStaff(${s.id})" class="bg-red-600 hover:bg-red-700 text-white text-[10px] px-2 py-1 rounded">Sil</button>
             </div>
@@ -329,4 +322,135 @@
                 </div>
                 <div>
                   <label class="block text-gray-400">Çıkış Tarih/Saat:</label>
-                  <input type="datetime-
+                  <input type="datetime-local" id="out-${shift.id}" value="${outISO}" class="bg-gray-700 border border-gray-600 p-1 rounded text-white w-full">
+                </div>
+              </div>
+              <div class="flex justify-between items-center text-[11px] pt-1 border-t border-gray-700">
+                <span class="text-gray-300">Süre: <b>${shift.total_hours || '-'} sa</b> | Kazanç: <b class="text-amber-400">${shift.earned_amount || '-'} TL</b></span>
+                <div class="space-x-1">
+                  <button onclick="updateShiftTime(${shift.id})" class="bg-green-600 hover:bg-green-700 text-white text-[10px] px-2 py-0.5 rounded">Saati Kaydet</button>
+                  <button onclick="deleteShift(${shift.id})" class="bg-red-600 hover:bg-red-700 text-white text-[10px] px-2 py-0.5 rounded">Sil</button>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+      }
+    }
+
+    function toTurkeyISOString(timestamp) {
+      if(!timestamp) return "";
+      const date = new Date(timestamp * 1000);
+      const tzOffset = date.getTimezoneOffset() * 60000;
+      const localTime = new Date(date.getTime() - tzOffset);
+      return localTime.toISOString().slice(0, 16);
+    }
+
+    async function updateShiftTime(shiftId) {
+      const adminPass = document.getElementById('admin-pass').value;
+      const inVal = document.getElementById(`in-${shiftId}`).value;
+      const outVal = document.getElementById(`out-${shiftId}`).value;
+
+      const clockIn = inVal ? Math.floor(new Date(inVal).getTime() / 1000) : null;
+      const clockOut = outVal ? Math.floor(new Date(outVal).getTime() / 1000) : null;
+
+      const res = await fetch(`${API_URL}/api/admin/shift/update`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ admin_pin: adminPass, shift_id: shiftId, clock_in: clockIn, clock_out: clockOut })
+      });
+      const data = await res.json();
+      if(data.success) {
+        alert("Mesai saati güncellendi!");
+        inspectStaff(currentInspectedStaffId);
+      }
+    }
+
+    async function deleteShift(shiftId) {
+      if(!confirm("Silmek istediğinize emin misiniz?")) return;
+      const adminPass = document.getElementById('admin-pass').value;
+      await fetch(`${API_URL}/api/admin/shift/delete`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ admin_pin: adminPass, shift_id: shiftId })
+      });
+      inspectStaff(currentInspectedStaffId);
+    }
+
+    function editStaff(id, name, pin, rate) {
+      document.getElementById('edit-staff-id').value = id;
+      document.getElementById('form-staff-name').value = name;
+      document.getElementById('form-staff-pin').value = pin;
+      document.getElementById('form-staff-rate').value = rate;
+      document.getElementById('form-title').innerText = "Personel Bilgilerini Güncelle";
+      document.getElementById('btn-save-staff').innerText = "Güncellemeyi Kaydet";
+      document.getElementById('btn-cancel-edit').classList.remove('hidden');
+    }
+
+    function resetForm() {
+      document.getElementById('edit-staff-id').value = "";
+      document.getElementById('form-staff-name').value = "";
+      document.getElementById('form-staff-pin').value = "";
+      document.getElementById('form-staff-rate').value = "";
+      document.getElementById('form-title').innerText = "Yeni Personel Ekle";
+      document.getElementById('btn-save-staff').innerText = "+ Kaydet";
+      document.getElementById('btn-cancel-edit').classList.add('hidden');
+    }
+
+    async function saveStaffForm(e) {
+      e.preventDefault();
+      const adminPass = document.getElementById('admin-pass').value;
+      const staffId = document.getElementById('edit-staff-id').value;
+      const endpoint = staffId ? "/api/admin/staff/update" : "/api/admin/staff/add";
+
+      const payload = {
+        admin_pin: adminPass,
+        staff_id: staffId ? parseInt(staffId) : undefined,
+        full_name: document.getElementById('form-staff-name').value,
+        pin_code: document.getElementById('form-staff-pin').value,
+        hourly_rate: parseFloat(document.getElementById('form-staff-rate').value)
+      };
+
+      const res = await fetch(`${API_URL}${endpoint}`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if(data.success) {
+        resetForm();
+        loadAdminDashboard();
+      }
+    }
+
+    async function deleteStaff(staffId) {
+      if(!confirm("Silmek istediğinize emin misiniz?")) return;
+      const adminPass = document.getElementById('admin-pass').value;
+      await fetch(`${API_URL}/api/admin/staff/delete`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ admin_pin: adminPass, staff_id: staffId })
+      });
+      loadAdminDashboard();
+    }
+
+    function getDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371e3;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
+
+    function showAdminLogin() {
+      document.getElementById('pc-qr-screen').classList.add('hidden');
+      document.getElementById('mobile-staff-screen').classList.add('hidden');
+      document.getElementById('admin-screen').classList.remove('hidden');
+    }
+
+    function closeAdmin() {
+      document.getElementById('admin-screen').classList.add('hidden');
+      if (qrTokenFromUrl) document.getElementById('mobile-staff-screen').classList.remove('hidden');
+      else document.getElementById('pc-qr-screen').classList.remove('hidden');
+    }
+
+    function logout() { window.location.href = window.location.pathname; }
+  </script>
+</body>
+</html>
