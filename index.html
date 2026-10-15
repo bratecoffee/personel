@@ -5,13 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Brate Coffee - Personel Takip</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Yerel QR Kod Oluşturucu Kütüphanesi -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body class="bg-gray-900 text-white min-h-screen flex items-center justify-center p-4 relative">
 
-  <!-- SAĞ ÜST YÖNETİCİ BUTONU -->
-  <button onclick="showAdminLogin()" class="absolute top-4 right-4 bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-amber-400 text-xs px-3 py-2 rounded-lg border border-gray-700 transition">
+  <!-- SAĞ ÜST YÖNETİCİ BUTONU (Sadece Ana Sayfa/QR Ekranında Görünür) -->
+  <button id="admin-login-btn" onclick="showAdminLogin()" class="absolute top-4 right-4 bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-amber-400 text-xs px-3 py-2 rounded-lg border border-gray-700 transition">
     🔒 Yönetici Girişi
   </button>
 
@@ -158,15 +157,17 @@
       return devId;
     }
 
+    // PERSONEL QR OKUTUP GELDİYSE YÖNETİCİ BUTONUNU GİZLE
     if (qrTokenFromUrl) {
       document.getElementById('pc-qr-screen').classList.add('hidden');
       document.getElementById('mobile-staff-screen').classList.remove('hidden');
+      const adminBtn = document.getElementById('admin-login-btn');
+      if (adminBtn) adminBtn.classList.add('hidden');
       verifyLocationAndGreet();
     } else {
       startQrLoopWithCountdown();
     }
 
-    // TARAYICI İÇİNDE QR KOD ÜRETİMİ (HARİCİ SERVİSSİZ)
     function startQrLoopWithCountdown() {
       let timeLeft = 10;
       const fetchAndDrawQr = async () => {
