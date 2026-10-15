@@ -30,7 +30,7 @@
   <!-- 2. PERSONEL MOBİL EKRANI -->
   <div id="mobile-staff-screen" class="hidden bg-gray-800 p-6 rounded-2xl shadow-2xl border border-gray-700 max-w-sm w-full">
     
-    <!-- PIN GİRİŞİ (HERKES İÇİN DOĞRUDAN AÇILIR) -->
+    <!-- PIN GİRİŞİ -->
     <div id="pin-section" class="text-center">
       <div class="bg-amber-900/30 border border-amber-500/40 p-4 rounded-xl mb-6">
         <h2 class="text-xl font-bold text-amber-400 mb-1">Brate Coffee ☕</h2>
@@ -50,7 +50,6 @@
         <p class="text-xs text-gray-300 mt-1">Harika bir gün olsun, iyi çalışmalar ☕</p>
       </div>
 
-      <!-- SADECE YETKİLİ PERSONELE GÖRÜNEN BUTON -->
       <button id="btn-admin-access" onclick="openAdminPanel()" class="hidden w-full mb-4 bg-purple-700 hover:bg-purple-800 text-white font-bold py-2.5 rounded-xl border border-purple-500 shadow-lg text-xs transition flex items-center justify-center space-x-1">
         <span>🔒 Yönetici Paneli</span>
       </button>
@@ -157,7 +156,6 @@
     if (qrTokenFromUrl) {
       document.getElementById('pc-qr-screen').classList.add('hidden');
       document.getElementById('mobile-staff-screen').classList.remove('hidden');
-      // Konum bilgisini arka planda iste
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((pos) => {
           userLat = pos.coords.latitude;
@@ -259,6 +257,14 @@
       const resDiv = document.getElementById('action-result');
       resDiv.innerHTML = `<span class="text-amber-400">Konum ve İşlem Kontrol Ediliyor...</span>`;
 
+      // Konumu tekrar tazelemeye çalış
+      if (navigator.geolocation && (!userLat || !userLng)) {
+        navigator.geolocation.getCurrentPosition((pos) => {
+          userLat = pos.coords.latitude;
+          userLng = pos.coords.longitude;
+        }, () => {});
+      }
+
       const res = await fetch(`${API_URL}/api/shift/action`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
@@ -351,6 +357,7 @@
 
           const inISO = toTurkeyISOString(shift.clock_in);
           const outISO = shift.clock_out ? toTurkeyISOString(shift.clock_out) : "";
+          const distText = shift.distance_meters !== null && shift.distance_meters !== undefined ? `📍 ${shift.distance_meters}m` : '📍 Konum Yok';
 
           list.innerHTML += `
             <div class="bg-gray-800 p-2.5 rounded border border-gray-700 space-y-2">
@@ -365,7 +372,7 @@
                 </div>
               </div>
               <div class="flex justify-between items-center text-[11px] pt-1 border-t border-gray-700">
-                <span class="text-gray-300">Süre: <b>${shift.total_hours || '-'} sa</b> | Kazanç: <b class="text-amber-400">${shift.earned_amount || '-'} TL</b></span>
+                <span class="text-gray-300">Süre: <b>${shift.total_hours || '-'} sa</b> | Kazanç: <b class="text-amber-400">${shift.earned_amount || '-'} TL</b> | <span class="text-cyan-400 font-semibold">${distText}</span></span>
                 <div class="space-x-1">
                   <button onclick="updateShiftTime(${shift.id})" class="bg-green-600 hover:bg-green-700 text-white text-[10px] px-2 py-0.5 rounded">Saati Kaydet</button>
                   <button onclick="deleteShift(${shift.id})" class="bg-red-600 hover:bg-red-700 text-white text-[10px] px-2 py-0.5 rounded">Sil</button>
