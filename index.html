@@ -131,20 +131,24 @@
       startQrLoopWithCountdown();
     }
 
-    function startQrLoopWithCountdown() {
-      let timeLeft = 10;
-      const updateQr = () => {
-        const token = 'token_' + Math.floor(Date.now() / 1000);
-        const scanUrl = encodeURIComponent(`${window.location.origin}${window.location.pathname}?token=${token}`);
-        document.getElementById('qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${scanUrl}`;
-      };
-      updateQr();
-      setInterval(() => {
-        timeLeft--;
-        if (timeLeft <= 0) { updateQr(); timeLeft = 10; }
-        if (document.getElementById('countdown')) document.getElementById('countdown').innerText = timeLeft;
-      }, 1000);
-    }
+function startQrLoopWithCountdown() {
+  let timeLeft = 10;
+  const updateQr = () => {
+    const token = 'token_' + Math.floor(Date.now() / 1000);
+    const scanUrl = encodeURIComponent(`${window.location.origin}${window.location.pathname}?token=${token}`);
+    
+    // QuickChart QR servisini kullanarak kesin görüntüleme sağlıyoruz
+    document.getElementById('qr-img').src = `https://quickchart.io/qr?text=${scanUrl}&size=220&margin=1`;
+  };
+  
+  updateQr();
+  
+  setInterval(() => {
+    timeLeft--;
+    if (timeLeft <= 0) { updateQr(); timeLeft = 10; }
+    if (document.getElementById('countdown')) document.getElementById('countdown').innerText = timeLeft;
+  }, 1000);
+}
 
     // 100 KM KONUM KONTROLÜ
     function verifyLocationAndGreet() {
