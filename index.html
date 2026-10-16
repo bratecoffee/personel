@@ -258,9 +258,16 @@
           <button id="btn-open-display-auth" onclick="openDisplayAuthModal()" class="bg-pink-900/80 hover:bg-pink-800 text-pink-200 font-bold px-3.5 py-2 rounded-xl text-xs border border-pink-700 transition flex items-center space-x-1 cursor-pointer">
             <span>🔐 Personel Girişi</span>
           </button>
-          <span id="display-staff-badge" class="hidden bg-emerald-950 text-emerald-300 text-xs px-3 py-1.5 rounded-xl border border-emerald-800 font-bold">
-            👤 Yetkili: <span id="display-staff-name-text"></span>
-          </span>
+          
+          <div id="display-staff-badge" class="hidden flex items-center space-x-1.5">
+            <span class="bg-emerald-950 text-emerald-300 text-xs px-3 py-2 rounded-xl border border-emerald-800 font-bold">
+              👤 Yetkili: <span id="display-staff-name-text"></span>
+            </span>
+            <button onclick="logoutDisplayAccess()" class="bg-rose-900/80 hover:bg-rose-800 text-rose-100 font-bold px-3 py-2 rounded-xl text-xs border border-rose-700 transition cursor-pointer" title="Oturumu Kapat">
+              ❌ Oturumu Kapat
+            </button>
+          </div>
+
           <button onclick="closeDisplayPage()" class="bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold px-4 py-2 rounded-xl text-xs border border-gray-700 transition">← Ana Menü</button>
         </div>
       </div>
@@ -839,6 +846,12 @@
         err.classList.remove('hidden');
         focusInput('display-auth-pin');
       }
+    }
+
+    function logoutDisplayAccess() {
+      displayAuthPin = null;
+      updateDisplayAuthUI();
+      renderDisplayTableWithCountdown();
     }
 
     function updateDisplayAuthUI() {
