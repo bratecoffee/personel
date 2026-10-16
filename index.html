@@ -17,8 +17,8 @@
 </head>
 <body class="bg-brate-dark text-gray-100 min-h-screen flex items-center justify-center p-3 sm:p-6 relative selection:bg-red-900 selection:text-white">
 
-  <!-- 0. İKİYE BÖLÜNMÜŞ SEÇENEKLİ ANA AÇILIŞ EKRANI -->
-  <div id="landing-screen" class="bg-brate-card p-6 sm:p-10 rounded-3xl shadow-2xl border border-brate max-w-4xl w-full text-center relative overflow-hidden">
+  <!-- 0. ÜÇE BÖLÜNMÜŞ SEÇENEKLİ ANA AÇILIŞ EKRANI -->
+  <div id="landing-screen" class="bg-brate-card p-6 sm:p-10 rounded-3xl shadow-2xl border border-brate max-w-5xl w-full text-center relative overflow-hidden">
     <div class="absolute -top-32 -left-32 w-64 h-64 bg-red-900/20 rounded-full blur-3xl pointer-events-none"></div>
 
     <div class="flex justify-center mb-6 cursor-pointer select-none group" onclick="handleSecretClick()" title="Yönetici Girişi İçin 5 Kez Tıklayın">
@@ -32,29 +32,40 @@
     </div>
 
     <h1 class="text-3xl sm:text-4xl font-extrabold tracking-wider text-white mb-2">BRATE COFFEE</h1>
-    <p class="text-sm font-medium text-amber-200/70 mb-8">Personel Mesai & Takip Sistemi</p>
+    <p class="text-sm font-medium text-amber-200/70 mb-8">Personel & Teşhir Ürünleri Takip Sistemi</p>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div onclick="selectMode('QR')" class="bg-black/40 hover:bg-black/60 border border-brate hover:border-amber-600/70 p-6 sm:p-8 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 shadow-lg group flex flex-col items-center justify-between min-h-[220px]">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div onclick="selectMode('QR')" class="bg-black/40 hover:bg-black/60 border border-brate hover:border-amber-600/70 p-6 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 shadow-lg group flex flex-col items-center justify-between min-h-[220px]">
         <div class="w-16 h-16 bg-red-950/80 border border-red-800 text-amber-400 rounded-2xl flex items-center justify-center mb-4 text-3xl group-hover:scale-110 transition">
           📱
         </div>
         <div>
-          <h3 class="text-xl font-bold text-amber-300 mb-2">QR Kod Ekranı</h3>
-          <p class="text-xs text-gray-300">Telefondan QR kod okutarak işe başlama ve paydos bildirimi yapmak için tıklayın.</p>
+          <h3 class="text-lg font-bold text-amber-300 mb-2">QR Kod Ekranı</h3>
+          <p class="text-xs text-gray-300">Telefondan QR okutarak giriş ve paydos bildirimi yapın.</p>
         </div>
-        <span class="mt-4 text-xs font-bold text-amber-400 underline group-hover:text-amber-300">QR Ekranını Aç ➔</span>
+        <span class="mt-4 text-xs font-bold text-amber-400 underline group-hover:text-amber-300">QR Ekranı ➔</span>
       </div>
 
-      <div onclick="selectMode('PC')" class="bg-black/40 hover:bg-black/60 border border-brate hover:border-emerald-600/70 p-6 sm:p-8 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 shadow-lg group flex flex-col items-center justify-between min-h-[220px]">
+      <div onclick="selectMode('PC')" class="bg-black/40 hover:bg-black/60 border border-brate hover:border-emerald-600/70 p-6 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 shadow-lg group flex flex-col items-center justify-between min-h-[220px]">
         <div class="w-16 h-16 bg-emerald-950/80 border border-emerald-800 text-emerald-400 rounded-2xl flex items-center justify-center mb-4 text-3xl group-hover:scale-110 transition">
           💻
         </div>
         <div>
-          <h3 class="text-xl font-bold text-emerald-300 mb-2">Bilgisayardan Giriş</h3>
-          <p class="text-xs text-gray-300">Kafedeki bilgisayardan doğrudan PIN kodunuzu girerek işlem yapmak için tıklayın.</p>
+          <h3 class="text-lg font-bold text-emerald-300 mb-2">Bilgisayardan Giriş</h3>
+          <p class="text-xs text-gray-300">Kafe bilgisayarından doğrudan PIN kodunuzla işlem yapın.</p>
         </div>
-        <span class="mt-4 text-xs font-bold text-emerald-400 underline group-hover:text-emerald-300">PIN Ekranını Aç ➔</span>
+        <span class="mt-4 text-xs font-bold text-emerald-400 underline group-hover:text-emerald-300">PIN Ekranı ➔</span>
+      </div>
+
+      <div onclick="openDisplayPage()" class="bg-black/40 hover:bg-black/60 border border-brate hover:border-pink-600/70 p-6 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 shadow-lg group flex flex-col items-center justify-between min-h-[220px]">
+        <div class="w-16 h-16 bg-pink-950/80 border border-pink-800 text-pink-400 rounded-2xl flex items-center justify-center mb-4 text-3xl group-hover:scale-110 transition">
+          🍰
+        </div>
+        <div>
+          <h3 class="text-lg font-bold text-pink-300 mb-2">Teşhir Ürünleri Takip</h3>
+          <p class="text-xs text-gray-300">Dolaptaki tatlıların tazelik ve imha sürelerini canlı takip edin.</p>
+        </div>
+        <span class="mt-4 text-xs font-bold text-pink-400 underline group-hover:text-pink-300">Dolap Canlı Takip ➔</span>
       </div>
     </div>
   </div>
@@ -174,7 +185,7 @@
     <div class="flex justify-between items-center border-b border-brate pb-4 mb-6">
       <div>
         <h3 class="text-2xl font-bold text-amber-400">Yönetici Paneli</h3>
-        <p class="text-xs text-gray-400 mt-0.5">Personel Yönetimi ve Hak Ediş Takibi</p>
+        <p class="text-xs text-gray-400 mt-0.5">Personel & Teşhir Ürünleri Yönetimi</p>
       </div>
       <button onclick="closeAdmin()" class="bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold px-4 py-2 rounded-xl text-xs border border-gray-700 transition">Kapat / Geri Dön</button>
     </div>
@@ -182,7 +193,7 @@
     <!-- İKİ SÜTUNLU DÜZEN (GRID) -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       
-      <!-- SOL SÜTUN: PERSONEL EKLE/DÜZENLE & KİŞİ BAZLI TOPLAM SÜRE/ÜCRET LİSTESİ -->
+      <!-- SOL SÜTUN: PERSONEL EKLE/DÜZENLE, HAK EDİŞLER & TEŞHİR EKLENEN YER -->
       <div class="space-y-6">
         <form onsubmit="saveStaffForm(event)" class="space-y-3 bg-black/40 p-5 rounded-2xl border border-brate shadow-md">
           <h4 id="form-title" class="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center justify-between">
@@ -205,12 +216,23 @@
           </div>
         </form>
 
-        <!-- PERSONEL BAZLI TOPLAM ÇALIŞMA VE ÜCRET LİSTESİ (SOL MENÜ ALTINDA) -->
         <div class="bg-black/50 p-5 rounded-2xl border border-amber-600/40 space-y-3 shadow-md">
           <h4 class="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center justify-between border-b border-brate pb-2">
             <span>📊 PERSONEL BAZLI TOPLAM HAK EDİŞLER</span>
           </h4>
-          <div id="admin-staff-summary-list" class="space-y-2 max-h-52 overflow-y-auto pr-1 text-xs"></div>
+          <div id="admin-staff-summary-list" class="space-y-2 max-h-44 overflow-y-auto pr-1 text-xs"></div>
+        </div>
+
+        <!-- İSTEDİĞİNİZ YER: TEŞHİR ÜRÜNÜ / DOLAP YÖNETİMİ -->
+        <div class="bg-black/50 p-5 rounded-2xl border border-pink-600/40 space-y-3 shadow-md">
+          <h4 class="text-xs font-bold text-pink-300 uppercase tracking-wider flex items-center justify-between border-b border-brate pb-2">
+            <span>🍰 TEŞHİR ÜRÜNÜ / DOLAP YÖNETİMİ</span>
+          </h4>
+          <div class="flex space-x-2">
+            <input type="text" id="input-display-pname" placeholder="Ürün Adı (Örn: Fıstıklı Soğuk Baklava)" class="w-full bg-brate-card border border-brate p-3 rounded-xl text-xs text-white focus:outline-none focus:border-pink-500">
+            <button onclick="addDisplayProduct()" class="bg-pink-800 hover:bg-pink-700 text-white font-bold px-4 py-3 rounded-xl text-xs whitespace-nowrap shadow-md transition">+ Dolaba Koy</button>
+          </div>
+          <p class="text-[10px] text-gray-400 italic">* Butona basıldığında ürünün teşhir zamanı otomatik kaydedilir ve 3 günlük (72 saat) imha geri sayımı başlar.</p>
         </div>
       </div>
 
@@ -229,7 +251,35 @@
     <p id="admin-msg" class="text-xs text-center font-semibold mt-3"></p>
   </div>
 
-  <!-- 4. TAM EKRAN MESAİ DETAY SAYFASI -->
+  <!-- 4. TEŞHİR ÜRÜNLERİ TAKİP CANLI EKRANI -->
+  <div id="display-products-page" class="hidden fixed inset-0 bg-brate-dark z-50 overflow-y-auto p-4 sm:p-8 flex flex-col items-center">
+    <div class="max-w-4xl w-full bg-brate-card p-6 sm:p-8 rounded-3xl border border-brate shadow-2xl my-auto space-y-6">
+      <div class="flex justify-between items-center border-b border-brate pb-4">
+        <div>
+          <h2 class="text-2xl font-extrabold text-pink-400 flex items-center">🍰 Teşhir Ürünleri Tazelik Takibi</h2>
+          <p class="text-xs text-gray-400 mt-1">Dolaptaki ürünlerin 3 günlük (72 Saat) canlı geri sayımı</p>
+        </div>
+        <button onclick="closeDisplayPage()" class="bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold px-4 py-2 rounded-xl text-xs border border-gray-700 transition">← Ana Menü</button>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-brate text-xs text-amber-300 uppercase">
+              <th class="p-3">Ürün Adı</th>
+              <th class="p-3">Teşhir Zamanı</th>
+              <th class="p-3">İmha Zamanı (+3 Gün)</th>
+              <th class="p-3">Kalan Zaman (Canlı)</th>
+              <th class="p-3 text-right">İşlem</th>
+            </tr>
+          </thead>
+          <tbody id="display-products-tbody" class="text-xs text-gray-200 divide-y divide-brate/50"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. TAM EKRAN MESAİ DETAY SAYFASI -->
   <div id="full-shifts-page" class="hidden fixed inset-0 bg-brate-dark z-50 overflow-y-auto p-4 sm:p-8 flex flex-col items-center">
     <div class="max-w-3xl w-full bg-brate-card p-6 sm:p-8 rounded-3xl border border-brate shadow-2xl my-auto space-y-6">
       
@@ -315,6 +365,9 @@
     let currentStaffData = null;
     let currentInspectedStaffId = null;
     let isViewingAsAdmin = false;
+
+    let displayProductsList = [];
+    let displayTimerInterval = null;
 
     function formatHoursToHoursAndMinutes(decimalHours) {
       if (!decimalHours || isNaN(decimalHours) || parseFloat(decimalHours) <= 0) return "0 Sa 0 Dk";
@@ -652,6 +705,114 @@
           </div>
         `;
       });
+    }
+
+    // --- TEŞHİR ÜRÜNLERİ FONKSİYONLARI ---
+    async function addDisplayProduct() {
+      const pname = document.getElementById('input-display-pname').value.trim();
+      if (!pname) {
+        alert("Lütfen ürün adını yazın!");
+        return;
+      }
+
+      const res = await fetch(`${API_URL}/api/display/add`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ product_name: pname })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(`🍰 "${pname}" başarıyla dolaba eklendi! 3 günlük geri sayım başladı.`);
+        document.getElementById('input-display-pname').value = "";
+      } else {
+        alert("Hata: " + (data.error || "Eklenemedi"));
+      }
+    }
+
+    async function openDisplayPage() {
+      document.getElementById('landing-screen').classList.add('hidden');
+      document.getElementById('display-products-page').classList.remove('hidden');
+      await fetchDisplayProducts();
+
+      if (displayTimerInterval) clearInterval(displayTimerInterval);
+      displayTimerInterval = setInterval(renderDisplayTableWithCountdown, 1000);
+    }
+
+    function closeDisplayPage() {
+      if (displayTimerInterval) clearInterval(displayTimerInterval);
+      document.getElementById('display-products-page').classList.add('hidden');
+      document.getElementById('landing-screen').classList.remove('hidden');
+    }
+
+    async function fetchDisplayProducts() {
+      const res = await fetch(`${API_URL}/api/display/list`);
+      const data = await res.json();
+      if (data.success) {
+        displayProductsList = data.products || [];
+        renderDisplayTableWithCountdown();
+      }
+    }
+
+    function renderDisplayTableWithCountdown() {
+      const tbody = document.getElementById('display-products-tbody');
+      tbody.innerHTML = "";
+
+      if (displayProductsList.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-gray-500">Dolapta aktif teşhir ürünü bulunmuyor.</td></tr>`;
+        return;
+      }
+
+      const now = Math.floor(Date.now() / 1000);
+
+      displayProductsList.forEach(p => {
+        const createdStr = new Date(p.created_at * 1000).toLocaleString('tr-TR');
+        const expireStr = new Date(p.expire_at * 1000).toLocaleString('tr-TR');
+
+        const diffSeconds = p.expire_at - now;
+        let countdownStr = "";
+        let badgeClass = "bg-emerald-950 text-emerald-300 border-emerald-800";
+
+        if (diffSeconds > 0) {
+          const days = Math.floor(diffSeconds / (24 * 3600));
+          const hours = Math.floor((diffSeconds % (24 * 3600)) / 3600);
+          const minutes = Math.floor((diffSeconds % 3600) / 60);
+          const seconds = diffSeconds % 60;
+
+          countdownStr = `${days} Gün ${hours} Sa ${minutes} Dk ${seconds} Sn`;
+
+          if (diffSeconds < 12 * 3600) { // 12 saatten az kaldıysa sarı
+            badgeClass = "bg-amber-950 text-amber-300 border-amber-800";
+          }
+        } else {
+          countdownStr = "🚨 İMHA EDİLMELİ (Süre Doldu)";
+          badgeClass = "bg-rose-950 text-rose-300 border-rose-800 animate-pulse";
+        }
+
+        tbody.innerHTML += `
+          <tr class="hover:bg-black/30 transition">
+            <td class="p-3 font-bold text-white">${p.product_name}</td>
+            <td class="p-3 text-gray-300">${createdStr}</td>
+            <td class="p-3 text-amber-200/90 font-mono">${expireStr}</td>
+            <td class="p-3">
+              <span class="px-2.5 py-1 rounded-lg border text-[11px] font-bold font-mono ${badgeClass}">${countdownStr}</span>
+            </td>
+            <td class="p-3 text-right">
+              <button onclick="removeDisplayProduct(${p.id})" class="bg-rose-900/80 hover:bg-rose-800 text-rose-100 font-bold text-[10px] px-2.5 py-1.5 rounded-lg border border-rose-700">Satıldı / Kaldır</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    async function removeDisplayProduct(id) {
+      if(!confirm("Bu ürünü dolaptan kaldırmak / satıldı işaretlemek istediğinize emin misiniz?")) return;
+      const res = await fetch(`${API_URL}/api/display/remove`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ product_id: id })
+      });
+      const data = await res.json();
+      if(data.success) {
+        fetchDisplayProducts();
+      }
     }
 
     function openPersonalShiftsPage() {
