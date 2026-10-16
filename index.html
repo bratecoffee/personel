@@ -17,7 +17,7 @@
 </head>
 <body class="bg-brate-dark text-gray-100 min-h-screen flex items-center justify-center p-3 sm:p-6 relative selection:bg-red-900 selection:text-white">
 
-  <!-- 0. ÜÇE BÖLÜNMÜŞ SEÇENEKLİ ANA AÇILIŞ EKRANI -->
+  <!-- 0. ANA AÇILIŞ EKRANI -->
   <div id="landing-screen" class="bg-brate-card p-6 sm:p-10 rounded-3xl shadow-2xl border border-brate max-w-5xl w-full text-center relative overflow-hidden z-10">
     <div class="absolute -top-32 -left-32 w-64 h-64 bg-red-900/20 rounded-full blur-3xl pointer-events-none -z-10"></div>
 
@@ -34,7 +34,24 @@
     <h1 class="text-3xl sm:text-4xl font-extrabold tracking-wider text-white mb-2">BRATE COFFEE</h1>
     <p class="text-sm font-medium text-amber-200/70 mb-8">Personel & Teşhir Ürünleri Takip Sistemi</p>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-20">
+    <!-- YETKİSİZ CİHAZ MENÜSÜ (DIŞARIDAN GİRENLER İÇİN) -->
+    <div id="unauthorized-menu" class="hidden relative z-20 space-y-4 max-w-sm mx-auto">
+      <div class="bg-rose-950/40 border border-rose-900/50 p-6 rounded-2xl text-center shadow-lg">
+        <div class="text-4xl mb-3">🛑</div>
+        <h3 class="text-lg font-bold text-rose-400 mb-2">Yetkisiz Erişim</h3>
+        <p class="text-xs text-gray-300 leading-relaxed">Uzaktan mesai girişi yapmak yasaktır.<br>Lütfen kafedeki ana bilgisayardan <strong class="text-amber-400">QR Kod okutun</strong>.</p>
+      </div>
+      <div onclick="openDisplayPage()" class="bg-black/40 hover:bg-black/60 border border-brate hover:border-pink-600/70 p-5 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 shadow-lg flex items-center justify-center space-x-4">
+        <div class="text-3xl">🍰</div>
+        <div class="text-left">
+          <h3 class="text-base font-bold text-pink-300">Teşhir Ürünleri Takip</h3>
+          <p class="text-[10px] text-gray-400">Dolap canlı takibine git ➔</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- YETKİLİ CİHAZ MENÜSÜ (KAFE ANA BİLGİSAYARI İÇİN) -->
+    <div id="authorized-menu" class="hidden grid grid-cols-1 md:grid-cols-3 gap-6 relative z-20">
       <div onclick="selectMode('QR')" class="bg-black/40 hover:bg-black/60 border border-brate hover:border-amber-600/70 p-6 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 shadow-lg group flex flex-col items-center justify-between min-h-[220px]">
         <div class="w-16 h-16 bg-red-950/80 border border-red-800 text-amber-400 rounded-2xl flex items-center justify-center mb-4 text-3xl group-hover:scale-110 transition">📱</div>
         <div>
@@ -229,6 +246,18 @@
           </div>
           <div id="catalog-products-list" class="space-y-1.5 pt-2 max-h-32 overflow-y-auto pr-1"></div>
         </div>
+        
+        <!-- YENİ EKLENEN KAFE BİLGİSAYARI YETKİLENDİRME BÖLÜMÜ -->
+        <div class="bg-black/50 p-5 rounded-2xl border border-indigo-600/40 space-y-3 shadow-md mt-6">
+          <h4 class="text-xs font-bold text-indigo-300 uppercase tracking-wider flex items-center justify-between border-b border-brate pb-2">
+            <span>💻 KAFE ANA BİLGİSAYARI YETKİSİ</span>
+          </h4>
+          <p class="text-[11px] text-gray-400">Dışarıdan (evden vb.) sisteme kaçak girişi engellemek için sadece kafedeki cihaza yetki verin.</p>
+          <div class="flex items-center justify-between bg-brate-card p-3 rounded-xl border border-brate mt-2">
+            <span class="text-[11px] font-bold text-white" id="device-auth-status">Durum Yükleniyor...</span>
+            <button onclick="toggleDeviceAuth()" id="btn-device-auth" class="bg-indigo-800 hover:bg-indigo-700 text-white font-bold px-3 py-2 rounded-lg text-[11px] transition shadow-md">Yetki Ver</button>
+          </div>
+        </div>
       </div>
 
       <div class="bg-black/40 p-5 rounded-2xl border border-brate shadow-md flex flex-col justify-between">
@@ -391,6 +420,61 @@
     let displayTimerInterval = null;
     let displayAuthPin = null;
 
+    // YETKİLİ BİLGİSAYAR KONTROLÜ
+    function applyLandingScreenState() {
+      const isCafePc = localStorage.getItem('brate_cafe_pc') === '1';
+      const authMenu = document.getElementById('authorized-menu');
+      const unauthMenu = document.getElementById('unauthorized-menu');
+      
+      if (authMenu && unauthMenu) {
+        if (isCafePc) {
+          authMenu.classList.remove('hidden');
+          unauthMenu.classList.add('hidden');
+        } else {
+          authMenu.classList.add('hidden');
+          unauthMenu.classList.remove('hidden');
+        }
+      }
+    }
+
+    function updateDeviceAuthUI() {
+      const isCafePc = localStorage.getItem('brate_cafe_pc') === '1';
+      const statusEl = document.getElementById('device-auth-status');
+      const btnEl = document.getElementById('btn-device-auth');
+      
+      if (statusEl && btnEl) {
+        if (isCafePc) {
+          statusEl.innerHTML = 'Durum: <span class="text-emerald-400">Yetkili Kafe Cihazı ✅</span>';
+          btnEl.innerText = "Bu Cihazın Yetkisini Kaldır";
+          btnEl.classList.replace('bg-indigo-800', 'bg-rose-800');
+          btnEl.classList.replace('hover:bg-indigo-700', 'hover:bg-rose-700');
+        } else {
+          statusEl.innerHTML = 'Durum: <span class="text-rose-400">Sıradan Cihaz (Yetkisiz) ❌</span>';
+          btnEl.innerText = "Bu Cihaza Yetki Ver";
+          btnEl.classList.replace('bg-rose-800', 'bg-indigo-800');
+          btnEl.classList.replace('hover:bg-rose-700', 'hover:bg-indigo-700');
+        }
+      }
+    }
+
+    function toggleDeviceAuth() {
+      const isCafePc = localStorage.getItem('brate_cafe_pc') === '1';
+      if (isCafePc) {
+        localStorage.removeItem('brate_cafe_pc');
+        alert("Güvenlik Kilidi Aktif!\n\nBu cihazın 'Kafe Ana Bilgisayarı' yetkisi KALDIRILDI. Artık dışarıdan giriş yapılamaz.");
+      } else {
+        localStorage.setItem('brate_cafe_pc', '1');
+        alert("Başarılı!\n\nBu cihaz 'Kafe Ana Bilgisayarı' olarak yetkilendirildi. QR ve PIN ekranı sadece burada görünecektir.");
+      }
+      updateDeviceAuthUI();
+      applyLandingScreenState();
+    }
+
+    // SAYFA YÜKLENDİĞİNDE YETKİ KONTROLÜ YAP
+    document.addEventListener("DOMContentLoaded", () => {
+      applyLandingScreenState();
+    });
+
     function formatHoursToHoursAndMinutes(decimalHours) {
       if (!decimalHours || isNaN(decimalHours) || parseFloat(decimalHours) <= 0) return "0 Sa 0 Dk";
       const totalMinutes = Math.round(parseFloat(decimalHours) * 60);
@@ -488,6 +572,7 @@
       document.getElementById('pc-qr-screen').classList.add('hidden');
       document.getElementById('mobile-staff-screen').classList.add('hidden');
       document.getElementById('landing-screen').classList.remove('hidden');
+      applyLandingScreenState();
     }
 
     function generateQrCode(text) {
@@ -635,6 +720,7 @@
         }
       } else {
         document.getElementById('landing-screen').classList.remove('hidden');
+        applyLandingScreenState();
       }
     }
 
@@ -673,6 +759,8 @@
     }
 
     async function loadAdminDashboard() {
+      updateDeviceAuthUI(); // Yetki ekranını yükle
+      
       const res = await fetch(`${API_URL}/api/admin/staff/list`, {
         method: "POST", headers: { "Content-Type": "application/json" }
       });
@@ -804,6 +892,7 @@
       if (displayTimerInterval) clearInterval(displayTimerInterval);
       document.getElementById('display-products-page').classList.add('hidden');
       document.getElementById('landing-screen').classList.remove('hidden');
+      applyLandingScreenState();
     }
 
     function openDisplayAuthModal() {
@@ -839,7 +928,7 @@
         closeDisplayAuthModal();
         
         document.getElementById('display-staff-name-text').innerText = data.staff_name;
-        updateDisplayAuthUI();
+        updateDisplayAuthUIForm();
         renderDisplayTableWithCountdown();
       } else {
         err.innerText = data.error || "Hatalı PIN Kodu!";
@@ -850,11 +939,11 @@
 
     function logoutDisplayAccess() {
       displayAuthPin = null;
-      updateDisplayAuthUI();
+      updateDisplayAuthUIForm();
       renderDisplayTableWithCountdown();
     }
 
-    function updateDisplayAuthUI() {
+    function updateDisplayAuthUIForm() {
       const btnAuth = document.getElementById('btn-open-display-auth');
       const badgeStaff = document.getElementById('display-staff-badge');
       const addBox = document.getElementById('display-add-box');
