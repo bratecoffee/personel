@@ -20,7 +20,7 @@
     .text-brate-gold { color: #e5b869; }
   </style>
 </head>
-<body class="bg-brate-dark text-gray-100 min-h-screen flex items-center justify-center p-4 relative selection:bg-red-900 selection:text-white">
+<body class="bg-brate-dark text-gray-100 min-h-screen flex items-center justify-center p-3 sm:p-6 relative selection:bg-red-900 selection:text-white">
 
   <!-- 1. KAFE EKRANI (QR KOD VE LOGO) -->
   <div id="pc-qr-screen" class="text-center bg-brate-card p-8 sm:p-10 rounded-3xl shadow-2xl border border-brate max-w-md w-full relative overflow-hidden">
@@ -85,31 +85,34 @@
 
     <!-- MESAİ ADIMI VE ÖZET -->
     <div id="shift-section" class="hidden">
-      <div class="bg-gradient-to-r from-red-950/60 to-black/60 border border-brate p-5 rounded-2xl mb-6 text-center relative shadow-md">
+      <div class="bg-gradient-to-r from-red-950/60 to-black/60 border border-brate p-5 rounded-2xl mb-5 text-center relative shadow-md">
         <p class="text-xs text-amber-400 font-bold uppercase tracking-widest mb-1">BRATE COFFEE EKİBİ</p>
         <h2 id="welcome-msg" class="text-2xl font-extrabold text-white">Hoş Geldin!</h2>
         <p class="text-xs text-gray-300 mt-1">Harika bir gün olsun, iyi çalışmalar ☕</p>
       </div>
 
-      <button id="btn-admin-access" onclick="openAdminPanel()" class="hidden w-full mb-5 bg-purple-900/80 hover:bg-purple-800 text-purple-100 font-bold py-3 rounded-xl border border-purple-600 shadow-lg text-sm transition flex items-center justify-center space-x-2">
+      <button id="btn-admin-access" onclick="openAdminPanel()" class="hidden w-full mb-4 bg-purple-900/80 hover:bg-purple-800 text-purple-100 font-bold py-3 rounded-xl border border-purple-600 shadow-lg text-sm transition flex items-center justify-center space-x-2">
         <span>🔒 Yönetici Paneline Geçiş Yap</span>
       </button>
 
-      <div class="border-b border-brate pb-3 mb-5 flex justify-between items-center">
+      <div class="border-b border-brate pb-3 mb-4 flex justify-between items-center">
         <span id="staff-name" class="text-sm font-bold text-gray-300"></span>
         <button onclick="logout()" class="text-xs font-semibold text-amber-400 hover:text-amber-300 underline">Çıkış Yap</button>
       </div>
 
-      <div class="space-y-3.5 mb-6">
+      <div class="space-y-3.5 mb-5">
         <button onclick="submitShift('START')" class="w-full bg-emerald-700 hover:bg-emerald-600 text-white font-extrabold py-4 rounded-2xl shadow-lg transition text-xl tracking-wide">İŞE BAŞLAYALIM</button>
         <button onclick="submitShift('STOP')" class="w-full bg-rose-800 hover:bg-rose-700 text-white font-extrabold py-4 rounded-2xl shadow-lg transition text-xl tracking-wide">PAYDOS</button>
       </div>
       
-      <div id="action-result" class="text-center text-sm font-semibold mb-5"></div>
+      <div id="action-result" class="text-center text-sm font-semibold mb-4"></div>
 
-      <!-- PERSONEL ÖZETİ -->
-      <div id="staff-totals-card" class="bg-black/40 p-4 rounded-2xl border border-brate text-xs space-y-2.5">
-        <h4 class="font-bold text-amber-300 border-b border-brate pb-1.5 text-sm">Toplam Mesai Özeti</h4>
+      <!-- PERSONEL MESAİ ÖZETİ KARTI VE DETAY BUTONU -->
+      <div class="bg-black/40 p-4 rounded-2xl border border-brate text-xs space-y-3">
+        <div class="flex justify-between items-center border-b border-brate pb-2">
+          <h4 class="font-bold text-amber-300 text-sm">Toplam Mesai Özeti</h4>
+          <button onclick="openPersonalShiftsPage()" class="text-[11px] font-bold text-amber-400 hover:text-amber-300 bg-amber-950/60 px-2.5 py-1 rounded-lg border border-amber-800/60">Tüm Detaylar ➔</button>
+        </div>
         <div class="flex justify-between text-gray-300 text-xs">
           <span>Toplam Çalışma Süresi:</span>
           <span id="total-hours" class="font-bold text-white text-sm">0.00 Saat</span>
@@ -151,47 +154,62 @@
 
       <div>
         <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2.5">Kayıtlı Personeller</h4>
-        <div id="staff-list-container" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
-      </div>
-
-      <!-- MESAİ DETAY VE MANUEL EKLEME MODALI -->
-      <div id="staff-detail-modal" class="hidden bg-black/80 p-4 rounded-2xl border border-red-900/80">
-        <div class="flex justify-between items-center mb-3 pb-2 border-b border-brate">
-          <h5 id="detail-staff-name" class="font-bold text-amber-400 text-sm"></h5>
-          <button onclick="document.getElementById('staff-detail-modal').classList.add('hidden')" class="text-xs text-gray-400 hover:text-white font-bold">✕ Kapat</button>
-        </div>
-
-        <!-- MANUEL MESAİ EKLEME FORMU -->
-        <div class="bg-brate-card p-3 rounded-xl border border-amber-600/40 mb-3 space-y-2">
-          <h6 class="text-xs font-bold text-amber-300">➕ Manuel Geçmiş Mesai Ekle</h6>
-          <div class="grid grid-cols-2 gap-2 text-[10px]">
-            <div>
-              <label class="block text-gray-400 mb-0.5">Giriş Tarih / Saat:</label>
-              <input type="datetime-local" id="manual-in-time" class="bg-black/60 border border-brate p-1.5 rounded-lg text-white w-full">
-            </div>
-            <div>
-              <label class="block text-gray-400 mb-0.5">Paydos Tarih / Saat:</label>
-              <input type="datetime-local" id="manual-out-time" class="bg-black/60 border border-brate p-1.5 rounded-lg text-white w-full">
-            </div>
-          </div>
-          <button onclick="addManualShift()" class="w-full bg-amber-700 hover:bg-amber-600 text-white font-bold py-1.5 rounded-lg text-xs transition">+ Manuel Mesaiyi Kaydet</button>
-        </div>
-
-        <div class="bg-brate-card p-3 rounded-xl border border-brate mb-3 text-xs space-y-1">
-          <div class="flex justify-between text-gray-300">
-            <span>Genel Toplam Çalışma:</span>
-            <span id="admin-total-hours" class="font-bold text-white">0.00 Saat</span>
-          </div>
-          <div class="flex justify-between text-gray-300">
-            <span>Genel Toplam Hak Edilen:</span>
-            <span id="admin-total-earned" class="font-bold text-amber-400">0.00 TL</span>
-          </div>
-        </div>
-
-        <div id="detail-shifts-list" class="text-xs space-y-2 max-h-52 overflow-y-auto pr-1"></div>
+        <div id="staff-list-container" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
       </div>
     </div>
     <p id="admin-msg" class="text-xs text-center font-semibold mt-2"></p>
+  </div>
+
+  <!-- 4. TAM EKRAN FERAH MESAİ DETAY SAYFASI (PERSONEL VE YÖNETİCİ İÇİN ÖZELLEŞTİRİLMİŞ) -->
+  <div id="full-shifts-page" class="hidden fixed inset-0 bg-brate-dark z-50 overflow-y-auto p-4 sm:p-8 flex flex-col items-center">
+    <div class="max-w-3xl w-full bg-brate-card p-6 sm:p-8 rounded-3xl border border-brate shadow-2xl my-auto space-y-6">
+      
+      <!-- Üst Başlık ve Geri Dön Butonu -->
+      <div class="flex justify-between items-center border-b border-brate pb-4">
+        <div>
+          <h2 id="page-shifts-title" class="text-2xl font-extrabold text-amber-400">Mesai Geçmişi</h2>
+          <p id="page-shifts-subtitle" class="text-xs text-gray-400 mt-1"></p>
+        </div>
+        <button onclick="closeShiftsPage()" class="bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold px-4 py-2 rounded-xl text-xs border border-gray-700 transition">← Geri Dön</button>
+      </div>
+
+      <!-- SADECE YÖNETİCİLERE ÖZEL MANUEL GEÇMİŞ MESAİ EKLEME ALANI -->
+      <div id="admin-manual-shift-box" class="hidden bg-black/50 p-5 rounded-2xl border border-amber-600/50 space-y-3">
+        <h3 class="text-sm font-bold text-amber-300 flex items-center space-x-2">
+          <span>➕ Geçmişe Dönük Manuel Mesai Ekle</span>
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          <div>
+            <label class="block text-gray-300 mb-1 font-semibold">Giriş Tarihi / Saati:</label>
+            <input type="datetime-local" id="manual-in-time" class="bg-brate-card border border-brate p-3 rounded-xl text-white w-full focus:outline-none focus:border-amber-500">
+          </div>
+          <div>
+            <label class="block text-gray-300 mb-1 font-semibold">Paydos Tarihi / Saati:</label>
+            <input type="datetime-local" id="manual-out-time" class="bg-brate-card border border-brate p-3 rounded-xl text-white w-full focus:outline-none focus:border-amber-500">
+          </div>
+        </div>
+        <button onclick="addManualShift()" class="w-full bg-amber-700 hover:bg-amber-600 text-white font-bold py-3 rounded-xl text-xs shadow-md transition">+ Manuel Mesaiyi Kaydet</button>
+      </div>
+
+      <!-- GENEL TOPLAM ÖZET KARTI -->
+      <div class="grid grid-cols-2 gap-4 bg-black/40 p-4 rounded-2xl border border-brate text-center">
+        <div>
+          <p class="text-xs text-gray-400 mb-1 font-medium">Toplam Çalışma Süresi</p>
+          <p id="page-total-hours" class="text-xl font-extrabold text-white">0.00 Saat</p>
+        </div>
+        <div>
+          <p class="text-xs text-gray-400 mb-1 font-medium">Toplam Hak Edilen Ücret</p>
+          <p id="page-total-earned" class="text-xl font-extrabold text-amber-400">0.00 TL</p>
+        </div>
+      </div>
+
+      <!-- MESAİ KAYITLARI LİSTESİ -->
+      <div>
+        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Tüm Mesai Kayıtları</h4>
+        <div id="page-shifts-list" class="space-y-3 max-h-[450px] overflow-y-auto pr-1"></div>
+      </div>
+
+    </div>
   </div>
 
   <script>
@@ -204,7 +222,11 @@
     let userLng = null;
     let secretClickCount = 0;
     let secretClickTimer = null;
-    let currentInspectedStaffId = null;
+    
+    let currentStaffData = null; // Giriş yapan personel
+    let currentInspectedStaffId = null; // İncelenen personel ID
+    let currentShiftsList = [];
+    let isViewingAsAdmin = false;
 
     function getDeviceId() {
       let devId = localStorage.getItem('brate_device_id');
@@ -321,6 +343,7 @@
       const data = await res.json();
 
       if (data.success) {
+        currentStaffData = data;
         document.getElementById('welcome-msg').innerText = `Hoş Geldin ${data.staff_name}!`;
         document.getElementById('staff-name').innerText = `Personel: ${data.staff_name}`;
         document.getElementById('pin-section').classList.add('hidden');
@@ -418,208 +441,133 @@
               <p class="text-[10px] text-gray-400">Tel: ${phone} | PIN: ${s.pin_code} | ${s.hourly_rate} TL/saat</p>
             </div>
             <div class="space-x-1 flex items-center">
-              <button onclick="resetDevice(${s.id})" title="Yeni telefona geçiş izni ver" class="bg-indigo-900/80 hover:bg-indigo-800 text-indigo-100 text-[10px] px-2 py-1 rounded-lg">📱 Cihaz Sıfırla</button>
-              <button onclick="editStaff(${s.id}, '${s.full_name}', '${phone}', '${s.pin_code}', ${s.hourly_rate}, ${s.is_admin || 0})" class="bg-blue-900/80 hover:bg-blue-800 text-blue-100 text-[10px] px-2 py-1 rounded-lg">Düzenle</button>
-              <button onclick="inspectStaff(${s.id})" class="bg-amber-800/80 hover:bg-amber-700 text-amber-100 text-[10px] px-2 py-1 rounded-lg">Mesailer</button>
-              <button onclick="deleteStaff(${s.id})" class="bg-rose-900/80 hover:bg-rose-800 text-rose-100 text-[10px] px-2 py-1 rounded-lg">Sil</button>
+              <button onclick="resetDevice(${s.id})" title="Yeni telefona geçiş izni ver" class="bg-indigo-900/80 hover:bg-indigo-800 text-indigo-100 text-[10px] px-2 py-1.5 rounded-lg">📱 Cihaz Sıfırla</button>
+              <button onclick="editStaff(${s.id}, '${s.full_name}', '${phone}', '${s.pin_code}', ${s.hourly_rate}, ${s.is_admin || 0})" class="bg-blue-900/80 hover:bg-blue-800 text-blue-100 text-[10px] px-2 py-1.5 rounded-lg">Düzenle</button>
+              <button onclick="inspectStaffAsAdmin(${s.id})" class="bg-amber-800 hover:bg-amber-700 text-amber-100 font-bold text-[10px] px-2.5 py-1.5 rounded-lg border border-amber-600/50">Mesailer ➔</button>
+              <button onclick="deleteStaff(${s.id})" class="bg-rose-900/80 hover:bg-rose-800 text-rose-100 text-[10px] px-2 py-1.5 rounded-lg">Sil</button>
             </div>
           </div>
         `;
       });
     }
 
-    async function resetDevice(staffId) {
-      if(!confirm("Bu personelin cihaz kilidini kaldırmak istediğinize emin misiniz?")) return;
-      const res = await fetch(`${API_URL}/api/admin/staff/reset-device`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ staff_id: staffId })
-      });
-      const data = await res.json();
-      if(data.success) alert("Cihaz kilidi sıfırlandı!");
+    // PERSONEL KENDİ MESAİ SAYFASINI AÇTIĞINDA
+    async function openPersonalShiftsPage() {
+      if (!currentStaffData) return;
+      isViewingAsAdmin = false;
+      currentInspectedStaffId = currentStaffData.staff_id;
+
+      document.getElementById('mobile-staff-screen').classList.add('hidden');
+      document.getElementById('full-shifts-page').classList.remove('hidden');
+      document.getElementById('admin-manual-shift-box').classList.add('hidden');
+
+      document.getElementById('page-shifts-title').innerText = `${currentStaffData.staff_name} - Mesai Geçmişi`;
+      document.getElementById('page-shifts-subtitle').innerText = "Kendi çalışma saatleriniz ve kazanç kayıtlarınız";
+
+      loadStaffShiftsPage(currentStaffData.staff_id);
     }
 
-    async function inspectStaff(staffId) {
+    // YÖNETİCİ PERSONELİN MESAİ SAYFASINI AÇTIĞINDA
+    async function inspectStaffAsAdmin(staffId) {
+      isViewingAsAdmin = true;
       currentInspectedStaffId = staffId;
+
+      document.getElementById('admin-screen').classList.add('hidden');
+      document.getElementById('full-shifts-page').classList.remove('hidden');
+      document.getElementById('admin-manual-shift-box').classList.remove('hidden');
+
       document.getElementById('manual-in-time').value = "";
       document.getElementById('manual-out-time').value = "";
 
+      loadStaffShiftsPage(staffId);
+    }
+
+    async function loadStaffShiftsPage(staffId) {
       const res = await fetch(`${API_URL}/api/admin/staff/detail`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ staff_id: staffId })
       });
       const data = await res.json();
-      if(data.success) {
-        document.getElementById('staff-detail-modal').classList.remove('hidden');
-        document.getElementById('detail-staff-name').innerText = `${data.staff.full_name} - Mesai Geçmişi`;
-        const list = document.getElementById('detail-shifts-list');
-        list.innerHTML = "";
-
-        let sumHours = 0;
-        let sumEarned = 0;
-
-        if(!data.shifts || data.shifts.length === 0) {
-          list.innerHTML = `<p class="text-gray-500 py-1">Henüz mesai kaydı yok.</p>`;
-          document.getElementById('admin-total-hours').innerText = `0.00 Saat`;
-          document.getElementById('admin-total-earned').innerText = `0.00 TL`;
-          return;
+      if (data.success) {
+        if (isViewingAsAdmin) {
+          document.getElementById('page-shifts-title').innerText = `${data.staff.full_name} - Mesai Yönetimi`;
+          document.getElementById('page-shifts-subtitle').innerText = `Saatlik Ücret: ${data.staff.hourly_rate} TL | Yönetici Düzenleme Sayfası`;
         }
 
-        data.shifts.forEach(shift => {
-          if (shift.total_hours) sumHours += parseFloat(shift.total_hours);
-          if (shift.earned_amount) sumEarned += parseFloat(shift.earned_amount);
+        renderShiftsPageList(data.shifts || []);
+      }
+    }
 
-          const inISO = toTurkeyISOString(shift.clock_in);
-          const outISO = shift.clock_out ? toTurkeyISOString(shift.clock_out) : "";
-          const distText = shift.distance_meters !== null && shift.distance_meters !== undefined ? `📍 ${shift.distance_meters}m` : '📍 Manuel Eklenen';
+    function renderShiftsPageList(shifts) {
+      const list = document.getElementById('page-shifts-list');
+      list.innerHTML = "";
 
+      let sumHours = 0;
+      let sumEarned = 0;
+
+      if (!shifts || shifts.length === 0) {
+        list.innerHTML = `<p class="text-gray-500 py-4 text-center">Henüz mesai kaydı bulunmuyor.</p>`;
+        document.getElementById('page-total-hours').innerText = `0.00 Saat`;
+        document.getElementById('page-total-earned').innerText = `0.00 TL`;
+        return;
+      }
+
+      shifts.forEach(shift => {
+        if (shift.total_hours) sumHours += parseFloat(shift.total_hours);
+        if (shift.earned_amount) sumEarned += parseFloat(shift.earned_amount);
+
+        const inISO = toTurkeyISOString(shift.clock_in);
+        const outISO = shift.clock_out ? toTurkeyISOString(shift.clock_out) : "";
+        const distText = shift.distance_meters !== null && shift.distance_meters !== undefined ? `📍 ${shift.distance_meters}m` : '📍 Manuel Eklenen';
+
+        if (isViewingAsAdmin) {
+          // YÖNETİCİ DÜZENLEME GÖRÜNÜMÜ
           list.innerHTML += `
-            <div class="bg-brate-card p-3 rounded-xl border border-brate space-y-2">
-              <div class="grid grid-cols-2 gap-2 text-[10px]">
+            <div class="bg-black/40 p-4 rounded-2xl border border-brate space-y-3">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                 <div>
-                  <label class="block text-gray-400">Giriş Tarih/Saat:</label>
-                  <input type="datetime-local" id="in-${shift.id}" value="${inISO}" class="bg-black/50 border border-brate p-1.5 rounded-lg text-white w-full">
+                  <label class="block text-gray-400 mb-1">Giriş Tarihi / Saati:</label>
+                  <input type="datetime-local" id="in-${shift.id}" value="${inISO}" class="bg-brate-card border border-brate p-2 rounded-xl text-white w-full focus:outline-none focus:border-amber-500">
                 </div>
                 <div>
-                  <label class="block text-gray-400">Çıkış Tarih/Saat:</label>
-                  <input type="datetime-local" id="out-${shift.id}" value="${outISO}" class="bg-black/50 border border-brate p-1.5 rounded-lg text-white w-full">
+                  <label class="block text-gray-400 mb-1">Paydos Tarihi / Saati:</label>
+                  <input type="datetime-local" id="out-${shift.id}" value="${outISO}" class="bg-brate-card border border-brate p-2 rounded-xl text-white w-full focus:outline-none focus:border-amber-500">
                 </div>
               </div>
-              <div class="flex justify-between items-center text-[11px] pt-1.5 border-t border-brate">
-                <span class="text-gray-300">Süre: <b>${shift.total_hours || '-'} sa</b> | Kazanç: <b class="text-amber-400">${shift.earned_amount || '-'} TL</b> | <span class="text-cyan-400 font-semibold">${distText}</span></span>
-                <div class="space-x-1">
-                  <button onclick="updateShiftTime(${shift.id})" class="bg-emerald-800 hover:bg-emerald-700 text-white text-[10px] px-2 py-1 rounded-lg">Kaydet</button>
-                  <button onclick="deleteShift(${shift.id})" class="bg-rose-900 hover:bg-rose-800 text-white text-[10px] px-2 py-1 rounded-lg">Sil</button>
+              <div class="flex flex-wrap justify-between items-center text-xs pt-2 border-t border-brate gap-2">
+                <span class="text-gray-300">Süre: <b class="text-white">${shift.total_hours || '-'} sa</b> | Kazanç: <b class="text-amber-400">${shift.earned_amount || '-'} TL</b> | <span class="text-cyan-400 font-semibold">${distText}</span></span>
+                <div class="space-x-2">
+                  <button onclick="updateShiftTime(${shift.id})" class="bg-emerald-800 hover:bg-emerald-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">Saati Kaydet</button>
+                  <button onclick="deleteShift(${shift.id})" class="bg-rose-900 hover:bg-rose-800 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">Sil</button>
                 </div>
               </div>
             </div>
           `;
-        });
+        } else {
+          // PERSONEL SALT OKUNUR FERAH GÖRÜNÜM
+          const inFormatted = shift.clock_in ? new Date(shift.clock_in * 1000).toLocaleString('tr-TR') : '-';
+          const outFormatted = shift.clock_out ? new Date(shift.clock_out * 1000).toLocaleString('tr-TR') : 'Devam Ediyor...';
 
-        document.getElementById('admin-total-hours').innerText = `${sumHours.toFixed(2)} Saat`;
-        document.getElementById('admin-total-earned').innerText = `${sumEarned.toFixed(2)} TL`;
-      }
-    }
-
-    async function addManualShift() {
-      if (!currentInspectedStaffId) return;
-      const inVal = document.getElementById('manual-in-time').value;
-      const outVal = document.getElementById('manual-out-time').value;
-
-      if (!inVal || !outVal) {
-        alert("Lütfen hem giriş hem paydos tarihini/saatini seçin!");
-        return;
-      }
-
-      const clockIn = Math.floor(new Date(inVal).getTime() / 1000);
-      const clockOut = Math.floor(new Date(outVal).getTime() / 1000);
-
-      const res = await fetch(`${API_URL}/api/admin/shift/add-manual`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ staff_id: currentInspectedStaffId, clock_in: clockIn, clock_out: clockOut })
+          list.innerHTML += `
+            <div class="bg-black/40 p-4 rounded-2xl border border-brate flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+              <div class="space-y-1 text-xs">
+                <p class="text-gray-300"><span class="text-emerald-400 font-bold">🟢 Giriş:</span> ${inFormatted}</p>
+                <p class="text-gray-300"><span class="text-rose-400 font-bold">🔴 Paydos:</span> ${outFormatted}</p>
+              </div>
+              <div class="text-right border-t sm:border-t-0 border-brate pt-2 sm:pt-0 w-full sm:w-auto">
+                <p class="text-sm font-bold text-white">${shift.total_hours || '0.00'} Saat</p>
+                <p class="text-sm font-bold text-amber-400">${shift.earned_amount || '0.00'} TL</p>
+              </div>
+            </div>
+          `;
+        }
       });
-      const data = await res.json();
-      if (data.success) {
-        alert("Manuel mesai kaydı başarıyla eklendi!");
-        inspectStaff(currentInspectedStaffId);
-      } else {
-        alert("Hata: " + (data.error || "Eklenemedi"));
-      }
+
+      document.getElementById('page-total-hours').innerText = `${sumHours.toFixed(2)} Saat`;
+      document.getElementById('page-total-earned').innerText = `${sumEarned.toFixed(2)} TL`;
     }
 
-    function toTurkeyISOString(timestamp) {
-      if(!timestamp) return "";
-      const date = new Date(timestamp * 1000);
-      const tzOffset = date.getTimezoneOffset() * 60000;
-      const localTime = new Date(date.getTime() - tzOffset);
-      return localTime.toISOString().slice(0, 16);
-    }
-
-    async function updateShiftTime(shiftId) {
-      const inVal = document.getElementById(`in-${shiftId}`).value;
-      const outVal = document.getElementById(`out-${shiftId}`).value;
-
-      const clockIn = inVal ? Math.floor(new Date(inVal).getTime() / 1000) : null;
-      const clockOut = outVal ? Math.floor(new Date(outVal).getTime() / 1000) : null;
-
-      const res = await fetch(`${API_URL}/api/admin/shift/update`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ shift_id: shiftId, clock_in: clockIn, clock_out: clockOut })
-      });
-      const data = await res.json();
-      if(data.success) {
-        alert("Mesai saati güncellendi!");
-        inspectStaff(currentInspectedStaffId);
-      }
-    }
-
-    async function deleteShift(shiftId) {
-      if(!confirm("Silmek istediğinize emin misiniz?")) return;
-      await fetch(`${API_URL}/api/admin/shift/delete`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ shift_id: shiftId })
-      });
-      inspectStaff(currentInspectedStaffId);
-    }
-
-    function editStaff(id, name, phone, pin, rate, isAdmin) {
-      document.getElementById('edit-staff-id').value = id;
-      document.getElementById('form-staff-name').value = name;
-      document.getElementById('form-staff-phone').value = phone !== 'Tel Yok' ? phone : '';
-      document.getElementById('form-staff-pin').value = pin;
-      document.getElementById('form-staff-rate').value = rate;
-      document.getElementById('form-staff-is-admin').checked = isAdmin === 1;
-      document.getElementById('form-title').innerText = "Personel Bilgilerini Güncelle";
-      document.getElementById('btn-save-staff').innerText = "Güncellemeyi Kaydet";
-      document.getElementById('btn-cancel-edit').classList.remove('hidden');
-    }
-
-    function resetForm() {
-      document.getElementById('edit-staff-id').value = "";
-      document.getElementById('form-staff-name').value = "";
-      document.getElementById('form-staff-phone').value = "";
-      document.getElementById('form-staff-pin').value = "";
-      document.getElementById('form-staff-rate').value = "";
-      document.getElementById('form-staff-is-admin').checked = false;
-      document.getElementById('form-title').innerText = "Yeni Personel Ekle";
-      document.getElementById('btn-save-staff').innerText = "+ Kaydet";
-      document.getElementById('btn-cancel-edit').classList.add('hidden');
-    }
-
-    async function saveStaffForm(e) {
-      e.preventDefault();
-      const staffId = document.getElementById('edit-staff-id').value;
-      const endpoint = staffId ? "/api/admin/staff/update" : "/api/admin/staff/add";
-
-      const payload = {
-        staff_id: staffId ? parseInt(staffId) : undefined,
-        full_name: document.getElementById('form-staff-name').value,
-        phone_number: document.getElementById('form-staff-phone').value,
-        pin_code: document.getElementById('form-staff-pin').value,
-        hourly_rate: parseFloat(document.getElementById('form-staff-rate').value),
-        is_admin: document.getElementById('form-staff-is-admin').checked ? 1 : 0
-      };
-
-      const res = await fetch(`${API_URL}${endpoint}`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-      const data = await res.json();
-      if(data.success) {
-        resetForm();
-        loadAdminDashboard();
-      }
-    }
-
-    async function deleteStaff(staffId) {
-      if(!confirm("Silmek istediğinize emin misiniz?")) return;
-      await fetch(`${API_URL}/api/admin/staff/delete`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ staff_id: staffId })
-      });
-      loadAdminDashboard();
-    }
-
-    function logout() { window.location.href = window.location.pathname; }
-  </script>
-</body>
-</html>
+    function closeShiftsPage() {
+      document.getElementById('full-shifts-page').classList.add('hidden');
+      if (isViewingAsAdmin) {
+        document.getElementById('
