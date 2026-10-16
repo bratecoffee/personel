@@ -100,7 +100,7 @@
       <h3 class="text-2xl font-bold text-white mb-1">Yönetici Girişi</h3>
       <p class="text-xs text-gray-400 mb-6">Lütfen 4 haneli yönetici PIN kodunuzu girin</p>
       
-      <input type="password" id="pc-admin-pin" class="w-full bg-black/50 border border-brate p-4 rounded-xl text-center text-3xl font-extrabold tracking-widest text-amber-400 mb-4 focus:outline-none focus:border-red-600 transition" placeholder="****" maxlength="4">
+      <input type="password" id="pc-admin-pin" onkeydown="handleAdminPinKeyPress(event)" class="w-full bg-black/50 border border-brate p-4 rounded-xl text-center text-3xl font-extrabold tracking-widest text-amber-400 mb-4 focus:outline-none focus:border-red-600 transition" placeholder="****" maxlength="4">
       <button onclick="loginAdminFromPc()" class="w-full bg-brate-burgundy hover:bg-brate-burgundy-hover text-white font-bold py-3.5 rounded-xl text-base shadow-lg transition">Paneli Aç</button>
       <p id="pc-admin-err" class="text-red-400 text-xs font-semibold text-center mt-3 hidden"></p>
     </div>
@@ -124,7 +124,7 @@
       <p class="text-xs text-amber-200/70 mb-6">Devam etmek için 4 haneli PIN kodunuzu girin</p>
       
       <label class="block text-sm font-semibold text-gray-300 mb-2 text-left">PIN Kodu:</label>
-      <input type="password" id="staff-pin" class="w-full bg-black/50 border border-brate p-4 rounded-xl text-center text-3xl font-extrabold tracking-widest text-amber-400 mb-5 focus:outline-none focus:border-red-600 transition" placeholder="****" maxlength="4">
+      <input type="password" id="staff-pin" onkeydown="handleStaffPinKeyPress(event)" class="w-full bg-black/50 border border-brate p-4 rounded-xl text-center text-3xl font-extrabold tracking-widest text-amber-400 mb-5 focus:outline-none focus:border-red-600 transition" placeholder="****" maxlength="4">
       <button onclick="loginStaff()" class="w-full bg-brate-burgundy hover:bg-brate-burgundy-hover text-white font-bold py-4 rounded-xl text-lg shadow-lg transition">Sisteme Giriş Yap</button>
       <p id="login-error" class="text-red-400 text-xs font-semibold text-center mt-3 hidden"></p>
     </div>
@@ -324,12 +324,37 @@
       return devId;
     }
 
+    function focusInput(inputId) {
+      setTimeout(() => {
+        const el = document.getElementById(inputId);
+        if (el) {
+          el.focus();
+          el.select();
+        }
+      }, 100);
+    }
+
+    function handleStaffPinKeyPress(event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        loginStaff();
+      }
+    }
+
+    function handleAdminPinKeyPress(event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        loginAdminFromPc();
+      }
+    }
+
     if (isAdminUrlParam === '1') {
       openPcAdminModal();
     } else if (qrTokenFromUrl) {
       selectedLoginMode = 'QR';
       document.getElementById('landing-screen').classList.add('hidden');
       document.getElementById('mobile-staff-screen').classList.remove('hidden');
+      focusInput('staff-pin');
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((pos) => {
           userLat = pos.coords.latitude;
@@ -346,6 +371,7 @@
         startQrLoopWithCountdown();
       } else if (mode === 'PC') {
         document.getElementById('mobile-staff-screen').classList.remove('hidden');
+        focusInput('staff-pin');
       }
     }
 
@@ -413,6 +439,7 @@
       document.getElementById('pc-admin-modal').classList.remove('hidden');
       document.getElementById('pc-admin-pin').value = "";
       document.getElementById('pc-admin-err').classList.add('hidden');
+      focusInput('pc-admin-pin');
     }
 
     function closePcAdminModal() {
@@ -439,6 +466,7 @@
       } else {
         err.innerText = data.is_admin === 0 ? "Bu PIN koduna ait Yönetici Yetkisi yok!" : (data.error || "Hatalı PIN!");
         err.classList.remove('hidden');
+        focusInput('pc-admin-pin');
       }
     }
 
@@ -479,6 +507,7 @@
       } else {
         err.innerText = data.error || "Hatalı PIN!";
         err.classList.remove('hidden');
+        focusInput('staff-pin');
       }
     }
 
@@ -492,6 +521,9 @@
       document.getElementById('admin-screen').classList.add('hidden');
       if (qrTokenFromUrl || selectedLoginMode === 'PC') {
         document.getElementById('mobile-staff-screen').classList.remove('hidden');
+        if (document.getElementById('pin-section').classList.contains('hidden') === false) {
+          focusInput('staff-pin');
+        }
       } else {
         document.getElementById('landing-screen').classList.remove('hidden');
       }
@@ -719,6 +751,9 @@
         document.getElementById('admin-screen').classList.remove('hidden');
       } else {
         document.getElementById('mobile-staff-screen').classList.remove('hidden');
+        if (document.getElementById('pin-section').classList.contains('hidden') === false) {
+          focusInput('staff-pin');
+        }
       }
     }
 
