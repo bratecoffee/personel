@@ -6,30 +6,31 @@
   <title>Brate Coffee - Personel Takip Sistemi</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    body { font-family: system-ui, -apple-system, sans-serif; }
     .bg-brate-dark { background-color: #12090b; }
     .bg-brate-card { background-color: #1e1014; }
     .border-brate { border-color: #4a1521; }
-    .text-brate-burgundy { color: #80182a; }
     .bg-brate-burgundy { background-color: #6b0d1e; }
     .hover\:bg-brate-burgundy-hover:hover { background-color: #821226; }
-    .text-brate-gold { color: #e5b869; }
   </style>
 </head>
 <body class="bg-brate-dark text-gray-100 min-h-screen flex items-center justify-center p-3 sm:p-6 relative selection:bg-red-900 selection:text-white">
 
-  <!-- 1. KAFE EKRANI (QR KOD VE LOGO) -->
+  <!-- 1. KAFE EKRANI (QR KOD VE BRATE COFFEE LOGO) -->
   <div id="pc-qr-screen" class="text-center bg-brate-card p-8 sm:p-10 rounded-3xl shadow-2xl border border-brate max-w-md w-full relative overflow-hidden">
     <div class="absolute -top-24 -left-24 w-48 h-48 bg-red-900/30 rounded-full blur-3xl pointer-events-none"></div>
 
-    <!-- LOGO (5 DEFA TIKLANINCA GİZLİ YÖNETİCİ GİRİŞİ AÇILIR) -->
-    <div class="flex justify-center mb-4 cursor-pointer select-none group" onclick="handleSecretClick()" title="Brate Coffee">
-      <div class="bg-white p-3 rounded-2xl shadow-xl transition transform group-hover:scale-105 duration-300">
-        <img src="https://raw.githubusercontent.com/bratecoffee/personel/main/logo.jpeg" onerror="this.src='logo.jpeg'" alt="Brate Coffee Logo" class="h-28 w-auto object-contain">
+    <!-- BRATE COFFEE KURUMSAL LOGO (5 DEFA TIKLANINCA GİZLİ YÖNETİCİ GİRİŞİ AÇILIR) -->
+    <div class="flex justify-center mb-4 cursor-pointer select-none group" onclick="handleSecretClick()" title="Yönetici Girişi İçin 5 Kez Tıklayın">
+      <div class="bg-white p-4 rounded-2xl shadow-xl transition transform group-hover:scale-105 duration-300 flex flex-col items-center justify-center w-36 h-36 border-2 border-amber-900/20">
+        <!-- BRATE 'B' AMBLEMİ (SVG) -->
+        <svg class="w-16 h-16 text-[#6b0d1e]" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 10 H55 C75 10, 85 22, 85 36 C85 48, 75 56, 60 58 C78 61, 88 72, 88 88 C88 104, 72 114, 50 114 H20 V10 Z" stroke="#6b0d1e" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M32 78 C42 62, 58 52, 70 52 C60 70, 48 85, 32 78 Z" fill="#6b0d1e"/>
+        </svg>
+        <span class="text-[#6b0d1e] font-extrabold tracking-widest text-xs mt-1">BRATE</span>
+        <span class="text-[#6b0d1e] text-[8px] font-semibold tracking-widest uppercase opacity-80">- COFFEE -</span>
       </div>
     </div>
 
@@ -37,7 +38,9 @@
     <p class="text-sm font-medium text-amber-200/70 mb-6">Personel Mesai & Takip Sistemi</p>
     
     <div class="bg-white p-5 rounded-2xl flex justify-center items-center my-4 shadow-inner min-h-[240px]">
-      <div id="qrcode-box" class="flex justify-center items-center"></div>
+      <div id="qrcode-box" class="flex justify-center items-center">
+        <p class="text-gray-400 text-xs">QR Kod Yükleniyor...</p>
+      </div>
     </div>
     
     <div class="mt-6 p-3.5 bg-black/40 rounded-xl border border-brate/60 flex items-center justify-center space-x-3">
@@ -70,8 +73,12 @@
     <!-- PIN GİRİŞİ -->
     <div id="pin-section" class="text-center">
       <div class="flex justify-center mb-4">
-        <div class="bg-white p-2.5 rounded-2xl shadow-md">
-          <img src="https://raw.githubusercontent.com/bratecoffee/personel/main/logo.jpeg" onerror="this.src='logo.jpeg'" alt="Brate Coffee Logo" class="h-20 w-auto object-contain">
+        <div class="bg-white p-3 rounded-2xl shadow-md flex flex-col items-center justify-center w-24 h-24 border border-amber-900/20">
+          <svg class="w-10 h-10 text-[#6b0d1e]" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 10 H55 C75 10, 85 22, 85 36 C85 48, 75 56, 60 58 C78 61, 88 72, 88 88 C88 104, 72 114, 50 114 H20 V10 Z" stroke="#6b0d1e" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M32 78 C42 62, 58 52, 70 52 C60 70, 48 85, 32 78 Z" fill="#6b0d1e"/>
+          </svg>
+          <span class="text-[#6b0d1e] font-extrabold text-[9px] tracking-widest">BRATE</span>
         </div>
       </div>
       <h2 class="text-2xl font-bold text-white mb-1">Hoş Geldiniz</h2>
@@ -160,11 +167,10 @@
     <p id="admin-msg" class="text-xs text-center font-semibold mt-2"></p>
   </div>
 
-  <!-- 4. TAM EKRAN FERAH MESAİ DETAY SAYFASI (PERSONEL VE YÖNETİCİ İÇİN ÖZELLEŞTİRİLMİŞ) -->
+  <!-- 4. TAM EKRAN FERAH MESAİ DETAY SAYFASI -->
   <div id="full-shifts-page" class="hidden fixed inset-0 bg-brate-dark z-50 overflow-y-auto p-4 sm:p-8 flex flex-col items-center">
     <div class="max-w-3xl w-full bg-brate-card p-6 sm:p-8 rounded-3xl border border-brate shadow-2xl my-auto space-y-6">
       
-      <!-- Üst Başlık ve Geri Dön Butonu -->
       <div class="flex justify-between items-center border-b border-brate pb-4">
         <div>
           <h2 id="page-shifts-title" class="text-2xl font-extrabold text-amber-400">Mesai Geçmişi</h2>
@@ -223,9 +229,8 @@
     let secretClickCount = 0;
     let secretClickTimer = null;
     
-    let currentStaffData = null; // Giriş yapan personel
-    let currentInspectedStaffId = null; // İncelenen personel ID
-    let currentShiftsList = [];
+    let currentStaffData = null;
+    let currentInspectedStaffId = null;
     let isViewingAsAdmin = false;
 
     function getDeviceId() {
@@ -254,6 +259,19 @@
       startQrLoopWithCountdown();
     }
 
+    function generateQrCode(text) {
+      const qrBox = document.getElementById('qrcode-box');
+      qrBox.innerHTML = "";
+      if (typeof QRCode !== 'undefined') {
+        new QRCode(qrBox, {
+          text: text, width: 210, height: 210,
+          colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.H
+        });
+      } else {
+        qrBox.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=210x210&data=${encodeURIComponent(text)}" alt="QR Code" class="w-52 h-52">`;
+      }
+    }
+
     function startQrLoopWithCountdown() {
       let timeLeft = 10;
       const fetchAndDrawQr = async () => {
@@ -262,18 +280,11 @@
           const data = await res.json();
           if (data.success) {
             const scanUrl = `${window.location.origin}${window.location.pathname}?token=${data.token}`;
-            const qrBox = document.getElementById('qrcode-box');
-            qrBox.innerHTML = "";
-            new QRCode(qrBox, {
-              text: scanUrl,
-              width: 210,
-              height: 210,
-              colorDark: "#000000",
-              colorLight: "#ffffff",
-              correctLevel: QRCode.CorrectLevel.H
-            });
+            generateQrCode(scanUrl);
           }
-        } catch(e) {}
+        } catch(e) {
+          console.error("QR üretme hatası:", e);
+        }
       };
 
       fetchAndDrawQr();
@@ -290,10 +301,11 @@
       }, 1000);
     }
 
+    // LOGOYA 5 DEFA TIKLAYINCA GİZLİ YÖNETİCİ GİRİŞİ AÇMA
     function handleSecretClick() {
       secretClickCount++;
       clearTimeout(secretClickTimer);
-      secretClickTimer = setTimeout(() => { secretClickCount = 0; }, 1200);
+      secretClickTimer = setTimeout(() => { secretClickCount = 0; }, 1500);
 
       if (secretClickCount >= 5) {
         secretClickCount = 0;
@@ -451,8 +463,7 @@
       });
     }
 
-    // PERSONEL KENDİ MESAİ SAYFASINI AÇTIĞINDA
-    async function openPersonalShiftsPage() {
+    function openPersonalShiftsPage() {
       if (!currentStaffData) return;
       isViewingAsAdmin = false;
       currentInspectedStaffId = currentStaffData.staff_id;
@@ -467,8 +478,7 @@
       loadStaffShiftsPage(currentStaffData.staff_id);
     }
 
-    // YÖNETİCİ PERSONELİN MESAİ SAYFASINI AÇTIĞINDA
-    async function inspectStaffAsAdmin(staffId) {
+    function inspectStaffAsAdmin(staffId) {
       isViewingAsAdmin = true;
       currentInspectedStaffId = staffId;
 
@@ -521,7 +531,6 @@
         const distText = shift.distance_meters !== null && shift.distance_meters !== undefined ? `📍 ${shift.distance_meters}m` : '📍 Manuel Eklenen';
 
         if (isViewingAsAdmin) {
-          // YÖNETİCİ DÜZENLEME GÖRÜNÜMÜ
           list.innerHTML += `
             <div class="bg-black/40 p-4 rounded-2xl border border-brate space-y-3">
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
@@ -544,7 +553,6 @@
             </div>
           `;
         } else {
-          // PERSONEL SALT OKUNUR FERAH GÖRÜNÜM
           const inFormatted = shift.clock_in ? new Date(shift.clock_in * 1000).toLocaleString('tr-TR') : '-';
           const outFormatted = shift.clock_out ? new Date(shift.clock_out * 1000).toLocaleString('tr-TR') : 'Devam Ediyor...';
 
@@ -570,4 +578,144 @@
     function closeShiftsPage() {
       document.getElementById('full-shifts-page').classList.add('hidden');
       if (isViewingAsAdmin) {
-        document.getElementById('
+        document.getElementById('admin-screen').classList.remove('hidden');
+      } else {
+        document.getElementById('mobile-staff-screen').classList.remove('hidden');
+      }
+    }
+
+    async function addManualShift() {
+      if (!currentInspectedStaffId) return;
+      const inVal = document.getElementById('manual-in-time').value;
+      const outVal = document.getElementById('manual-out-time').value;
+
+      if (!inVal || !outVal) {
+        alert("Lütfen hem giriş hem paydos tarihini/saatini seçin!");
+        return;
+      }
+
+      const clockIn = Math.floor(new Date(inVal).getTime() / 1000);
+      const clockOut = Math.floor(new Date(outVal).getTime() / 1000);
+
+      const res = await fetch(`${API_URL}/api/admin/shift/add-manual`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ staff_id: currentInspectedStaffId, clock_in: clockIn, clock_out: clockOut })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Manuel mesai kaydı başarıyla eklendi!");
+        document.getElementById('manual-in-time').value = "";
+        document.getElementById('manual-out-time').value = "";
+        loadStaffShiftsPage(currentInspectedStaffId);
+      } else {
+        alert("Hata: " + (data.error || "Eklenemedi"));
+      }
+    }
+
+    function toTurkeyISOString(timestamp) {
+      if(!timestamp) return "";
+      const date = new Date(timestamp * 1000);
+      const tzOffset = date.getTimezoneOffset() * 60000;
+      const localTime = new Date(date.getTime() - tzOffset);
+      return localTime.toISOString().slice(0, 16);
+    }
+
+    async function updateShiftTime(shiftId) {
+      const inVal = document.getElementById(`in-${shiftId}`).value;
+      const outVal = document.getElementById(`out-${shiftId}`).value;
+
+      const clockIn = inVal ? Math.floor(new Date(inVal).getTime() / 1000) : null;
+      const clockOut = outVal ? Math.floor(new Date(outVal).getTime() / 1000) : null;
+
+      const res = await fetch(`${API_URL}/api/admin/shift/update`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ shift_id: shiftId, clock_in: clockIn, clock_out: clockOut })
+      });
+      const data = await res.json();
+      if(data.success) {
+        alert("Mesai saati güncellendi!");
+        loadStaffShiftsPage(currentInspectedStaffId);
+      }
+    }
+
+    async function deleteShift(shiftId) {
+      if(!confirm("Silmek istediğinize emin misiniz?")) return;
+      await fetch(`${API_URL}/api/admin/shift/delete`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ shift_id: shiftId })
+      });
+      loadStaffShiftsPage(currentInspectedStaffId);
+    }
+
+    async function resetDevice(staffId) {
+      if(!confirm("Bu personelin cihaz kilidini kaldırmak istediğinize emin misiniz?")) return;
+      const res = await fetch(`${API_URL}/api/admin/staff/reset-device`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ staff_id: staffId })
+      });
+      const data = await res.json();
+      if(data.success) alert("Cihaz kilidi sıfırlandı!");
+    }
+
+    function editStaff(id, name, phone, pin, rate, isAdmin) {
+      document.getElementById('edit-staff-id').value = id;
+      document.getElementById('form-staff-name').value = name;
+      document.getElementById('form-staff-phone').value = phone !== 'Tel Yok' ? phone : '';
+      document.getElementById('form-staff-pin').value = pin;
+      document.getElementById('form-staff-rate').value = rate;
+      document.getElementById('form-staff-is-admin').checked = isAdmin === 1;
+      document.getElementById('form-title').innerText = "Personel Bilgilerini Güncelle";
+      document.getElementById('btn-save-staff').innerText = "Güncellemeyi Kaydet";
+      document.getElementById('btn-cancel-edit').classList.remove('hidden');
+    }
+
+    function resetForm() {
+      document.getElementById('edit-staff-id').value = "";
+      document.getElementById('form-staff-name').value = "";
+      document.getElementById('form-staff-phone').value = "";
+      document.getElementById('form-staff-pin').value = "";
+      document.getElementById('form-staff-rate').value = "";
+      document.getElementById('form-staff-is-admin').checked = false;
+      document.getElementById('form-title').innerText = "Yeni Personel Ekle";
+      document.getElementById('btn-save-staff').innerText = "+ Kaydet";
+      document.getElementById('btn-cancel-edit').classList.add('hidden');
+    }
+
+    async function saveStaffForm(e) {
+      e.preventDefault();
+      const staffId = document.getElementById('edit-staff-id').value;
+      const endpoint = staffId ? "/api/admin/staff/update" : "/api/admin/staff/add";
+
+      const payload = {
+        staff_id: staffId ? parseInt(staffId) : undefined,
+        full_name: document.getElementById('form-staff-name').value,
+        phone_number: document.getElementById('form-staff-phone').value,
+        pin_code: document.getElementById('form-staff-pin').value,
+        hourly_rate: parseFloat(document.getElementById('form-staff-rate').value),
+        is_admin: document.getElementById('form-staff-is-admin').checked ? 1 : 0
+      };
+
+      const res = await fetch(`${API_URL}${endpoint}`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if(data.success) {
+        resetForm();
+        loadAdminDashboard();
+      }
+    }
+
+    async function deleteStaff(staffId) {
+      if(!confirm("Silmek istediğinize emin misiniz?")) return;
+      await fetch(`${API_URL}/api/admin/staff/delete`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ staff_id: staffId })
+      });
+      loadAdminDashboard();
+    }
+
+    function logout() { window.location.href = window.location.pathname; }
+  </script>
+</body>
+</html>
