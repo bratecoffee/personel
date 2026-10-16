@@ -18,8 +18,8 @@
 <body class="bg-brate-dark text-gray-100 min-h-screen flex items-center justify-center p-3 sm:p-6 relative selection:bg-red-900 selection:text-white">
 
   <!-- 0. ÜÇE BÖLÜNMÜŞ SEÇENEKLİ ANA AÇILIŞ EKRANI -->
-  <div id="landing-screen" class="bg-brate-card p-6 sm:p-10 rounded-3xl shadow-2xl border border-brate max-w-5xl w-full text-center relative overflow-hidden">
-    <div class="absolute -top-32 -left-32 w-64 h-64 bg-red-900/20 rounded-full blur-3xl pointer-events-none"></div>
+  <div id="landing-screen" class="bg-brate-card p-6 sm:p-10 rounded-3xl shadow-2xl border border-brate max-w-5xl w-full text-center relative overflow-hidden z-10">
+    <div class="absolute -top-32 -left-32 w-64 h-64 bg-red-900/20 rounded-full blur-3xl pointer-events-none -z-10"></div>
 
     <div class="flex justify-center mb-6 cursor-pointer select-none group" onclick="handleSecretClick()" title="Yönetici Girişi İçin 5 Kez Tıklayın">
       <div class="bg-white p-4 rounded-2xl shadow-xl transition transform group-hover:scale-105 duration-300 flex flex-col items-center justify-center w-28 h-28 border-2 border-amber-900/20">
@@ -34,7 +34,7 @@
     <h1 class="text-3xl sm:text-4xl font-extrabold tracking-wider text-white mb-2">BRATE COFFEE</h1>
     <p class="text-sm font-medium text-amber-200/70 mb-8">Personel & Teşhir Ürünleri Takip Sistemi</p>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-20">
       <div onclick="selectMode('QR')" class="bg-black/40 hover:bg-black/60 border border-brate hover:border-amber-600/70 p-6 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 shadow-lg group flex flex-col items-center justify-between min-h-[220px]">
         <div class="w-16 h-16 bg-red-950/80 border border-red-800 text-amber-400 rounded-2xl flex items-center justify-center mb-4 text-3xl group-hover:scale-110 transition">
           📱
@@ -71,7 +71,7 @@
   </div>
 
   <!-- 1. SOL SEÇENEK: QR KOD EKRANI -->
-  <div id="pc-qr-screen" class="hidden text-center bg-brate-card p-8 sm:p-10 rounded-3xl shadow-2xl border border-brate max-w-md w-full relative overflow-hidden">
+  <div id="pc-qr-screen" class="hidden text-center bg-brate-card p-8 sm:p-10 rounded-3xl shadow-2xl border border-brate max-w-md w-full relative overflow-hidden z-20">
     <button onclick="backToLanding()" class="absolute top-4 left-4 text-xs font-bold text-amber-400 hover:underline">← Ana Menü</button>
     
     <div class="flex justify-center mb-3 cursor-pointer select-none" onclick="handleSecretClick()">
@@ -118,7 +118,7 @@
   </div>
 
   <!-- 2. SAĞ SEÇENEK / MOBİL: PERSONEL PIN EKRANI -->
-  <div id="mobile-staff-screen" class="hidden bg-brate-card p-6 sm:p-8 rounded-3xl shadow-2xl border border-brate max-w-md w-full relative">
+  <div id="mobile-staff-screen" class="hidden bg-brate-card p-6 sm:p-8 rounded-3xl shadow-2xl border border-brate max-w-md w-full relative z-20">
     <button onclick="backToLanding()" class="absolute top-4 left-4 text-xs font-bold text-amber-400 hover:underline">← Ana Menü</button>
     
     <div id="pin-section" class="text-center pt-2">
@@ -181,7 +181,7 @@
   </div>
 
   <!-- 3. İKİYE BÖLÜNMÜŞ YÖNETİCİ PANELİ -->
-  <div id="admin-screen" class="hidden bg-brate-card p-6 sm:p-8 rounded-3xl shadow-2xl border border-brate max-w-5xl w-full">
+  <div id="admin-screen" class="hidden bg-brate-card p-6 sm:p-8 rounded-3xl shadow-2xl border border-brate max-w-5xl w-full z-20">
     <div class="flex justify-between items-center border-b border-brate pb-4 mb-6">
       <div>
         <h3 class="text-2xl font-bold text-amber-400">Yönetici Paneli</h3>
@@ -223,7 +223,6 @@
           <div id="admin-staff-summary-list" class="space-y-2 max-h-36 overflow-y-auto pr-1 text-xs"></div>
         </div>
 
-        <!-- İSTEDİĞİNİZ YER: YENİ TEŞHİR ÜRÜNÜ TANIMLAMA (PERSONEL EKLE GİBİ) -->
         <div class="bg-black/50 p-5 rounded-2xl border border-pink-600/40 space-y-3 shadow-md">
           <h4 class="text-xs font-bold text-pink-300 uppercase tracking-wider flex items-center justify-between border-b border-brate pb-2">
             <span>🍰 YENİ TEŞHİR ÜRÜNÜ TANIMLA (KATALOG)</span>
@@ -233,7 +232,6 @@
             <button onclick="addCatalogProduct()" class="bg-pink-800 hover:bg-pink-700 text-white font-bold px-4 py-3 rounded-xl text-xs whitespace-nowrap shadow-md transition">+ Ürün Ekle</button>
           </div>
 
-          <!-- KATALOGDAKİ ÜRÜNLERİN LİSTESİ -->
           <div id="catalog-products-list" class="space-y-1.5 pt-2 max-h-32 overflow-y-auto pr-1"></div>
         </div>
       </div>
@@ -264,7 +262,6 @@
         <button onclick="closeDisplayPage()" class="bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold px-4 py-2 rounded-xl text-xs border border-gray-700 transition">← Ana Menü</button>
       </div>
 
-      <!-- İSTEDİĞİNİZ YER: EKLENEN ÜRÜNLERDEN SEÇİP DOLABA KOYMA BÖLÜMÜ -->
       <div class="bg-black/50 p-4 sm:p-5 rounded-2xl border border-pink-600/50 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-md">
         <div class="w-full sm:w-2/3">
           <label class="block text-xs font-bold text-pink-300 mb-1">Dolaba Ürün Koy (Katalogdan Seç):</label>
@@ -388,7 +385,7 @@
       const totalMinutes = Math.round(parseFloat(decimalHours) * 60);
       const h = Math.floor(totalMinutes / 60);
       const m = totalMinutes % 60;
-      if (h > 0 && m > 0) return `${h} Sa${m} Dk`;
+      if (h > 0 && m > 0) return `${h} Sa ${m} Dk`;
       if (h > 0) return `${h} Sa`;
       return `${m} Dk`;
     }
@@ -682,7 +679,7 @@
 
         container.innerHTML += `
           <div class="flex justify-between items-center bg-brate-card/80 p-2.5 rounded-xl border border-brate">
-            <span class="font-bold text-white">${index + 1}.${s.full_name}</span>
+            <span class="font-bold text-white">${index + 1}. ${s.full_name}</span>
             <span class="text-gray-300 font-medium">${hoursFormatted} <b class="text-amber-400 ml-2">${earnedFormatted}</b></span>
           </div>
         `;
@@ -757,12 +754,12 @@
         container.innerHTML += `
           <div class="flex justify-between items-center bg-black/40 p-3 rounded-xl border border-brate">
             <div>
-              <p class="text-xs font-bold text-white">${s.full_name}${adminTag}</p>
-              <p class="text-[10px] text-gray-400">Tel: ${phone} | PIN: ${s.pin_code} \vert{}${s.hourly_rate} TL/saat</p>
+              <p class="text-xs font-bold text-white">${s.full_name} ${adminTag}</p>
+              <p class="text-[10px] text-gray-400">Tel: ${phone} | PIN: ${s.pin_code} | ${s.hourly_rate} TL/saat</p>
             </div>
             <div class="space-x-1 flex items-center">
               <button onclick="resetDevice(${s.id})" title="Yeni telefona geçiş izni ver" class="bg-indigo-900/80 hover:bg-indigo-800 text-indigo-100 text-[10px] px-2 py-1.5 rounded-lg">📱 Cihaz Sıfırla</button>
-              <button onclick="editStaff(${s.id}, '${s.full_name}', '${phone}', '${s.pin_code}', ${s.hourly_rate},${s.is_admin || 0})" class="bg-blue-900/80 hover:bg-blue-800 text-blue-100 text-[10px] px-2 py-1.5 rounded-lg">Düzenle</button>
+              <button onclick="editStaff(${s.id}, '${s.full_name}', '${phone}', '${s.pin_code}', ${s.hourly_rate}, ${s.is_admin || 0})" class="bg-blue-900/80 hover:bg-blue-800 text-blue-100 text-[10px] px-2 py-1.5 rounded-lg">Düzenle</button>
               <button onclick="inspectStaffAsAdmin(${s.id})" class="bg-amber-800 hover:bg-amber-700 text-amber-100 font-bold text-[10px] px-2.5 py-1.5 rounded-lg border border-amber-600/50">Mesailer ➔</button>
               <button onclick="deleteStaff(${s.id})" class="bg-rose-900/80 hover:bg-rose-800 text-rose-100 text-[10px] px-2 py-1.5 rounded-lg">Sil</button>
             </div>
@@ -853,7 +850,7 @@
           const minutes = Math.floor((diffSeconds % 3600) / 60);
           const seconds = diffSeconds % 60;
 
-          countdownStr = `${days} Gün ${hours} Sa ${minutes} Dk${seconds} Sn`;
+          countdownStr = `${days} Gün ${hours} Sa ${minutes} Dk ${seconds} Sn`;
 
           if (diffSeconds < 12 * 3600) {
             badgeClass = "bg-amber-950 text-amber-300 border-amber-800";
@@ -1007,4 +1004,225 @@
                 <div class="flex flex-wrap justify-between items-center text-xs pt-2 border-t border-brate gap-2">
                   <span class="text-gray-300">Süre: <b class="text-white">${shiftFormattedDuration}</b> | Kazanç: <b class="text-amber-400">${shift.earned_amount || '0.00'} TL</b> | <span class="text-cyan-400 font-semibold">${distText}</span></span>
                   <div class="space-x-2">
-                    <button onclick="updateShiftTime(${shift.id})" class="bg-emerald-800 hover:bg-emerald-700 text-white font-bold text-xs px-3 py-1.5 rounded
+                    <button onclick="updateShiftTime(${shift.id})" class="bg-emerald-800 hover:bg-emerald-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">Saati Kaydet</button>
+                    <button onclick="deleteShift(${shift.id})" class="bg-rose-900 hover:bg-rose-800 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">Sil</button>
+                  </div>
+                </div>
+              </div>
+            `;
+          }
+        } else {
+          if (isLeaveRecord) {
+            const dateStr = new Date(shift.clock_in * 1000).toLocaleDateString('tr-TR');
+            list.innerHTML += `
+              <div class="bg-amber-950/20 p-4 rounded-2xl border border-amber-800/40 flex justify-between items-center text-xs">
+                <div>
+                  <p class="font-bold text-amber-300">🏝️ İZİNLİ GÜN</p>
+                  <p class="text-gray-400 text-[11px]">${dateStr}</p>
+                </div>
+                <div class="text-right">
+                  <p class="text-xs font-bold text-white">0 Sa 0 Dk</p>
+                  <p class="text-xs font-bold text-amber-400">0.00 TL</p>
+                </div>
+              </div>
+            `;
+          } else {
+            const inFormatted = shift.clock_in ? new Date(shift.clock_in * 1000).toLocaleString('tr-TR') : '-';
+            const outFormatted = shift.clock_out ? new Date(shift.clock_out * 1000).toLocaleString('tr-TR') : 'Devam Ediyor...';
+
+            list.innerHTML += `
+              <div class="bg-black/40 p-4 rounded-2xl border border-brate flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div class="space-y-1 text-xs">
+                  <p class="text-gray-300"><span class="text-emerald-400 font-bold">🟢 Giriş:</span> ${inFormatted}</p>
+                  <p class="text-gray-300"><span class="text-rose-400 font-bold">🔴 Paydos:</span> ${outFormatted}</p>
+                </div>
+                <div class="text-right border-t sm:border-t-0 border-brate pt-2 sm:pt-0 w-full sm:w-auto">
+                  <p class="text-sm font-bold text-white">${shiftFormattedDuration}</p>
+                  <p class="text-sm font-bold text-amber-400">${shift.earned_amount || '0.00'} TL</p>
+                </div>
+              </div>
+            `;
+          }
+        }
+      });
+
+      document.getElementById('page-total-hours').innerText = formatHoursToHoursAndMinutes(sumHours);
+      document.getElementById('page-total-earned').innerText = `${sumEarned.toFixed(2)} TL`;
+    }
+
+    function closeShiftsPage() {
+      document.getElementById('full-shifts-page').classList.add('hidden');
+      if (isViewingAsAdmin) {
+        document.getElementById('admin-screen').classList.remove('hidden');
+        loadAdminDashboard();
+      } else {
+        document.getElementById('mobile-staff-screen').classList.remove('hidden');
+        if (document.getElementById('pin-section').classList.contains('hidden') === false) {
+          focusInput('staff-pin');
+        }
+      }
+    }
+
+    function parseDatetimeLocal(val) {
+      if (!val) return null;
+      const d = new Date(val);
+      return Math.floor(d.getTime() / 1000);
+    }
+
+    async function addManualShift() {
+      if (!currentInspectedStaffId) return;
+
+      const isLeave = document.getElementById('chk-is-leave').checked;
+      let payload = { staff_id: currentInspectedStaffId, is_leave: isLeave };
+
+      if (isLeave) {
+        const leaveDateVal = document.getElementById('manual-leave-date').value;
+        const leaveTypeVal = document.getElementById('manual-leave-type').value;
+
+        if (!leaveDateVal) {
+          alert("Lütfen izin tarihini seçin!");
+          return;
+        }
+
+        const clockTimestamp = Math.floor(new Date(leaveDateVal + "T12:00:00").getTime() / 1000);
+        payload.clock_in = clockTimestamp;
+        payload.clock_out = clockTimestamp;
+        payload.leave_type = leaveTypeVal;
+      } else {
+        const inVal = document.getElementById('manual-in-time').value;
+        const outVal = document.getElementById('manual-out-time').value;
+
+        if (!inVal || !outVal) {
+          alert("Lütfen hem giriş hem paydos tarihini/saatini seçin!");
+          return;
+        }
+
+        payload.clock_in = parseDatetimeLocal(inVal);
+        payload.clock_out = parseDatetimeLocal(outVal);
+      }
+
+      const res = await fetch(`${API_URL}/api/admin/shift/add-manual`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(isLeave ? "İzin kaydı başarıyla eklendi!" : "Manuel mesai kaydı başarıyla eklendi!");
+        document.getElementById('manual-in-time').value = "";
+        document.getElementById('manual-out-time').value = "";
+        document.getElementById('manual-leave-date').value = "";
+        document.getElementById('chk-is-leave').checked = false;
+        toggleLeaveFields();
+        loadStaffShiftsPage(currentInspectedStaffId);
+      } else {
+        alert("Hata: " + (data.error || "Eklenemedi"));
+      }
+    }
+
+    function toTurkeyISOString(timestamp) {
+      if(!timestamp) return "";
+      const date = new Date(timestamp * 1000);
+      const tzOffset = date.getTimezoneOffset() * 60000;
+      const localTime = new Date(date.getTime() - tzOffset);
+      return localTime.toISOString().slice(0, 16);
+    }
+
+    async function updateShiftTime(shiftId) {
+      const inVal = document.getElementById(`in-${shiftId}`).value;
+      const outVal = document.getElementById(`out-${shiftId}`).value;
+
+      const clockIn = parseDatetimeLocal(inVal);
+      const clockOut = parseDatetimeLocal(outVal);
+
+      const res = await fetch(`${API_URL}/api/admin/shift/update`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ shift_id: shiftId, clock_in: clockIn, clock_out: clockOut })
+      });
+      const data = await res.json();
+      if(data.success) {
+        alert("Mesai saati güncellendi!");
+        loadStaffShiftsPage(currentInspectedStaffId);
+      }
+    }
+
+    async function deleteShift(shiftId) {
+      if(!confirm("Silmek istediğinize emin misiniz?")) return;
+      await fetch(`${API_URL}/api/admin/shift/delete`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ shift_id: shiftId })
+      });
+      loadStaffShiftsPage(currentInspectedStaffId);
+    }
+
+    async function resetDevice(staffId) {
+      if(!confirm("Bu personelin cihaz kilidini kaldırmak istediğinize emin misiniz?")) return;
+      const res = await fetch(`${API_URL}/api/admin/staff/reset-device`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ staff_id: staffId })
+      });
+      const data = await res.json();
+      if(data.success) alert("Cihaz kilidi sıfırlandı!");
+    }
+
+    function editStaff(id, name, phone, pin, rate, isAdmin) {
+      document.getElementById('edit-staff-id').value = id;
+      document.getElementById('form-staff-name').value = name;
+      document.getElementById('form-staff-phone').value = phone !== 'Tel Yok' ? phone : '';
+      document.getElementById('form-staff-pin').value = pin;
+      document.getElementById('form-staff-rate').value = rate;
+      document.getElementById('form-staff-is-admin').checked = isAdmin === 1;
+      document.getElementById('form-title').innerText = "✏️ Personel Bilgilerini Güncelle";
+      document.getElementById('btn-save-staff').innerText = "Güncellemeyi Kaydet";
+      document.getElementById('btn-cancel-edit').classList.remove('hidden');
+    }
+
+    function resetForm() {
+      document.getElementById('edit-staff-id').value = "";
+      document.getElementById('form-staff-name').value = "";
+      document.getElementById('form-staff-phone').value = "";
+      document.getElementById('form-staff-pin').value = "";
+      document.getElementById('form-staff-rate').value = "";
+      document.getElementById('form-staff-is-admin').checked = false;
+      document.getElementById('form-title').innerText = "➕ Yeni Personel Ekle";
+      document.getElementById('btn-save-staff').innerText = "+ Kaydet";
+      document.getElementById('btn-cancel-edit').classList.add('hidden');
+    }
+
+    async function saveStaffForm(e) {
+      e.preventDefault();
+      const staffId = document.getElementById('edit-staff-id').value;
+      const endpoint = staffId ? "/api/admin/staff/update" : "/api/admin/staff/add";
+
+      const payload = {
+        staff_id: staffId ? parseInt(staffId) : undefined,
+        full_name: document.getElementById('form-staff-name').value,
+        phone_number: document.getElementById('form-staff-phone').value,
+        pin_code: document.getElementById('form-staff-pin').value,
+        hourly_rate: parseFloat(document.getElementById('form-staff-rate').value),
+        is_admin: document.getElementById('form-staff-is-admin').checked ? 1 : 0
+      };
+
+      const res = await fetch(`${API_URL}${endpoint}`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if(data.success) {
+        resetForm();
+        loadAdminDashboard();
+      }
+    }
+
+    async function deleteStaff(staffId) {
+      if(!confirm("Silmek istediğinize emin misiniz?")) return;
+      await fetch(`${API_URL}/api/admin/staff/delete`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ staff_id: staffId })
+      });
+      loadAdminDashboard();
+    }
+
+    function logout() { window.location.href = window.location.pathname; }
+  </script>
+</body>
+</html>
