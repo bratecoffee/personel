@@ -21,10 +21,9 @@
   <div id="pc-qr-screen" class="text-center bg-brate-card p-8 sm:p-10 rounded-3xl shadow-2xl border border-brate max-w-md w-full relative overflow-hidden">
     <div class="absolute -top-24 -left-24 w-48 h-48 bg-red-900/30 rounded-full blur-3xl pointer-events-none"></div>
 
-    <!-- BRATE COFFEE KURUMSAL LOGO (5 DEFA TIKLANINCA GİZLİ YÖNETİCİ GİRİŞİ AÇILIR) -->
+    <!-- BRATE COFFEE LOGO (5 DEFA TIKLANINCA GİZLİ YÖNETİCİ GİRİŞİ AÇILIR) -->
     <div class="flex justify-center mb-4 cursor-pointer select-none group" onclick="handleSecretClick()" title="Yönetici Girişi İçin 5 Kez Tıklayın">
       <div class="bg-white p-4 rounded-2xl shadow-xl transition transform group-hover:scale-105 duration-300 flex flex-col items-center justify-center w-36 h-36 border-2 border-amber-900/20">
-        <!-- BRATE 'B' AMBLEMİ (SVG) -->
         <svg class="w-16 h-16 text-[#6b0d1e]" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M20 10 H55 C75 10, 85 22, 85 36 C85 48, 75 56, 60 58 C78 61, 88 72, 88 88 C88 104, 72 114, 50 114 H20 V10 Z" stroke="#6b0d1e" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
           <path d="M32 78 C42 62, 58 52, 70 52 C60 70, 48 85, 32 78 Z" fill="#6b0d1e"/>
@@ -67,12 +66,12 @@
     </div>
   </div>
 
-  <!-- 2. PERSONEL MOBİL EKRANI -->
+  <!-- 2. PERSONEL EKRANI (MOBİL VE SABİT BİLGİSAYAR İÇİN ORTAK) -->
   <div id="mobile-staff-screen" class="hidden bg-brate-card p-6 sm:p-8 rounded-3xl shadow-2xl border border-brate max-w-md w-full">
     
     <!-- PIN GİRİŞİ -->
     <div id="pin-section" class="text-center">
-      <div class="flex justify-center mb-4">
+      <div class="flex justify-center mb-4 cursor-pointer" onclick="handleSecretClick()">
         <div class="bg-white p-3 rounded-2xl shadow-md flex flex-col items-center justify-center w-24 h-24 border border-amber-900/20">
           <svg class="w-10 h-10 text-[#6b0d1e]" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M20 10 H55 C75 10, 85 22, 85 36 C85 48, 75 56, 60 58 C78 61, 88 72, 88 88 C88 104, 72 114, 50 114 H20 V10 Z" stroke="#6b0d1e" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
@@ -137,6 +136,15 @@
     <div class="flex justify-between items-center border-b border-brate pb-4 mb-5">
       <h3 class="text-xl font-bold text-amber-400">Yönetici Paneli</h3>
       <button onclick="closeAdmin()" class="text-xs text-gray-400 hover:text-white underline">Kapat / Geri Dön</button>
+    </div>
+
+    <!-- SABİT BİLGİSAYAR / KAFER EKRANI AYARI -->
+    <div class="bg-black/50 p-4 rounded-2xl border border-amber-600/40 mb-6 flex items-center justify-between">
+      <div>
+        <p class="text-xs font-bold text-amber-300">💻 Sabit Cihaz Modu</p>
+        <p class="text-[10px] text-gray-400 mt-0.5">Bu tarayıcı açıldığında doğrudan Personel PIN ekranı gelsin mi?</p>
+      </div>
+      <button id="btn-toggle-fixed-pc" onclick="toggleFixedPcMode()" class="bg-amber-800 hover:bg-amber-700 text-amber-100 font-bold text-xs px-3 py-2 rounded-xl transition border border-amber-600/50">Ayarla</button>
     </div>
 
     <div id="admin-content" class="space-y-6">
@@ -242,11 +250,13 @@
       return devId;
     }
 
+    // SAYFA YÜKLENİRKEN EKRAN KONTROLÜ
+    const isFixedPcMode = localStorage.getItem('brate_fixed_pc_mode') === 'true';
+
     if (isAdminUrlParam === '1') {
       openPcAdminModal();
-    }
-
-    if (qrTokenFromUrl) {
+    } else if (qrTokenFromUrl || isFixedPcMode) {
+      // EĞER QR OKUTULDUYSA VEYA BU CİHAZ "SABİT KAFE BİLGİSAYARI" İSE DOĞRUDAN PIN EKRANINI AÇ
       document.getElementById('pc-qr-screen').classList.add('hidden');
       document.getElementById('mobile-staff-screen').classList.remove('hidden');
       if (navigator.geolocation) {
@@ -256,6 +266,7 @@
         }, () => {});
       }
     } else {
+      // DİĞER DURUMLARDA QR EKRANINI AÇ
       startQrLoopWithCountdown();
     }
 
@@ -282,9 +293,7 @@
             const scanUrl = `${window.location.origin}${window.location.pathname}?token=${data.token}`;
             generateQrCode(scanUrl);
           }
-        } catch(e) {
-          console.error("QR üretme hatası:", e);
-        }
+        } catch(e) {}
       };
 
       fetchAndDrawQr();
@@ -301,7 +310,6 @@
       }, 1000);
     }
 
-    // LOGOYA 5 DEFA TIKLAYINCA GİZLİ YÖNETİCİ GİRİŞİ AÇMA
     function handleSecretClick() {
       secretClickCount++;
       clearTimeout(secretClickTimer);
@@ -323,6 +331,30 @@
       document.getElementById('pc-admin-modal').classList.add('hidden');
     }
 
+    function updateFixedPcButtonState() {
+      const btn = document.getElementById('btn-toggle-fixed-pc');
+      const isFixed = localStorage.getItem('brate_fixed_pc_mode') === 'true';
+      if (isFixed) {
+        btn.innerText = "✓ Sabit Ekran Etkin (Devre Dışı Bırak)";
+        btn.className = "bg-emerald-800 hover:bg-emerald-700 text-emerald-100 font-bold text-xs px-3 py-2 rounded-xl transition border border-emerald-600/50";
+      } else {
+        btn.innerText = "Bu Cihazı Sabit Personel Girişi Yap";
+        btn.className = "bg-amber-800 hover:bg-amber-700 text-amber-100 font-bold text-xs px-3 py-2 rounded-xl transition border border-amber-600/50";
+      }
+    }
+
+    function toggleFixedPcMode() {
+      const isFixed = localStorage.getItem('brate_fixed_pc_mode') === 'true';
+      if (isFixed) {
+        localStorage.removeItem('brate_fixed_pc_mode');
+        alert("Bu cihaz artık normal QR kod ekranını gösterecek.");
+      } else {
+        localStorage.setItem('brate_fixed_pc_mode', 'true');
+        alert("Bu cihaz Sabit Personel Giriş Ekranı yapıldı! Sayfa açıldığında doğrudan PIN giriş ekranı gelecek.");
+      }
+      updateFixedPcButtonState();
+    }
+
     async function loginAdminFromPc() {
       const pin = document.getElementById('pc-admin-pin').value;
       const err = document.getElementById('pc-admin-err');
@@ -336,7 +368,9 @@
       if (data.success && data.is_admin === 1) {
         closePcAdminModal();
         document.getElementById('pc-qr-screen').classList.add('hidden');
+        document.getElementById('mobile-staff-screen').classList.add('hidden');
         document.getElementById('admin-screen').classList.remove('hidden');
+        updateFixedPcButtonState();
         loadAdminDashboard();
       } else {
         err.innerText = data.is_admin === 0 ? "Bu PIN koduna ait Yönetici Yetkisi yok!" : (data.error || "Hatalı PIN!");
@@ -387,12 +421,14 @@
     function openAdminPanel() {
       document.getElementById('mobile-staff-screen').classList.add('hidden');
       document.getElementById('admin-screen').classList.remove('hidden');
+      updateFixedPcButtonState();
       loadAdminDashboard();
     }
 
     function closeAdmin() {
       document.getElementById('admin-screen').classList.add('hidden');
-      if (qrTokenFromUrl) {
+      const isFixed = localStorage.getItem('brate_fixed_pc_mode') === 'true';
+      if (qrTokenFromUrl || isFixed) {
         document.getElementById('mobile-staff-screen').classList.remove('hidden');
       } else {
         document.getElementById('pc-qr-screen').classList.remove('hidden');
