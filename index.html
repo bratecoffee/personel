@@ -24,13 +24,11 @@
 
   <!-- 1. KAFE EKRANI (QR KOD VE LOGO) -->
   <div id="pc-qr-screen" class="text-center bg-brate-card p-8 sm:p-10 rounded-3xl shadow-2xl border border-brate max-w-md w-full relative overflow-hidden">
-    <!-- Üst Işık Efekti -->
     <div class="absolute -top-24 -left-24 w-48 h-48 bg-red-900/30 rounded-full blur-3xl pointer-events-none"></div>
 
     <!-- LOGO (5 DEFA TIKLANINCA GİZLİ YÖNETİCİ GİRİŞİ AÇILIR) -->
     <div class="flex justify-center mb-4 cursor-pointer select-none group" onclick="handleSecretClick()" title="Brate Coffee">
       <div class="bg-white p-3 rounded-2xl shadow-xl transition transform group-hover:scale-105 duration-300">
-        <!-- Logo resmi varsayılan olarak yuklenen resimden alinir veya ayni klasordeki logo.jpeg dosyasindan çekilir -->
         <img src="https://raw.githubusercontent.com/bratecoffee/personel/main/logo.jpeg" onerror="this.src='logo.jpeg'" alt="Brate Coffee Logo" class="h-28 w-auto object-contain">
       </div>
     </div>
@@ -93,7 +91,6 @@
         <p class="text-xs text-gray-300 mt-1">Harika bir gün olsun, iyi çalışmalar ☕</p>
       </div>
 
-      <!-- SADECE YETKİLİ PERSONELE GÖRÜNEN BUTON -->
       <button id="btn-admin-access" onclick="openAdminPanel()" class="hidden w-full mb-5 bg-purple-900/80 hover:bg-purple-800 text-purple-100 font-bold py-3 rounded-xl border border-purple-600 shadow-lg text-sm transition flex items-center justify-center space-x-2">
         <span>🔒 Yönetici Paneline Geçiş Yap</span>
       </button>
@@ -157,10 +154,27 @@
         <div id="staff-list-container" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
       </div>
 
-      <div id="staff-detail-modal" class="hidden bg-black/60 p-4 rounded-2xl border border-red-900/60">
+      <!-- MESAİ DETAY VE MANUEL EKLEME MODALI -->
+      <div id="staff-detail-modal" class="hidden bg-black/80 p-4 rounded-2xl border border-red-900/80">
         <div class="flex justify-between items-center mb-3 pb-2 border-b border-brate">
           <h5 id="detail-staff-name" class="font-bold text-amber-400 text-sm"></h5>
-          <button onclick="document.getElementById('staff-detail-modal').classList.add('hidden')" class="text-xs text-gray-400">Kapat</button>
+          <button onclick="document.getElementById('staff-detail-modal').classList.add('hidden')" class="text-xs text-gray-400 hover:text-white font-bold">✕ Kapat</button>
+        </div>
+
+        <!-- MANUEL MESAİ EKLEME FORMU -->
+        <div class="bg-brate-card p-3 rounded-xl border border-amber-600/40 mb-3 space-y-2">
+          <h6 class="text-xs font-bold text-amber-300">➕ Manuel Geçmiş Mesai Ekle</h6>
+          <div class="grid grid-cols-2 gap-2 text-[10px]">
+            <div>
+              <label class="block text-gray-400 mb-0.5">Giriş Tarih / Saat:</label>
+              <input type="datetime-local" id="manual-in-time" class="bg-black/60 border border-brate p-1.5 rounded-lg text-white w-full">
+            </div>
+            <div>
+              <label class="block text-gray-400 mb-0.5">Paydos Tarih / Saat:</label>
+              <input type="datetime-local" id="manual-out-time" class="bg-black/60 border border-brate p-1.5 rounded-lg text-white w-full">
+            </div>
+          </div>
+          <button onclick="addManualShift()" class="w-full bg-amber-700 hover:bg-amber-600 text-white font-bold py-1.5 rounded-lg text-xs transition">+ Manuel Mesaiyi Kaydet</button>
         </div>
 
         <div class="bg-brate-card p-3 rounded-xl border border-brate mb-3 text-xs space-y-1">
@@ -174,7 +188,7 @@
           </div>
         </div>
 
-        <div id="detail-shifts-list" class="text-xs space-y-2 max-h-56 overflow-y-auto"></div>
+        <div id="detail-shifts-list" class="text-xs space-y-2 max-h-52 overflow-y-auto pr-1"></div>
       </div>
     </div>
     <p id="admin-msg" class="text-xs text-center font-semibold mt-2"></p>
@@ -190,6 +204,7 @@
     let userLng = null;
     let secretClickCount = 0;
     let secretClickTimer = null;
+    let currentInspectedStaffId = null;
 
     function getDeviceId() {
       let devId = localStorage.getItem('brate_device_id');
@@ -253,7 +268,6 @@
       }, 1000);
     }
 
-    // LOGOYA 5 DEFA TIKLAYINCA GİZLİ YÖNETİCİ GİRİŞİ AÇMA
     function handleSecretClick() {
       secretClickCount++;
       clearTimeout(secretClickTimer);
@@ -424,9 +438,11 @@
       if(data.success) alert("Cihaz kilidi sıfırlandı!");
     }
 
-    let currentInspectedStaffId = null;
     async function inspectStaff(staffId) {
       currentInspectedStaffId = staffId;
+      document.getElementById('manual-in-time').value = "";
+      document.getElementById('manual-out-time').value = "";
+
       const res = await fetch(`${API_URL}/api/admin/staff/detail`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ staff_id: staffId })
@@ -454,7 +470,7 @@
 
           const inISO = toTurkeyISOString(shift.clock_in);
           const outISO = shift.clock_out ? toTurkeyISOString(shift.clock_out) : "";
-          const distText = shift.distance_meters !== null && shift.distance_meters !== undefined ? `📍 ${shift.distance_meters}m` : '📍 Konum Yok';
+          const distText = shift.distance_meters !== null && shift.distance_meters !== undefined ? `📍 ${shift.distance_meters}m` : '📍 Manuel Eklenen';
 
           list.innerHTML += `
             <div class="bg-brate-card p-3 rounded-xl border border-brate space-y-2">
@@ -481,6 +497,32 @@
 
         document.getElementById('admin-total-hours').innerText = `${sumHours.toFixed(2)} Saat`;
         document.getElementById('admin-total-earned').innerText = `${sumEarned.toFixed(2)} TL`;
+      }
+    }
+
+    async function addManualShift() {
+      if (!currentInspectedStaffId) return;
+      const inVal = document.getElementById('manual-in-time').value;
+      const outVal = document.getElementById('manual-out-time').value;
+
+      if (!inVal || !outVal) {
+        alert("Lütfen hem giriş hem paydos tarihini/saatini seçin!");
+        return;
+      }
+
+      const clockIn = Math.floor(new Date(inVal).getTime() / 1000);
+      const clockOut = Math.floor(new Date(outVal).getTime() / 1000);
+
+      const res = await fetch(`${API_URL}/api/admin/shift/add-manual`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ staff_id: currentInspectedStaffId, clock_in: clockIn, clock_out: clockOut })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Manuel mesai kaydı başarıyla eklendi!");
+        inspectStaff(currentInspectedStaffId);
+      } else {
+        alert("Hata: " + (data.error || "Eklenemedi"));
       }
     }
 
