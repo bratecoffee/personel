@@ -36,9 +36,7 @@
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-20">
       <div onclick="selectMode('QR')" class="bg-black/40 hover:bg-black/60 border border-brate hover:border-amber-600/70 p-6 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 shadow-lg group flex flex-col items-center justify-between min-h-[220px]">
-        <div class="w-16 h-16 bg-red-950/80 border border-red-800 text-amber-400 rounded-2xl flex items-center justify-center mb-4 text-3xl group-hover:scale-110 transition">
-          📱
-        </div>
+        <div class="w-16 h-16 bg-red-950/80 border border-red-800 text-amber-400 rounded-2xl flex items-center justify-center mb-4 text-3xl group-hover:scale-110 transition">📱</div>
         <div>
           <h3 class="text-lg font-bold text-amber-300 mb-2">QR Kod Ekranı</h3>
           <p class="text-xs text-gray-300">Telefondan QR okutarak giriş ve paydos bildirimi yapın.</p>
@@ -47,9 +45,7 @@
       </div>
 
       <div onclick="selectMode('PC')" class="bg-black/40 hover:bg-black/60 border border-brate hover:border-emerald-600/70 p-6 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 shadow-lg group flex flex-col items-center justify-between min-h-[220px]">
-        <div class="w-16 h-16 bg-emerald-950/80 border border-emerald-800 text-emerald-400 rounded-2xl flex items-center justify-center mb-4 text-3xl group-hover:scale-110 transition">
-          💻
-        </div>
+        <div class="w-16 h-16 bg-emerald-950/80 border border-emerald-800 text-emerald-400 rounded-2xl flex items-center justify-center mb-4 text-3xl group-hover:scale-110 transition">💻</div>
         <div>
           <h3 class="text-lg font-bold text-emerald-300 mb-2">Bilgisayardan Giriş</h3>
           <p class="text-xs text-gray-300">Kafe bilgisayarından doğrudan PIN kodunuzla işlem yapın.</p>
@@ -58,9 +54,7 @@
       </div>
 
       <div onclick="openDisplayPage()" class="bg-black/40 hover:bg-black/60 border border-brate hover:border-pink-600/70 p-6 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 shadow-lg group flex flex-col items-center justify-between min-h-[220px]">
-        <div class="w-16 h-16 bg-pink-950/80 border border-pink-800 text-pink-400 rounded-2xl flex items-center justify-center mb-4 text-3xl group-hover:scale-110 transition">
-          🍰
-        </div>
+        <div class="w-16 h-16 bg-pink-950/80 border border-pink-800 text-pink-400 rounded-2xl flex items-center justify-center mb-4 text-3xl group-hover:scale-110 transition">🍰</div>
         <div>
           <h3 class="text-lg font-bold text-pink-300 mb-2">Teşhir Ürünleri Takip</h3>
           <p class="text-xs text-gray-300">Dolaptaki tatlıların tazelik ve imha sürelerini canlı takip edin.</p>
@@ -73,7 +67,6 @@
   <!-- 1. SOL SEÇENEK: QR KOD EKRANI -->
   <div id="pc-qr-screen" class="hidden text-center bg-brate-card p-8 sm:p-10 rounded-3xl shadow-2xl border border-brate max-w-md w-full relative overflow-hidden z-20">
     <button onclick="backToLanding()" class="absolute top-4 left-4 text-xs font-bold text-amber-400 hover:underline">← Ana Menü</button>
-    
     <div class="flex justify-center mb-3 cursor-pointer select-none" onclick="handleSecretClick()">
       <div class="bg-white p-3 rounded-2xl shadow-xl flex flex-col items-center justify-center w-24 h-24 border border-amber-900/20">
         <svg class="w-10 h-10 text-[#6b0d1e]" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -83,16 +76,13 @@
         <span class="text-[#6b0d1e] font-extrabold tracking-widest text-[9px]">BRATE</span>
       </div>
     </div>
-
     <h2 class="text-2xl font-bold text-white mb-1">BRATE COFFEE</h2>
     <p class="text-xs text-amber-200/70 mb-4">Giriş / Çıkış İçin QR Kod Okutun</p>
-    
     <div class="bg-white p-5 rounded-2xl flex justify-center items-center my-4 shadow-inner min-h-[240px]">
       <div id="qrcode-box" class="flex justify-center items-center">
         <p class="text-gray-400 text-xs">QR Kod Yükleniyor...</p>
       </div>
     </div>
-    
     <div class="mt-4 p-3 bg-black/40 rounded-xl border border-brate/60 flex items-center justify-center space-x-3">
       <span class="relative flex h-3.5 w-3.5">
         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
@@ -103,14 +93,12 @@
   </div>
 
   <!-- GİZLİ YÖNETİCİ PIN GİRİŞ MODALI -->
-  <div id="pc-admin-modal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-50">
+  <div id="pc-admin-modal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-[100]">
     <div class="bg-brate-card p-8 rounded-3xl border border-red-900/80 max-w-sm w-full text-center relative shadow-2xl">
       <button onclick="closePcAdminModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-lg font-bold">✕</button>
-      
       <div class="w-14 h-14 bg-red-950/80 border border-red-800 text-amber-400 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl shadow-lg">🔒</div>
       <h3 class="text-2xl font-bold text-white mb-1">Yönetici Girişi</h3>
       <p class="text-xs text-gray-400 mb-6">Lütfen 4 haneli yönetici PIN kodunuzu girin</p>
-      
       <input type="password" id="pc-admin-pin" onkeydown="handleAdminPinKeyPress(event)" class="w-full bg-black/50 border border-brate p-4 rounded-xl text-center text-3xl font-extrabold tracking-widest text-amber-400 mb-4 focus:outline-none focus:border-red-600 transition" placeholder="****" maxlength="4">
       <button onclick="loginAdminFromPc()" class="w-full bg-brate-burgundy hover:bg-brate-burgundy-hover text-white font-bold py-3.5 rounded-xl text-base shadow-lg transition">Paneli Aç</button>
       <p id="pc-admin-err" class="text-red-400 text-xs font-semibold text-center mt-3 hidden"></p>
@@ -118,14 +106,12 @@
   </div>
 
   <!-- TEŞHİR ÜRÜNLERİ PIN KONTROL MODALI -->
-  <div id="display-auth-modal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-50">
+  <div id="display-auth-modal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-[100]">
     <div class="bg-brate-card p-8 rounded-3xl border border-pink-900/80 max-w-sm w-full text-center relative shadow-2xl">
       <button onclick="closeDisplayAuthModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-lg font-bold">✕</button>
-      
       <div class="w-14 h-14 bg-pink-950/80 border border-pink-800 text-pink-400 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl shadow-lg">🔑</div>
       <h3 class="text-2xl font-bold text-white mb-1">Yetkili Girişi</h3>
       <p class="text-xs text-gray-400 mb-6">Dolaba ürün koymak veya işlem yapmak için Personel PIN kodunuzu girin</p>
-      
       <input type="password" id="display-auth-pin" onkeydown="handleDisplayPinKeyPress(event)" class="w-full bg-black/50 border border-brate p-4 rounded-xl text-center text-3xl font-extrabold tracking-widest text-pink-400 mb-4 focus:outline-none focus:border-pink-600 transition" placeholder="****" maxlength="4">
       <button onclick="authenticateDisplayAccess()" class="w-full bg-pink-800 hover:bg-pink-700 text-white font-bold py-3.5 rounded-xl text-base shadow-lg transition">Yetkilendir</button>
       <p id="display-auth-err" class="text-red-400 text-xs font-semibold text-center mt-3 hidden"></p>
@@ -135,7 +121,6 @@
   <!-- 2. SAĞ SEÇENEK / MOBİL: PERSONEL PIN EKRANI -->
   <div id="mobile-staff-screen" class="hidden bg-brate-card p-6 sm:p-8 rounded-3xl shadow-2xl border border-brate max-w-md w-full relative z-20">
     <button onclick="backToLanding()" class="absolute top-4 left-4 text-xs font-bold text-amber-400 hover:underline">← Ana Menü</button>
-    
     <div id="pin-section" class="text-center pt-2">
       <div class="flex justify-center mb-4 cursor-pointer" onclick="handleSecretClick()">
         <div class="bg-white p-3 rounded-2xl shadow-md flex flex-col items-center justify-center w-24 h-24 border border-amber-900/20">
@@ -148,7 +133,6 @@
       </div>
       <h2 class="text-2xl font-bold text-white mb-1">Hoş Geldiniz</h2>
       <p class="text-xs text-amber-200/70 mb-6">Devam etmek için 4 haneli PIN kodunuzu girin</p>
-      
       <label class="block text-sm font-semibold text-gray-300 mb-2 text-left">PIN Kodu:</label>
       <input type="password" id="staff-pin" onkeydown="handleStaffPinKeyPress(event)" class="w-full bg-black/50 border border-brate p-4 rounded-xl text-center text-3xl font-extrabold tracking-widest text-amber-400 mb-5 focus:outline-none focus:border-red-600 transition" placeholder="****" maxlength="4">
       <button onclick="loginStaff()" class="w-full bg-brate-burgundy hover:bg-brate-burgundy-hover text-white font-bold py-4 rounded-xl text-lg shadow-lg transition">Sisteme Giriş Yap</button>
@@ -205,10 +189,7 @@
       <button onclick="closeAdmin()" class="bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold px-4 py-2 rounded-xl text-xs border border-gray-700 transition">Kapat / Geri Dön</button>
     </div>
 
-    <!-- İKİ SÜTUNLU DÜZEN (GRID) -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      
-      <!-- SOL SÜTUN: PERSONEL EKLE, HAK EDİŞLER & ÜRÜN KATALOĞU EKLE -->
       <div class="space-y-6">
         <form onsubmit="saveStaffForm(event)" class="space-y-3 bg-black/40 p-5 rounded-2xl border border-brate shadow-md">
           <h4 id="form-title" class="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center justify-between">
@@ -246,12 +227,10 @@
             <input type="text" id="input-catalog-pname" placeholder="Ürün Adı (Örn: Fıstıklı Soğuk Baklava)" class="w-full bg-brate-card border border-brate p-3 rounded-xl text-xs text-white focus:outline-none focus:border-pink-500">
             <button onclick="addCatalogProduct()" class="bg-pink-800 hover:bg-pink-700 text-white font-bold px-4 py-3 rounded-xl text-xs whitespace-nowrap shadow-md transition">+ Ürün Ekle</button>
           </div>
-
           <div id="catalog-products-list" class="space-y-1.5 pt-2 max-h-32 overflow-y-auto pr-1"></div>
         </div>
       </div>
 
-      <!-- SAĞ SÜTUN: KAYITLI PERSONELLER -->
       <div class="bg-black/40 p-5 rounded-2xl border border-brate shadow-md flex flex-col justify-between">
         <div>
           <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wider mb-3 pb-2 border-b border-brate flex items-center justify-between">
@@ -261,7 +240,6 @@
           <div id="staff-list-container" class="space-y-2.5 max-h-[480px] overflow-y-auto pr-1"></div>
         </div>
       </div>
-
     </div>
     <p id="admin-msg" class="text-xs text-center font-semibold mt-3"></p>
   </div>
@@ -277,7 +255,7 @@
         </div>
         
         <div class="flex items-center space-x-2">
-          <button id="btn-open-display-auth" onclick="openDisplayAuthModal()" class="bg-pink-900/80 hover:bg-pink-800 text-pink-200 font-bold px-3.5 py-2 rounded-xl text-xs border border-pink-700 transition flex items-center space-x-1">
+          <button id="btn-open-display-auth" onclick="openDisplayAuthModal()" class="bg-pink-900/80 hover:bg-pink-800 text-pink-200 font-bold px-3.5 py-2 rounded-xl text-xs border border-pink-700 transition flex items-center space-x-1 cursor-pointer">
             <span>🔐 Personel Girişi</span>
           </button>
           <span id="display-staff-badge" class="hidden bg-emerald-950 text-emerald-300 text-xs px-3 py-1.5 rounded-xl border border-emerald-800 font-bold">
@@ -287,7 +265,6 @@
         </div>
       </div>
 
-      <!-- SADECE PIN GIRILINCE GORUNEN DOLABA KOYMA BOLUMU -->
       <div id="display-add-box" class="hidden bg-black/50 p-4 sm:p-5 rounded-2xl border border-pink-600/50 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-md">
         <div class="w-full sm:w-2/3">
           <label class="block text-xs font-bold text-pink-300 mb-1">Dolaba Ürün Koy (Katalogdan Seç):</label>
@@ -396,7 +373,7 @@
     let secretClickCount = 0;
     let secretClickTimer = null;
     let qrInterval = null;
-    let selectedLoginMode = null; // 'QR' veya 'PC'
+    let selectedLoginMode = null;
     
     let currentStaffData = null;
     let currentInspectedStaffId = null;
@@ -823,7 +800,8 @@
     }
 
     function openDisplayAuthModal() {
-      document.getElementById('display-auth-modal').classList.remove('hidden');
+      const modal = document.getElementById('display-auth-modal');
+      modal.classList.remove('hidden');
       document.getElementById('display-auth-pin').value = "";
       document.getElementById('display-auth-err').classList.add('hidden');
       focusInput('display-auth-pin');
@@ -836,6 +814,12 @@
     async function authenticateDisplayAccess() {
       const pin = document.getElementById('display-auth-pin').value;
       const err = document.getElementById('display-auth-err');
+
+      if (!pin) {
+        err.innerText = "Lütfen PIN kodunuzu girin!";
+        err.classList.remove('hidden');
+        return;
+      }
 
       const res = await fetch(`${API_URL}/api/display/auth`, {
         method: "POST", headers: { "Content-Type": "application/json" },
