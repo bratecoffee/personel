@@ -182,7 +182,7 @@
     <!-- İKİ SÜTUNLU DÜZEN (GRID) -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       
-      <!-- SOL SÜTUN: PERSONEL EKLE/DÜZENLE FORMU -->
+      <!-- SOL SÜTUN: PERSONEL EKLE/DÜZENLE & KİŞİ BAZLI TOPLAM SÜRE/ÜCRET LİSTESİ -->
       <div class="space-y-6">
         <form onsubmit="saveStaffForm(event)" class="space-y-3 bg-black/40 p-5 rounded-2xl border border-brate shadow-md">
           <h4 id="form-title" class="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center justify-between">
@@ -205,31 +205,23 @@
           </div>
         </form>
 
+        <!-- PERSONEL BAZLI TOPLAM ÇALIŞMA VE ÜCRET LİSTESİ (SOL MENÜ ALTINDA) -->
         <div class="bg-black/50 p-5 rounded-2xl border border-amber-600/40 space-y-3 shadow-md">
           <h4 class="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center justify-between border-b border-brate pb-2">
-            <span>📊 TÜM İŞLETME GENEL TOPLAMI</span>
+            <span>📊 PERSONEL BAZLI TOPLAM HAK EDİŞLER</span>
           </h4>
-          <div class="grid grid-cols-2 gap-3 text-center pt-1">
-            <div class="bg-brate-card/80 p-3 rounded-xl border border-brate">
-              <p class="text-[11px] text-gray-400 font-medium mb-1">Genel Çalışma Süresi</p>
-              <p id="admin-grand-total-hours" class="text-lg font-extrabold text-white">0 Sa 0 Dk</p>
-            </div>
-            <div class="bg-brate-card/80 p-3 rounded-xl border border-brate">
-              <p class="text-[11px] text-gray-400 font-medium mb-1">Genel Hak Ediş</p>
-              <p id="admin-grand-total-earned" class="text-lg font-extrabold text-amber-400">0.00 TL</p>
-            </div>
-          </div>
+          <div id="admin-staff-summary-list" class="space-y-2 max-h-52 overflow-y-auto pr-1 text-xs"></div>
         </div>
       </div>
 
-      <!-- SAĞ SÜTUN: KAYITLI PERSONELLER VE KİŞİ BAZLI KAZANÇ LİSTESİ -->
+      <!-- SAĞ SÜTUN: KAYITLI PERSONELLER (ESKİ SADE HALİ) -->
       <div class="bg-black/40 p-5 rounded-2xl border border-brate shadow-md flex flex-col justify-between">
         <div>
           <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wider mb-3 pb-2 border-b border-brate flex items-center justify-between">
-            <span>👥 Kayıtlı Personeller ve Hak Edişleri</span>
+            <span>👥 Kayıtlı Personeller</span>
             <span id="staff-count-badge" class="bg-amber-950 text-amber-300 text-[10px] px-2.5 py-0.5 rounded-full border border-amber-800 font-bold">0 Personel</span>
           </h4>
-          <div id="staff-list-container" class="space-y-3 max-h-[500px] overflow-y-auto pr-1"></div>
+          <div id="staff-list-container" class="space-y-2.5 max-h-[480px] overflow-y-auto pr-1"></div>
         </div>
       </div>
 
@@ -603,16 +595,30 @@
       const data = await res.json();
       if (data.success) {
         renderStaffList(data.staff || []);
-        
-        let grandHours = 0;
-        let grandEarned = 0;
-        if (data.grand_totals) {
-          grandHours = data.grand_totals.total_hours || 0;
-          grandEarned = data.grand_totals.total_earned || 0;
-        }
-        document.getElementById('admin-grand-total-hours').innerText = formatHoursToHoursAndMinutes(grandHours);
-        document.getElementById('admin-grand-total-earned').innerText = `${parseFloat(grandEarned).toFixed(2)} TL`;
+        renderStaffSummaryList(data.staff || []);
       }
+    }
+
+    function renderStaffSummaryList(staffArray) {
+      const container = document.getElementById('admin-staff-summary-list');
+      container.innerHTML = "";
+
+      if (staffArray.length === 0) {
+        container.innerHTML = `<p class="text-gray-500 py-2 text-center">Kayıtlı personel yok.</p>`;
+        return;
+      }
+
+      staffArray.forEach((s, index) => {
+        const hoursFormatted = formatHoursToHoursAndMinutes(s.total_hours || 0);
+        const earnedFormatted = `${parseFloat(s.total_earned || 0).toFixed(2)} TL`;
+
+        container.innerHTML += `
+          <div class="flex justify-between items-center bg-brate-card/80 p-2.5 rounded-xl border border-brate">
+            <span class="font-bold text-white">${index + 1}. ${s.full_name}</span>
+            <span class="text-gray-300 font-medium">${hoursFormatted} <b class="text-amber-400 ml-2">${earnedFormatted}</b></span>
+          </div>
+        `;
+      });
     }
 
     function renderStaffList(staffArray) {
@@ -630,38 +636,18 @@
       staffArray.forEach(s => {
         const phone = s.phone_number ? s.phone_number : 'Tel Yok';
         const adminTag = s.is_admin ? '<span class="bg-purple-900 text-purple-200 text-[9px] px-1.5 py-0.5 rounded ml-1 font-bold">YÖNETİCİ</span>' : '';
-        
-        const staffHoursFormatted = formatHoursToHoursAndMinutes(s.total_hours || 0);
-        const staffEarnedFormatted = `${parseFloat(s.total_earned || 0).toFixed(2)} TL`;
 
         container.innerHTML += `
-          <div class="bg-black/60 p-4 rounded-2xl border border-brate/80 space-y-3 shadow-md hover:border-amber-600/50 transition">
-            <!-- PERSONEL KİMLİK VE MESAYE GİT BUTONU -->
-            <div class="flex justify-between items-start border-b border-brate/60 pb-2.5">
-              <div>
-                <p class="text-sm font-bold text-white flex items-center">${s.full_name} ${adminTag}</p>
-                <p class="text-[11px] text-gray-400 mt-0.5">Tel: ${phone} | PIN: <span class="text-amber-300 font-mono font-bold">${s.pin_code}</span> | ${s.hourly_rate} TL/saat</p>
-              </div>
-              <button onclick="inspectStaffAsAdmin(${s.id})" class="bg-amber-800 hover:bg-amber-700 text-amber-100 font-bold text-xs px-3 py-1.5 rounded-xl border border-amber-600/50 shadow-sm transition">Detaylar / Mesailer ➔</button>
+          <div class="flex justify-between items-center bg-black/40 p-3 rounded-xl border border-brate">
+            <div>
+              <p class="text-xs font-bold text-white">${s.full_name} ${adminTag}</p>
+              <p class="text-[10px] text-gray-400">Tel: ${phone} | PIN: ${s.pin_code} | ${s.hourly_rate} TL/saat</p>
             </div>
-            
-            <!-- KİŞİ BAZLI TOPLAM ÇALIŞMA VE KAZANÇ KARTLARI -->
-            <div class="grid grid-cols-2 gap-2 text-center bg-brate-card/60 p-2.5 rounded-xl border border-brate/40">
-              <div>
-                <p class="text-[10px] text-gray-400 font-semibold uppercase">Toplam Çalışma</p>
-                <p class="text-xs font-extrabold text-white mt-0.5">${staffHoursFormatted}</p>
-              </div>
-              <div>
-                <p class="text-[10px] text-gray-400 font-semibold uppercase">Hak Edilen Ücret</p>
-                <p class="text-xs font-extrabold text-amber-400 mt-0.5">${staffEarnedFormatted}</p>
-              </div>
-            </div>
-
-            <!-- AKSİYON BUTONLARI -->
-            <div class="flex justify-end space-x-1.5 pt-1">
-              <button onclick="resetDevice(${s.id})" title="Yeni telefona geçiş izni ver" class="bg-indigo-950 hover:bg-indigo-900 text-indigo-200 text-[10px] px-2.5 py-1 rounded-lg border border-indigo-800">📱 Cihaz Sıfırla</button>
-              <button onclick="editStaff(${s.id}, '${s.full_name}', '${phone}', '${s.pin_code}', ${s.hourly_rate}, ${s.is_admin || 0})" class="bg-blue-950 hover:bg-blue-900 text-blue-200 text-[10px] px-2.5 py-1 rounded-lg border border-blue-800">Düzenle</button>
-              <button onclick="deleteStaff(${s.id})" class="bg-rose-950 hover:bg-rose-900 text-rose-200 text-[10px] px-2.5 py-1 rounded-lg border border-rose-800">Sil</button>
+            <div class="space-x-1 flex items-center">
+              <button onclick="resetDevice(${s.id})" title="Yeni telefona geçiş izni ver" class="bg-indigo-900/80 hover:bg-indigo-800 text-indigo-100 text-[10px] px-2 py-1.5 rounded-lg">📱 Cihaz Sıfırla</button>
+              <button onclick="editStaff(${s.id}, '${s.full_name}', '${phone}', '${s.pin_code}', ${s.hourly_rate}, ${s.is_admin || 0})" class="bg-blue-900/80 hover:bg-blue-800 text-blue-100 text-[10px] px-2 py-1.5 rounded-lg">Düzenle</button>
+              <button onclick="inspectStaffAsAdmin(${s.id})" class="bg-amber-800 hover:bg-amber-700 text-amber-100 font-bold text-[10px] px-2.5 py-1.5 rounded-lg border border-amber-600/50">Mesailer ➔</button>
+              <button onclick="deleteStaff(${s.id})" class="bg-rose-900/80 hover:bg-rose-800 text-rose-100 text-[10px] px-2 py-1.5 rounded-lg">Sil</button>
             </div>
           </div>
         `;
