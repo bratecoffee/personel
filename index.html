@@ -17,24 +17,70 @@
 </head>
 <body class="bg-brate-dark text-gray-100 min-h-screen flex items-center justify-center p-3 sm:p-6 relative selection:bg-red-900 selection:text-white">
 
-  <!-- 1. KAFE EKRANI (QR KOD VE BRATE COFFEE LOGO) -->
-  <div id="pc-qr-screen" class="text-center bg-brate-card p-8 sm:p-10 rounded-3xl shadow-2xl border border-brate max-w-md w-full relative overflow-hidden">
-    <div class="absolute -top-24 -left-24 w-48 h-48 bg-red-900/30 rounded-full blur-3xl pointer-events-none"></div>
+  <!-- ==================== 0. İKİYE BÖLÜNMÜŞ SEÇENEKLİ ANA AÇILIŞ EKRANI ==================== -->
+  <div id="landing-screen" class="bg-brate-card p-6 sm:p-10 rounded-3xl shadow-2xl border border-brate max-w-4xl w-full text-center relative overflow-hidden">
+    <div class="absolute -top-32 -left-32 w-64 h-64 bg-red-900/20 rounded-full blur-3xl pointer-events-none"></div>
 
-    <!-- BRATE COFFEE LOGO (5 DEFA TIKLANINCA GİZLİ YÖNETİCİ GİRİŞİ AÇILIR) -->
-    <div class="flex justify-center mb-4 cursor-pointer select-none group" onclick="handleSecretClick()" title="Yönetici Girişi İçin 5 Kez Tıklayın">
-      <div class="bg-white p-4 rounded-2xl shadow-xl transition transform group-hover:scale-105 duration-300 flex flex-col items-center justify-center w-36 h-36 border-2 border-amber-900/20">
-        <svg class="w-16 h-16 text-[#6b0d1e]" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- ORTA BRATE COFFEE LOGO (5 DEFA TIKLANINCA GİZLİ YÖNETİCİ GİRİŞİ AÇILIR) -->
+    <div class="flex justify-center mb-6 cursor-pointer select-none group" onclick="handleSecretClick()" title="Yönetici Girişi İçin 5 Kez Tıklayın">
+      <div class="bg-white p-4 rounded-2xl shadow-xl transition transform group-hover:scale-105 duration-300 flex flex-col items-center justify-center w-28 h-28 border-2 border-amber-900/20">
+        <svg class="w-12 h-12 text-[#6b0d1e]" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M20 10 H55 C75 10, 85 22, 85 36 C85 48, 75 56, 60 58 C78 61, 88 72, 88 88 C88 104, 72 114, 50 114 H20 V10 Z" stroke="#6b0d1e" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
           <path d="M32 78 C42 62, 58 52, 70 52 C60 70, 48 85, 32 78 Z" fill="#6b0d1e"/>
         </svg>
-        <span class="text-[#6b0d1e] font-extrabold tracking-widest text-xs mt-1">BRATE</span>
-        <span class="text-[#6b0d1e] text-[8px] font-semibold tracking-widest uppercase opacity-80">- COFFEE -</span>
+        <span class="text-[#6b0d1e] font-extrabold tracking-widest text-[10px] mt-0.5">BRATE</span>
       </div>
     </div>
 
-    <h1 class="text-3xl font-extrabold tracking-wider text-white mb-1">BRATE COFFEE</h1>
-    <p class="text-sm font-medium text-amber-200/70 mb-6">Personel Mesai & Takip Sistemi</p>
+    <h1 class="text-3xl sm:text-4xl font-extrabold tracking-wider text-white mb-2">BRATE COFFEE</h1>
+    <p class="text-sm font-medium text-amber-200/70 mb-8">Personel Mesai & Takip Sistemi</p>
+
+    <!-- İKİ SEÇENEKLİ KART ALANI -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      
+      <!-- SOL TARAF: QR KOD İLE GİRİŞ -->
+      <div onclick="selectMode('QR')" class="bg-black/40 hover:bg-black/60 border border-brate hover:border-amber-600/70 p-6 sm:p-8 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 shadow-lg group flex flex-col items-center justify-between min-h-[220px]">
+        <div class="w-16 h-16 bg-red-950/80 border border-red-800 text-amber-400 rounded-2xl flex items-center justify-center mb-4 text-3xl group-hover:scale-110 transition">
+          📱
+        </div>
+        <div>
+          <h3 class="text-xl font-bold text-amber-300 mb-2">QR Kod Ekranı</h3>
+          <p class="text-xs text-gray-300">Telefondan QR kod okutarak işe başlama ve paydos bildirimi yapmak için tıklayın.</p>
+        </div>
+        <span class="mt-4 text-xs font-bold text-amber-400 underline group-hover:text-amber-300">QR Ekranını Aç ➔</span>
+      </div>
+
+      <!-- SAĞ TARAF: BİLGİSAYARDAN / PIN İLE GİRİŞ -->
+      <div onclick="selectMode('PC')" class="bg-black/40 hover:bg-black/60 border border-brate hover:border-emerald-600/70 p-6 sm:p-8 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 shadow-lg group flex flex-col items-center justify-between min-h-[220px]">
+        <div class="w-16 h-16 bg-emerald-950/80 border border-emerald-800 text-emerald-400 rounded-2xl flex items-center justify-center mb-4 text-3xl group-hover:scale-110 transition">
+          💻
+        </div>
+        <div>
+          <h3 class="text-xl font-bold text-emerald-300 mb-2">Bilgisayardan Giriş</h3>
+          <p class="text-xs text-gray-300">Kafedeki bilgisayardan doğrudan PIN kodunuzu girerek işlem yapmak için tıklayın.</p>
+        </div>
+        <span class="mt-4 text-xs font-bold text-emerald-400 underline group-hover:text-emerald-300">PIN Ekranını Aç ➔</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==================== 1. SOL SEÇENEK: QR KOD EKRANI ==================== -->
+  <div id="pc-qr-screen" class="hidden text-center bg-brate-card p-8 sm:p-10 rounded-3xl shadow-2xl border border-brate max-w-md w-full relative overflow-hidden">
+    <button onclick="backToLanding()" class="absolute top-4 left-4 text-xs font-bold text-amber-400 hover:underline">← Ana Menü</button>
+    
+    <div class="flex justify-center mb-3 cursor-pointer select-none" onclick="handleSecretClick()">
+      <div class="bg-white p-3 rounded-2xl shadow-xl flex flex-col items-center justify-center w-24 h-24 border border-amber-900/20">
+        <svg class="w-10 h-10 text-[#6b0d1e]" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 10 H55 C75 10, 85 22, 85 36 C85 48, 75 56, 60 58 C78 61, 88 72, 88 88 C88 104, 72 114, 50 114 H20 V10 Z" stroke="#6b0d1e" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M32 78 C42 62, 58 52, 70 52 C60 70, 48 85, 32 78 Z" fill="#6b0d1e"/>
+        </svg>
+        <span class="text-[#6b0d1e] font-extrabold tracking-widest text-[9px]">BRATE</span>
+      </div>
+    </div>
+
+    <h2 class="text-2xl font-bold text-white mb-1">BRATE COFFEE</h2>
+    <p class="text-xs text-amber-200/70 mb-4">Giriş / Çıkış İçin QR Kod Okutun</p>
     
     <div class="bg-white p-5 rounded-2xl flex justify-center items-center my-4 shadow-inner min-h-[240px]">
       <div id="qrcode-box" class="flex justify-center items-center">
@@ -42,12 +88,12 @@
       </div>
     </div>
     
-    <div class="mt-6 p-3.5 bg-black/40 rounded-xl border border-brate/60 flex items-center justify-center space-x-3">
+    <div class="mt-4 p-3 bg-black/40 rounded-xl border border-brate/60 flex items-center justify-center space-x-3">
       <span class="relative flex h-3.5 w-3.5">
         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
         <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-amber-500"></span>
       </span>
-      <p class="text-sm text-amber-300 font-mono font-semibold">QR Kod <span id="countdown" class="text-white font-bold underline px-1 text-base">10</span> saniye sonra yenilenecek</p>
+      <p class="text-xs text-amber-300 font-mono font-semibold">QR Kod <span id="countdown" class="text-white font-bold underline px-1">10</span> saniye sonra yenilenecek</p>
     </div>
   </div>
 
@@ -66,11 +112,12 @@
     </div>
   </div>
 
-  <!-- 2. PERSONEL EKRANI (MOBİL VE SABİT BİLGİSAYAR İÇİN ORTAK) -->
-  <div id="mobile-staff-screen" class="hidden bg-brate-card p-6 sm:p-8 rounded-3xl shadow-2xl border border-brate max-w-md w-full">
+  <!-- ==================== 2. SAĞ SEÇENEK / MOBİL: PERSONEL PIN EKRANI ==================== -->
+  <div id="mobile-staff-screen" class="hidden bg-brate-card p-6 sm:p-8 rounded-3xl shadow-2xl border border-brate max-w-md w-full relative">
+    <button onclick="backToLanding()" class="absolute top-4 left-4 text-xs font-bold text-amber-400 hover:underline">← Ana Menü</button>
     
     <!-- PIN GİRİŞİ -->
-    <div id="pin-section" class="text-center">
+    <div id="pin-section" class="text-center pt-2">
       <div class="flex justify-center mb-4 cursor-pointer" onclick="handleSecretClick()">
         <div class="bg-white p-3 rounded-2xl shadow-md flex flex-col items-center justify-center w-24 h-24 border border-amber-900/20">
           <svg class="w-10 h-10 text-[#6b0d1e]" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -90,7 +137,7 @@
     </div>
 
     <!-- MESAİ ADIMI VE ÖZET -->
-    <div id="shift-section" class="hidden">
+    <div id="shift-section" class="hidden pt-2">
       <div class="bg-gradient-to-r from-red-950/60 to-black/60 border border-brate p-5 rounded-2xl mb-5 text-center relative shadow-md">
         <p class="text-xs text-amber-400 font-bold uppercase tracking-widest mb-1">BRATE COFFEE EKİBİ</p>
         <h2 id="welcome-msg" class="text-2xl font-extrabold text-white">Hoş Geldin!</h2>
@@ -131,20 +178,11 @@
     </div>
   </div>
 
-  <!-- 3. YÖNETİCİ PANELİ -->
+  <!-- ==================== 3. YÖNETİCİ PANELİ ==================== -->
   <div id="admin-screen" class="hidden bg-brate-card p-6 sm:p-8 rounded-3xl shadow-2xl border border-brate max-w-lg w-full">
     <div class="flex justify-between items-center border-b border-brate pb-4 mb-5">
       <h3 class="text-xl font-bold text-amber-400">Yönetici Paneli</h3>
       <button onclick="closeAdmin()" class="text-xs text-gray-400 hover:text-white underline">Kapat / Geri Dön</button>
-    </div>
-
-    <!-- SABİT BİLGİSAYAR / KAFER EKRANI AYARI -->
-    <div class="bg-black/50 p-4 rounded-2xl border border-amber-600/40 mb-6 flex items-center justify-between">
-      <div>
-        <p class="text-xs font-bold text-amber-300">💻 Sabit Cihaz Modu</p>
-        <p class="text-[10px] text-gray-400 mt-0.5">Bu tarayıcı açıldığında doğrudan Personel PIN ekranı gelsin mi?</p>
-      </div>
-      <button id="btn-toggle-fixed-pc" onclick="toggleFixedPcMode()" class="bg-amber-800 hover:bg-amber-700 text-amber-100 font-bold text-xs px-3 py-2 rounded-xl transition border border-amber-600/50">Ayarla</button>
     </div>
 
     <div id="admin-content" class="space-y-6">
@@ -175,7 +213,7 @@
     <p id="admin-msg" class="text-xs text-center font-semibold mt-2"></p>
   </div>
 
-  <!-- 4. TAM EKRAN FERAH MESAİ DETAY SAYFASI -->
+  <!-- ==================== 4. TAM EKRAN MESAİ DETAY SAYFASI ==================== -->
   <div id="full-shifts-page" class="hidden fixed inset-0 bg-brate-dark z-50 overflow-y-auto p-4 sm:p-8 flex flex-col items-center">
     <div class="max-w-3xl w-full bg-brate-card p-6 sm:p-8 rounded-3xl border border-brate shadow-2xl my-auto space-y-6">
       
@@ -236,6 +274,7 @@
     let userLng = null;
     let secretClickCount = 0;
     let secretClickTimer = null;
+    let qrInterval = null;
     
     let currentStaffData = null;
     let currentInspectedStaffId = null;
@@ -250,14 +289,12 @@
       return devId;
     }
 
-    // SAYFA YÜKLENİRKEN EKRAN KONTROLÜ
-    const isFixedPcMode = localStorage.getItem('brate_fixed_pc_mode') === 'true';
-
+    // SAYFA İLK AÇILDIĞINDA
     if (isAdminUrlParam === '1') {
       openPcAdminModal();
-    } else if (qrTokenFromUrl || isFixedPcMode) {
-      // EĞER QR OKUTULDUYSA VEYA BU CİHAZ "SABİT KAFE BİLGİSAYARI" İSE DOĞRUDAN PIN EKRANINI AÇ
-      document.getElementById('pc-qr-screen').classList.add('hidden');
+    } else if (qrTokenFromUrl) {
+      // Telefondan QR okutulup geldiyse doğrudan Personel PIN ekranını aç
+      document.getElementById('landing-screen').classList.add('hidden');
       document.getElementById('mobile-staff-screen').classList.remove('hidden');
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((pos) => {
@@ -265,9 +302,23 @@
           userLng = pos.coords.longitude;
         }, () => {});
       }
-    } else {
-      // DİĞER DURUMLARDA QR EKRANINI AÇ
-      startQrLoopWithCountdown();
+    }
+
+    function selectMode(mode) {
+      document.getElementById('landing-screen').classList.add('hidden');
+      if (mode === 'QR') {
+        document.getElementById('pc-qr-screen').classList.remove('hidden');
+        startQrLoopWithCountdown();
+      } else if (mode === 'PC') {
+        document.getElementById('mobile-staff-screen').classList.remove('hidden');
+      }
+    }
+
+    function backToLanding() {
+      if (qrInterval) clearInterval(qrInterval);
+      document.getElementById('pc-qr-screen').classList.add('hidden');
+      document.getElementById('mobile-staff-screen').classList.add('hidden');
+      document.getElementById('landing-screen').classList.remove('hidden');
     }
 
     function generateQrCode(text) {
@@ -298,7 +349,8 @@
 
       fetchAndDrawQr();
 
-      setInterval(() => {
+      if (qrInterval) clearInterval(qrInterval);
+      qrInterval = setInterval(() => {
         timeLeft--;
         if (timeLeft <= 0) {
           fetchAndDrawQr();
@@ -331,30 +383,6 @@
       document.getElementById('pc-admin-modal').classList.add('hidden');
     }
 
-    function updateFixedPcButtonState() {
-      const btn = document.getElementById('btn-toggle-fixed-pc');
-      const isFixed = localStorage.getItem('brate_fixed_pc_mode') === 'true';
-      if (isFixed) {
-        btn.innerText = "✓ Sabit Ekran Etkin (Devre Dışı Bırak)";
-        btn.className = "bg-emerald-800 hover:bg-emerald-700 text-emerald-100 font-bold text-xs px-3 py-2 rounded-xl transition border border-emerald-600/50";
-      } else {
-        btn.innerText = "Bu Cihazı Sabit Personel Girişi Yap";
-        btn.className = "bg-amber-800 hover:bg-amber-700 text-amber-100 font-bold text-xs px-3 py-2 rounded-xl transition border border-amber-600/50";
-      }
-    }
-
-    function toggleFixedPcMode() {
-      const isFixed = localStorage.getItem('brate_fixed_pc_mode') === 'true';
-      if (isFixed) {
-        localStorage.removeItem('brate_fixed_pc_mode');
-        alert("Bu cihaz artık normal QR kod ekranını gösterecek.");
-      } else {
-        localStorage.setItem('brate_fixed_pc_mode', 'true');
-        alert("Bu cihaz Sabit Personel Giriş Ekranı yapıldı! Sayfa açıldığında doğrudan PIN giriş ekranı gelecek.");
-      }
-      updateFixedPcButtonState();
-    }
-
     async function loginAdminFromPc() {
       const pin = document.getElementById('pc-admin-pin').value;
       const err = document.getElementById('pc-admin-err');
@@ -367,10 +395,10 @@
 
       if (data.success && data.is_admin === 1) {
         closePcAdminModal();
+        document.getElementById('landing-screen').classList.add('hidden');
         document.getElementById('pc-qr-screen').classList.add('hidden');
         document.getElementById('mobile-staff-screen').classList.add('hidden');
         document.getElementById('admin-screen').classList.remove('hidden');
-        updateFixedPcButtonState();
         loadAdminDashboard();
       } else {
         err.innerText = data.is_admin === 0 ? "Bu PIN koduna ait Yönetici Yetkisi yok!" : (data.error || "Hatalı PIN!");
@@ -421,17 +449,15 @@
     function openAdminPanel() {
       document.getElementById('mobile-staff-screen').classList.add('hidden');
       document.getElementById('admin-screen').classList.remove('hidden');
-      updateFixedPcButtonState();
       loadAdminDashboard();
     }
 
     function closeAdmin() {
       document.getElementById('admin-screen').classList.add('hidden');
-      const isFixed = localStorage.getItem('brate_fixed_pc_mode') === 'true';
-      if (qrTokenFromUrl || isFixed) {
+      if (qrTokenFromUrl) {
         document.getElementById('mobile-staff-screen').classList.remove('hidden');
       } else {
-        document.getElementById('pc-qr-screen').classList.remove('hidden');
+        document.getElementById('landing-screen').classList.remove('hidden');
       }
     }
 
