@@ -117,6 +117,21 @@
     </div>
   </div>
 
+  <!-- TEŞHİR ÜRÜNLERİ PIN KONTROL MODALI -->
+  <div id="display-auth-modal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-50">
+    <div class="bg-brate-card p-8 rounded-3xl border border-pink-900/80 max-w-sm w-full text-center relative shadow-2xl">
+      <button onclick="closeDisplayAuthModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-lg font-bold">✕</button>
+      
+      <div class="w-14 h-14 bg-pink-950/80 border border-pink-800 text-pink-400 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl shadow-lg">🔑</div>
+      <h3 class="text-2xl font-bold text-white mb-1">Yetkili Girişi</h3>
+      <p class="text-xs text-gray-400 mb-6">Dolaba ürün koymak veya işlem yapmak için Personel PIN kodunuzu girin</p>
+      
+      <input type="password" id="display-auth-pin" onkeydown="handleDisplayPinKeyPress(event)" class="w-full bg-black/50 border border-brate p-4 rounded-xl text-center text-3xl font-extrabold tracking-widest text-pink-400 mb-4 focus:outline-none focus:border-pink-600 transition" placeholder="****" maxlength="4">
+      <button onclick="authenticateDisplayAccess()" class="w-full bg-pink-800 hover:bg-pink-700 text-white font-bold py-3.5 rounded-xl text-base shadow-lg transition">Yetkilendir</button>
+      <p id="display-auth-err" class="text-red-400 text-xs font-semibold text-center mt-3 hidden"></p>
+    </div>
+  </div>
+
   <!-- 2. SAĞ SEÇENEK / MOBİL: PERSONEL PIN EKRANI -->
   <div id="mobile-staff-screen" class="hidden bg-brate-card p-6 sm:p-8 rounded-3xl shadow-2xl border border-brate max-w-md w-full relative z-20">
     <button onclick="backToLanding()" class="absolute top-4 left-4 text-xs font-bold text-amber-400 hover:underline">← Ana Menü</button>
@@ -254,15 +269,26 @@
   <!-- 4. TEŞHİR ÜRÜNLERİ TAKİP CANLI EKRANI -->
   <div id="display-products-page" class="hidden fixed inset-0 bg-brate-dark z-50 overflow-y-auto p-4 sm:p-8 flex flex-col items-center">
     <div class="max-w-4xl w-full bg-brate-card p-6 sm:p-8 rounded-3xl border border-brate shadow-2xl my-auto space-y-6">
-      <div class="flex justify-between items-center border-b border-brate pb-4">
+      
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-brate pb-4 gap-3">
         <div>
           <h2 class="text-2xl font-extrabold text-pink-400 flex items-center">🍰 Teşhir Ürünleri Tazelik Takibi</h2>
           <p class="text-xs text-gray-400 mt-1">Dolaptaki ürünlerin 3 günlük (72 Saat) canlı geri sayımı</p>
         </div>
-        <button onclick="closeDisplayPage()" class="bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold px-4 py-2 rounded-xl text-xs border border-gray-700 transition">← Ana Menü</button>
+        
+        <div class="flex items-center space-x-2">
+          <button id="btn-open-display-auth" onclick="openDisplayAuthModal()" class="bg-pink-900/80 hover:bg-pink-800 text-pink-200 font-bold px-3.5 py-2 rounded-xl text-xs border border-pink-700 transition flex items-center space-x-1">
+            <span>🔐 Personel Girişi</span>
+          </button>
+          <span id="display-staff-badge" class="hidden bg-emerald-950 text-emerald-300 text-xs px-3 py-1.5 rounded-xl border border-emerald-800 font-bold">
+            👤 Yetkili: <span id="display-staff-name-text"></span>
+          </span>
+          <button onclick="closeDisplayPage()" class="bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold px-4 py-2 rounded-xl text-xs border border-gray-700 transition">← Ana Menü</button>
+        </div>
       </div>
 
-      <div class="bg-black/50 p-4 sm:p-5 rounded-2xl border border-pink-600/50 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-md">
+      <!-- SADECE PIN GIRILINCE GORUNEN DOLABA KOYMA BOLUMU -->
+      <div id="display-add-box" class="hidden bg-black/50 p-4 sm:p-5 rounded-2xl border border-pink-600/50 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-md">
         <div class="w-full sm:w-2/3">
           <label class="block text-xs font-bold text-pink-300 mb-1">Dolaba Ürün Koy (Katalogdan Seç):</label>
           <select id="select-display-product" class="w-full bg-brate-card border border-brate p-3 rounded-xl text-xs text-white focus:outline-none focus:border-pink-500">
@@ -280,7 +306,7 @@
               <th class="p-3">Teşhir Zamanı</th>
               <th class="p-3">İmha Zamanı (+3 Gün)</th>
               <th class="p-3">Kalan Zaman (Canlı)</th>
-              <th class="p-3 text-right">İşlem</th>
+              <th id="th-display-actions" class="hidden p-3 text-right">İşlem</th>
             </tr>
           </thead>
           <tbody id="display-products-tbody" class="text-xs text-gray-200 divide-y divide-brate/50"></tbody>
@@ -379,6 +405,7 @@
     let displayProductsList = [];
     let catalogList = [];
     let displayTimerInterval = null;
+    let displayAuthPin = null; // Teşhir yetkisi için girilen PIN
 
     function formatHoursToHoursAndMinutes(decimalHours) {
       if (!decimalHours || isNaN(decimalHours) || parseFloat(decimalHours) <= 0) return "0 Sa 0 Dk";
@@ -434,6 +461,13 @@
       if (event.key === "Enter") {
         event.preventDefault();
         loginAdminFromPc();
+      }
+    }
+
+    function handleDisplayPinKeyPress(event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        authenticateDisplayAccess();
       }
     }
 
@@ -571,6 +605,8 @@
 
       if (data.success) {
         currentStaffData = data;
+        displayAuthPin = pin; // Otomatik teşhir yetkisi aktarılır
+
         document.getElementById('welcome-msg').innerText = `Hoş Geldin ${data.staff_name}!`;
         document.getElementById('staff-name').innerText = `Personel: ${data.staff_name}`;
         document.getElementById('pin-section').classList.add('hidden');
@@ -772,6 +808,8 @@
     async function openDisplayPage() {
       document.getElementById('landing-screen').classList.add('hidden');
       document.getElementById('display-products-page').classList.remove('hidden');
+      
+      updateDisplayAuthUI();
       await fetchDisplayProducts();
 
       if (displayTimerInterval) clearInterval(displayTimerInterval);
@@ -782,6 +820,60 @@
       if (displayTimerInterval) clearInterval(displayTimerInterval);
       document.getElementById('display-products-page').classList.add('hidden');
       document.getElementById('landing-screen').classList.remove('hidden');
+    }
+
+    function openDisplayAuthModal() {
+      document.getElementById('display-auth-modal').classList.remove('hidden');
+      document.getElementById('display-auth-pin').value = "";
+      document.getElementById('display-auth-err').classList.add('hidden');
+      focusInput('display-auth-pin');
+    }
+
+    function closeDisplayAuthModal() {
+      document.getElementById('display-auth-modal').classList.add('hidden');
+    }
+
+    async function authenticateDisplayAccess() {
+      const pin = document.getElementById('display-auth-pin').value;
+      const err = document.getElementById('display-auth-err');
+
+      const res = await fetch(`${API_URL}/api/display/auth`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pin_code: pin })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        displayAuthPin = pin;
+        closeDisplayAuthModal();
+        
+        document.getElementById('display-staff-name-text').innerText = data.staff_name;
+        updateDisplayAuthUI();
+        renderDisplayTableWithCountdown();
+      } else {
+        err.innerText = data.error || "Hatalı PIN Kodu!";
+        err.classList.remove('hidden');
+        focusInput('display-auth-pin');
+      }
+    }
+
+    function updateDisplayAuthUI() {
+      const btnAuth = document.getElementById('btn-open-display-auth');
+      const badgeStaff = document.getElementById('display-staff-badge');
+      const addBox = document.getElementById('display-add-box');
+      const thActions = document.getElementById('th-display-actions');
+
+      if (displayAuthPin) {
+        btnAuth.classList.add('hidden');
+        badgeStaff.classList.remove('hidden');
+        addBox.classList.remove('hidden');
+        thActions.classList.remove('hidden');
+      } else {
+        btnAuth.classList.remove('hidden');
+        badgeStaff.classList.add('hidden');
+        addBox.classList.add('hidden');
+        thActions.classList.add('hidden');
+      }
     }
 
     async function fetchDisplayProducts() {
@@ -805,6 +897,11 @@
     }
 
     async function addDisplayProductFromSelect() {
+      if (!displayAuthPin) {
+        openDisplayAuthModal();
+        return;
+      }
+
       const select = document.getElementById('select-display-product');
       const selectedName = select.value;
 
@@ -815,7 +912,7 @@
 
       const res = await fetch(`${API_URL}/api/display/add`, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ product_name: selectedName })
+        body: JSON.stringify({ product_name: selectedName, pin_code: displayAuthPin })
       });
       const data = await res.json();
       if (data.success) {
@@ -830,7 +927,8 @@
       tbody.innerHTML = "";
 
       if (displayProductsList.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-gray-500">Dolapta aktif teşhir ürünü bulunmuyor.</td></tr>`;
+        const colSpan = displayAuthPin ? "5" : "4";
+        tbody.innerHTML = `<tr><td colspan="${colSpan}" class="p-6 text-center text-gray-500">Dolapta aktif teşhir ürünü bulunmuyor.</td></tr>`;
         return;
       }
 
@@ -859,370 +957,3 @@
           countdownStr = "🚨 İMHA EDİLMELİ (Süre Doldu)";
           badgeClass = "bg-rose-950 text-rose-300 border-rose-800 animate-pulse";
         }
-
-        tbody.innerHTML += `
-          <tr class="hover:bg-black/30 transition">
-            <td class="p-3 font-bold text-white">${p.product_name}</td>
-            <td class="p-3 text-gray-300">${createdStr}</td>
-            <td class="p-3 text-amber-200/90 font-mono">${expireStr}</td>
-            <td class="p-3">
-              <span class="px-2.5 py-1 rounded-lg border text-[11px] font-bold font-mono ${badgeClass}">${countdownStr}</span>
-            </td>
-            <td class="p-3 text-right space-x-1">
-              <button onclick="renewDisplayProduct(${p.id})" class="bg-amber-800 hover:bg-amber-700 text-amber-100 font-bold text-[10px] px-2.5 py-1.5 rounded-lg border border-amber-600">Yenile (3 Gün)</button>
-              <button onclick="removeDisplayProduct(${p.id})" class="bg-rose-900/80 hover:bg-rose-800 text-rose-100 font-bold text-[10px] px-2.5 py-1.5 rounded-lg border border-rose-700">Satıldı / Kaldır</button>
-            </td>
-          </tr>
-        `;
-      });
-    }
-
-    async function renewDisplayProduct(id) {
-      if(!confirm("Bu ürünün teşhir süresini sıfırlayıp 3 gün uzatmak istediğinize emin misiniz?")) return;
-      const res = await fetch(`${API_URL}/api/display/renew`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ product_id: id })
-      });
-      const data = await res.json();
-      if(data.success) {
-        fetchDisplayProducts();
-      }
-    }
-
-    async function removeDisplayProduct(id) {
-      if(!confirm("Bu ürünü dolaptan kaldırmak / satıldı işaretlemek istediğinize emin misiniz?")) return;
-      const res = await fetch(`${API_URL}/api/display/remove`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ product_id: id })
-      });
-      const data = await res.json();
-      if(data.success) {
-        fetchDisplayProducts();
-      }
-    }
-
-    function openPersonalShiftsPage() {
-      if (!currentStaffData) return;
-      isViewingAsAdmin = false;
-      currentInspectedStaffId = currentStaffData.staff_id;
-
-      document.getElementById('mobile-staff-screen').classList.add('hidden');
-      document.getElementById('full-shifts-page').classList.remove('hidden');
-      document.getElementById('admin-manual-shift-box').classList.add('hidden');
-
-      document.getElementById('page-shifts-title').innerText = `${currentStaffData.staff_name} - Mesai Geçmişi`;
-      document.getElementById('page-shifts-subtitle').innerText = "Kendi çalışma saatleriniz ve kazanç kayıtlarınız";
-
-      loadStaffShiftsPage(currentStaffData.staff_id);
-    }
-
-    function inspectStaffAsAdmin(staffId) {
-      isViewingAsAdmin = true;
-      currentInspectedStaffId = staffId;
-
-      document.getElementById('admin-screen').classList.add('hidden');
-      document.getElementById('full-shifts-page').classList.remove('hidden');
-      document.getElementById('admin-manual-shift-box').classList.remove('hidden');
-
-      document.getElementById('chk-is-leave').checked = false;
-      toggleLeaveFields();
-
-      document.getElementById('manual-in-time').value = "";
-      document.getElementById('manual-out-time').value = "";
-      document.getElementById('manual-leave-date').value = "";
-
-      loadStaffShiftsPage(staffId);
-    }
-
-    async function loadStaffShiftsPage(staffId) {
-      const res = await fetch(`${API_URL}/api/admin/staff/detail`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ staff_id: staffId })
-      });
-      const data = await res.json();
-      if (data.success) {
-        if (isViewingAsAdmin) {
-          document.getElementById('page-shifts-title').innerText = `${data.staff.full_name} - Mesai Yönetimi`;
-          document.getElementById('page-shifts-subtitle').innerText = `Saatlik Ücret: ${data.staff.hourly_rate} TL | Yönetici Düzenleme Sayfası`;
-        }
-
-        renderShiftsPageList(data.shifts || []);
-      }
-    }
-
-    function renderShiftsPageList(shifts) {
-      const list = document.getElementById('page-shifts-list');
-      list.innerHTML = "";
-
-      let sumHours = 0;
-      let sumEarned = 0;
-
-      if (!shifts || shifts.length === 0) {
-        list.innerHTML = `<p class="text-gray-500 py-4 text-center">Henüz mesai veya izin kaydı bulunmuyor.</p>`;
-        document.getElementById('page-total-hours').innerText = `0 Sa 0 Dk`;
-        document.getElementById('page-total-earned').innerText = `0.00 TL`;
-        return;
-      }
-
-      shifts.forEach(shift => {
-        if (shift.total_hours) sumHours += parseFloat(shift.total_hours);
-        if (shift.earned_amount) sumEarned += parseFloat(shift.earned_amount);
-
-        const isLeaveRecord = shift.clock_in === shift.clock_out && parseFloat(shift.total_hours || 0) === 0;
-
-        const inISO = toTurkeyISOString(shift.clock_in);
-        const outISO = shift.clock_out ? toTurkeyISOString(shift.clock_out) : "";
-        const distText = shift.distance_meters !== null && shift.distance_meters !== undefined ? `📍 ${shift.distance_meters}m` : '📍 Manuel Eklenen';
-
-        const shiftFormattedDuration = formatHoursToHoursAndMinutes(shift.total_hours);
-
-        if (isViewingAsAdmin) {
-          if (isLeaveRecord) {
-            const dateStr = new Date(shift.clock_in * 1000).toLocaleDateString('tr-TR');
-            list.innerHTML += `
-              <div class="bg-amber-950/20 p-4 rounded-2xl border border-amber-800/40 flex justify-between items-center text-xs">
-                <div>
-                  <p class="font-bold text-amber-300">🏝️ İZİNLİ GÜN (${dateStr})</p>
-                  <p class="text-gray-400 mt-0.5">Süre: <b>0 Sa 0 Dk</b> | Hak Edilen: <b>0.00 TL</b></p>
-                </div>
-                <button onclick="deleteShift(${shift.id})" class="bg-rose-900 hover:bg-rose-800 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">Sil</button>
-              </div>
-            `;
-          } else {
-            list.innerHTML += `
-              <div class="bg-black/40 p-4 rounded-2xl border border-brate space-y-3">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                  <div>
-                    <label class="block text-gray-400 mb-1">Giriş Tarihi / Saati:</label>
-                    <input type="datetime-local" id="in-${shift.id}" value="${inISO}" class="bg-brate-card border border-brate p-2 rounded-xl text-white w-full focus:outline-none focus:border-amber-500">
-                  </div>
-                  <div>
-                    <label class="block text-gray-400 mb-1">Paydos Tarihi / Saati:</label>
-                    <input type="datetime-local" id="out-${shift.id}" value="${outISO}" class="bg-brate-card border border-brate p-2 rounded-xl text-white w-full focus:outline-none focus:border-amber-500">
-                  </div>
-                </div>
-                <div class="flex flex-wrap justify-between items-center text-xs pt-2 border-t border-brate gap-2">
-                  <span class="text-gray-300">Süre: <b class="text-white">${shiftFormattedDuration}</b> | Kazanç: <b class="text-amber-400">${shift.earned_amount || '0.00'} TL</b> | <span class="text-cyan-400 font-semibold">${distText}</span></span>
-                  <div class="space-x-2">
-                    <button onclick="updateShiftTime(${shift.id})" class="bg-emerald-800 hover:bg-emerald-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">Saati Kaydet</button>
-                    <button onclick="deleteShift(${shift.id})" class="bg-rose-900 hover:bg-rose-800 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">Sil</button>
-                  </div>
-                </div>
-              </div>
-            `;
-          }
-        } else {
-          if (isLeaveRecord) {
-            const dateStr = new Date(shift.clock_in * 1000).toLocaleDateString('tr-TR');
-            list.innerHTML += `
-              <div class="bg-amber-950/20 p-4 rounded-2xl border border-amber-800/40 flex justify-between items-center text-xs">
-                <div>
-                  <p class="font-bold text-amber-300">🏝️ İZİNLİ GÜN</p>
-                  <p class="text-gray-400 text-[11px]">${dateStr}</p>
-                </div>
-                <div class="text-right">
-                  <p class="text-xs font-bold text-white">0 Sa 0 Dk</p>
-                  <p class="text-xs font-bold text-amber-400">0.00 TL</p>
-                </div>
-              </div>
-            `;
-          } else {
-            const inFormatted = shift.clock_in ? new Date(shift.clock_in * 1000).toLocaleString('tr-TR') : '-';
-            const outFormatted = shift.clock_out ? new Date(shift.clock_out * 1000).toLocaleString('tr-TR') : 'Devam Ediyor...';
-
-            list.innerHTML += `
-              <div class="bg-black/40 p-4 rounded-2xl border border-brate flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                <div class="space-y-1 text-xs">
-                  <p class="text-gray-300"><span class="text-emerald-400 font-bold">🟢 Giriş:</span> ${inFormatted}</p>
-                  <p class="text-gray-300"><span class="text-rose-400 font-bold">🔴 Paydos:</span> ${outFormatted}</p>
-                </div>
-                <div class="text-right border-t sm:border-t-0 border-brate pt-2 sm:pt-0 w-full sm:w-auto">
-                  <p class="text-sm font-bold text-white">${shiftFormattedDuration}</p>
-                  <p class="text-sm font-bold text-amber-400">${shift.earned_amount || '0.00'} TL</p>
-                </div>
-              </div>
-            `;
-          }
-        }
-      });
-
-      document.getElementById('page-total-hours').innerText = formatHoursToHoursAndMinutes(sumHours);
-      document.getElementById('page-total-earned').innerText = `${sumEarned.toFixed(2)} TL`;
-    }
-
-    function closeShiftsPage() {
-      document.getElementById('full-shifts-page').classList.add('hidden');
-      if (isViewingAsAdmin) {
-        document.getElementById('admin-screen').classList.remove('hidden');
-        loadAdminDashboard();
-      } else {
-        document.getElementById('mobile-staff-screen').classList.remove('hidden');
-        if (document.getElementById('pin-section').classList.contains('hidden') === false) {
-          focusInput('staff-pin');
-        }
-      }
-    }
-
-    function parseDatetimeLocal(val) {
-      if (!val) return null;
-      const d = new Date(val);
-      return Math.floor(d.getTime() / 1000);
-    }
-
-    async function addManualShift() {
-      if (!currentInspectedStaffId) return;
-
-      const isLeave = document.getElementById('chk-is-leave').checked;
-      let payload = { staff_id: currentInspectedStaffId, is_leave: isLeave };
-
-      if (isLeave) {
-        const leaveDateVal = document.getElementById('manual-leave-date').value;
-        const leaveTypeVal = document.getElementById('manual-leave-type').value;
-
-        if (!leaveDateVal) {
-          alert("Lütfen izin tarihini seçin!");
-          return;
-        }
-
-        const clockTimestamp = Math.floor(new Date(leaveDateVal + "T12:00:00").getTime() / 1000);
-        payload.clock_in = clockTimestamp;
-        payload.clock_out = clockTimestamp;
-        payload.leave_type = leaveTypeVal;
-      } else {
-        const inVal = document.getElementById('manual-in-time').value;
-        const outVal = document.getElementById('manual-out-time').value;
-
-        if (!inVal || !outVal) {
-          alert("Lütfen hem giriş hem paydos tarihini/saatini seçin!");
-          return;
-        }
-
-        payload.clock_in = parseDatetimeLocal(inVal);
-        payload.clock_out = parseDatetimeLocal(outVal);
-      }
-
-      const res = await fetch(`${API_URL}/api/admin/shift/add-manual`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-      const data = await res.json();
-      if (data.success) {
-        alert(isLeave ? "İzin kaydı başarıyla eklendi!" : "Manuel mesai kaydı başarıyla eklendi!");
-        document.getElementById('manual-in-time').value = "";
-        document.getElementById('manual-out-time').value = "";
-        document.getElementById('manual-leave-date').value = "";
-        document.getElementById('chk-is-leave').checked = false;
-        toggleLeaveFields();
-        loadStaffShiftsPage(currentInspectedStaffId);
-      } else {
-        alert("Hata: " + (data.error || "Eklenemedi"));
-      }
-    }
-
-    function toTurkeyISOString(timestamp) {
-      if(!timestamp) return "";
-      const date = new Date(timestamp * 1000);
-      const tzOffset = date.getTimezoneOffset() * 60000;
-      const localTime = new Date(date.getTime() - tzOffset);
-      return localTime.toISOString().slice(0, 16);
-    }
-
-    async function updateShiftTime(shiftId) {
-      const inVal = document.getElementById(`in-${shiftId}`).value;
-      const outVal = document.getElementById(`out-${shiftId}`).value;
-
-      const clockIn = parseDatetimeLocal(inVal);
-      const clockOut = parseDatetimeLocal(outVal);
-
-      const res = await fetch(`${API_URL}/api/admin/shift/update`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ shift_id: shiftId, clock_in: clockIn, clock_out: clockOut })
-      });
-      const data = await res.json();
-      if(data.success) {
-        alert("Mesai saati güncellendi!");
-        loadStaffShiftsPage(currentInspectedStaffId);
-      }
-    }
-
-    async function deleteShift(shiftId) {
-      if(!confirm("Silmek istediğinize emin misiniz?")) return;
-      await fetch(`${API_URL}/api/admin/shift/delete`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ shift_id: shiftId })
-      });
-      loadStaffShiftsPage(currentInspectedStaffId);
-    }
-
-    async function resetDevice(staffId) {
-      if(!confirm("Bu personelin cihaz kilidini kaldırmak istediğinize emin misiniz?")) return;
-      const res = await fetch(`${API_URL}/api/admin/staff/reset-device`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ staff_id: staffId })
-      });
-      const data = await res.json();
-      if(data.success) alert("Cihaz kilidi sıfırlandı!");
-    }
-
-    function editStaff(id, name, phone, pin, rate, isAdmin) {
-      document.getElementById('edit-staff-id').value = id;
-      document.getElementById('form-staff-name').value = name;
-      document.getElementById('form-staff-phone').value = phone !== 'Tel Yok' ? phone : '';
-      document.getElementById('form-staff-pin').value = pin;
-      document.getElementById('form-staff-rate').value = rate;
-      document.getElementById('form-staff-is-admin').checked = isAdmin === 1;
-      document.getElementById('form-title').innerText = "✏️ Personel Bilgilerini Güncelle";
-      document.getElementById('btn-save-staff').innerText = "Güncellemeyi Kaydet";
-      document.getElementById('btn-cancel-edit').classList.remove('hidden');
-    }
-
-    function resetForm() {
-      document.getElementById('edit-staff-id').value = "";
-      document.getElementById('form-staff-name').value = "";
-      document.getElementById('form-staff-phone').value = "";
-      document.getElementById('form-staff-pin').value = "";
-      document.getElementById('form-staff-rate').value = "";
-      document.getElementById('form-staff-is-admin').checked = false;
-      document.getElementById('form-title').innerText = "➕ Yeni Personel Ekle";
-      document.getElementById('btn-save-staff').innerText = "+ Kaydet";
-      document.getElementById('btn-cancel-edit').classList.add('hidden');
-    }
-
-    async function saveStaffForm(e) {
-      e.preventDefault();
-      const staffId = document.getElementById('edit-staff-id').value;
-      const endpoint = staffId ? "/api/admin/staff/update" : "/api/admin/staff/add";
-
-      const payload = {
-        staff_id: staffId ? parseInt(staffId) : undefined,
-        full_name: document.getElementById('form-staff-name').value,
-        phone_number: document.getElementById('form-staff-phone').value,
-        pin_code: document.getElementById('form-staff-pin').value,
-        hourly_rate: parseFloat(document.getElementById('form-staff-rate').value),
-        is_admin: document.getElementById('form-staff-is-admin').checked ? 1 : 0
-      };
-
-      const res = await fetch(`${API_URL}${endpoint}`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-      const data = await res.json();
-      if(data.success) {
-        resetForm();
-        loadAdminDashboard();
-      }
-    }
-
-    async function deleteStaff(staffId) {
-      if(!confirm("Silmek istediğinize emin misiniz?")) return;
-      await fetch(`${API_URL}/api/admin/staff/delete`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ staff_id: staffId })
-      });
-      loadAdminDashboard();
-    }
-
-    function logout() { window.location.href = window.location.pathname; }
-  </script>
-</body>
-</html>
