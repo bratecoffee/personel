@@ -3,123 +3,167 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Brate Coffee - Personel Takip</title>
+  <title>Brate Coffee - Personel Takip Sistemi</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .bg-brate-dark { background-color: #12090b; }
+    .bg-brate-card { background-color: #1e1014; }
+    .border-brate { border-color: #4a1521; }
+    .text-brate-burgundy { color: #80182a; }
+    .bg-brate-burgundy { background-color: #6b0d1e; }
+    .hover\:bg-brate-burgundy-hover:hover { background-color: #821226; }
+    .text-brate-gold { color: #e5b869; }
+  </style>
 </head>
-<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center p-4 relative">
+<body class="bg-brate-dark text-gray-100 min-h-screen flex items-center justify-center p-4 relative selection:bg-red-900 selection:text-white">
 
-  <!-- 1. KAFE EKRANI (QR KOD) -->
-  <div id="pc-qr-screen" class="text-center bg-gray-800 p-8 rounded-2xl shadow-2xl border border-gray-700 max-w-sm w-full">
-    <h1 class="text-2xl font-bold mb-2 text-amber-500">Brate Coffee</h1>
-    <p class="text-xs text-gray-400 mb-6">Giriş / Çıkış için QR kodu okutun</p>
+  <!-- 1. KAFE EKRANI (QR KOD VE LOGO) -->
+  <div id="pc-qr-screen" class="text-center bg-brate-card p-8 sm:p-10 rounded-3xl shadow-2xl border border-brate max-w-md w-full relative overflow-hidden">
+    <!-- Üst Işık Efekti -->
+    <div class="absolute -top-24 -left-24 w-48 h-48 bg-red-900/30 rounded-full blur-3xl pointer-events-none"></div>
+
+    <!-- LOGO (5 DEFA TIKLANINCA GİZLİ YÖNETİCİ GİRİŞİ AÇILIR) -->
+    <div class="flex justify-center mb-4 cursor-pointer select-none group" onclick="handleSecretClick()" title="Brate Coffee">
+      <div class="bg-white p-3 rounded-2xl shadow-xl transition transform group-hover:scale-105 duration-300">
+        <!-- Logo resmi varsayılan olarak yuklenen resimden alinir veya ayni klasordeki logo.jpeg dosyasindan çekilir -->
+        <img src="https://raw.githubusercontent.com/bratecoffee/personel/main/logo.jpeg" onerror="this.src='logo.jpeg'" alt="Brate Coffee Logo" class="h-28 w-auto object-contain">
+      </div>
+    </div>
+
+    <h1 class="text-3xl font-extrabold tracking-wider text-white mb-1">BRATE COFFEE</h1>
+    <p class="text-sm font-medium text-amber-200/70 mb-6">Personel Mesai & Takip Sistemi</p>
     
-    <div class="bg-white p-4 rounded-xl flex justify-center items-center my-4 min-h-[220px]">
+    <div class="bg-white p-5 rounded-2xl flex justify-center items-center my-4 shadow-inner min-h-[240px]">
       <div id="qrcode-box" class="flex justify-center items-center"></div>
     </div>
     
-    <div class="mt-4 p-3 bg-gray-900/60 rounded-xl border border-gray-700/50 flex items-center justify-center space-x-2">
-      <span class="relative flex h-3 w-3">
+    <div class="mt-6 p-3.5 bg-black/40 rounded-xl border border-brate/60 flex items-center justify-center space-x-3">
+      <span class="relative flex h-3.5 w-3.5">
         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-        <span class="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+        <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-amber-500"></span>
       </span>
-      <p class="text-xs text-amber-400 font-mono">QR Kod <span id="countdown" class="text-white font-bold underline px-1">10</span> saniye sonra yenilenecek</p>
+      <p class="text-sm text-amber-300 font-mono font-semibold">QR Kod <span id="countdown" class="text-white font-bold underline px-1 text-base">10</span> saniye sonra yenilenecek</p>
+    </div>
+  </div>
+
+  <!-- GİZLİ YÖNETİCİ PIN GİRİŞ MODALI -->
+  <div id="pc-admin-modal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-50">
+    <div class="bg-brate-card p-8 rounded-3xl border border-red-900/80 max-w-sm w-full text-center relative shadow-2xl">
+      <button onclick="closePcAdminModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-lg font-bold">✕</button>
+      
+      <div class="w-14 h-14 bg-red-950/80 border border-red-800 text-amber-400 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl shadow-lg">🔒</div>
+      <h3 class="text-2xl font-bold text-white mb-1">Yönetici Girişi</h3>
+      <p class="text-xs text-gray-400 mb-6">Lütfen 4 haneli yönetici PIN kodunuzu girin</p>
+      
+      <input type="password" id="pc-admin-pin" class="w-full bg-black/50 border border-brate p-4 rounded-xl text-center text-3xl font-extrabold tracking-widest text-amber-400 mb-4 focus:outline-none focus:border-red-600 transition" placeholder="****" maxlength="4">
+      <button onclick="loginAdminFromPc()" class="w-full bg-brate-burgundy hover:bg-brate-burgundy-hover text-white font-bold py-3.5 rounded-xl text-base shadow-lg transition">Paneli Aç</button>
+      <p id="pc-admin-err" class="text-red-400 text-xs font-semibold text-center mt-3 hidden"></p>
     </div>
   </div>
 
   <!-- 2. PERSONEL MOBİL EKRANI -->
-  <div id="mobile-staff-screen" class="hidden bg-gray-800 p-6 rounded-2xl shadow-2xl border border-gray-700 max-w-sm w-full">
+  <div id="mobile-staff-screen" class="hidden bg-brate-card p-6 sm:p-8 rounded-3xl shadow-2xl border border-brate max-w-md w-full">
     
     <!-- PIN GİRİŞİ -->
     <div id="pin-section" class="text-center">
-      <div class="bg-amber-900/30 border border-amber-500/40 p-4 rounded-xl mb-6">
-        <h2 class="text-xl font-bold text-amber-400 mb-1">Brate Coffee ☕</h2>
-        <p class="text-xs text-gray-300">Giriş yapmak için PIN kodunuzu girin</p>
+      <div class="flex justify-center mb-4">
+        <div class="bg-white p-2.5 rounded-2xl shadow-md">
+          <img src="https://raw.githubusercontent.com/bratecoffee/personel/main/logo.jpeg" onerror="this.src='logo.jpeg'" alt="Brate Coffee Logo" class="h-20 w-auto object-contain">
+        </div>
       </div>
-      <label class="block text-sm text-gray-300 mb-2 text-left">PIN Kodunuz:</label>
-      <input type="password" id="staff-pin" class="w-full bg-gray-700 border border-gray-600 p-3 rounded-lg text-center text-2xl tracking-widest text-white mb-4" placeholder="****" maxlength="4">
-      <button onclick="loginStaff()" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 rounded-lg transition">Giriş Yap</button>
-      <p id="login-error" class="text-red-400 text-xs text-center mt-3 hidden"></p>
+      <h2 class="text-2xl font-bold text-white mb-1">Hoş Geldiniz</h2>
+      <p class="text-xs text-amber-200/70 mb-6">Devam etmek için 4 haneli PIN kodunuzu girin</p>
+      
+      <label class="block text-sm font-semibold text-gray-300 mb-2 text-left">PIN Kodu:</label>
+      <input type="password" id="staff-pin" class="w-full bg-black/50 border border-brate p-4 rounded-xl text-center text-3xl font-extrabold tracking-widest text-amber-400 mb-5 focus:outline-none focus:border-red-600 transition" placeholder="****" maxlength="4">
+      <button onclick="loginStaff()" class="w-full bg-brate-burgundy hover:bg-brate-burgundy-hover text-white font-bold py-4 rounded-xl text-lg shadow-lg transition">Sisteme Giriş Yap</button>
+      <p id="login-error" class="text-red-400 text-xs font-semibold text-center mt-3 hidden"></p>
     </div>
 
     <!-- MESAİ ADIMI VE ÖZET -->
     <div id="shift-section" class="hidden">
-      <div class="bg-gradient-to-r from-amber-600/30 to-amber-900/40 border border-amber-500/50 p-4 rounded-xl mb-6 text-center relative">
-        <p class="text-xs text-amber-300 font-medium uppercase tracking-wider mb-1">Brate Coffee Ekibi</p>
+      <div class="bg-gradient-to-r from-red-950/60 to-black/60 border border-brate p-5 rounded-2xl mb-6 text-center relative shadow-md">
+        <p class="text-xs text-amber-400 font-bold uppercase tracking-widest mb-1">BRATE COFFEE EKİBİ</p>
         <h2 id="welcome-msg" class="text-2xl font-extrabold text-white">Hoş Geldin!</h2>
         <p class="text-xs text-gray-300 mt-1">Harika bir gün olsun, iyi çalışmalar ☕</p>
       </div>
 
-      <button id="btn-admin-access" onclick="openAdminPanel()" class="hidden w-full mb-4 bg-purple-700 hover:bg-purple-800 text-white font-bold py-2.5 rounded-xl border border-purple-500 shadow-lg text-xs transition flex items-center justify-center space-x-1">
-        <span>🔒 Yönetici Paneli</span>
+      <!-- SADECE YETKİLİ PERSONELE GÖRÜNEN BUTON -->
+      <button id="btn-admin-access" onclick="openAdminPanel()" class="hidden w-full mb-5 bg-purple-900/80 hover:bg-purple-800 text-purple-100 font-bold py-3 rounded-xl border border-purple-600 shadow-lg text-sm transition flex items-center justify-center space-x-2">
+        <span>🔒 Yönetici Paneline Geçiş Yap</span>
       </button>
 
-      <div class="border-b border-gray-700 pb-2 mb-4 flex justify-between items-center">
-        <span id="staff-name" class="text-xs font-semibold text-gray-400"></span>
-        <button onclick="logout()" class="text-xs text-amber-400 underline">Çıkış Yap</button>
+      <div class="border-b border-brate pb-3 mb-5 flex justify-between items-center">
+        <span id="staff-name" class="text-sm font-bold text-gray-300"></span>
+        <button onclick="logout()" class="text-xs font-semibold text-amber-400 hover:text-amber-300 underline">Çıkış Yap</button>
       </div>
 
-      <div class="space-y-3 mb-4">
-        <button onclick="submitShift('START')" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl shadow-lg transition text-lg">İŞE BAŞLAYALIM</button>
-        <button onclick="submitShift('STOP')" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl shadow-lg transition text-lg">PAYDOS</button>
+      <div class="space-y-3.5 mb-6">
+        <button onclick="submitShift('START')" class="w-full bg-emerald-700 hover:bg-emerald-600 text-white font-extrabold py-4 rounded-2xl shadow-lg transition text-xl tracking-wide">İŞE BAŞLAYALIM</button>
+        <button onclick="submitShift('STOP')" class="w-full bg-rose-800 hover:bg-rose-700 text-white font-extrabold py-4 rounded-2xl shadow-lg transition text-xl tracking-wide">PAYDOS</button>
       </div>
       
-      <div id="action-result" class="text-center text-sm font-semibold mb-4"></div>
+      <div id="action-result" class="text-center text-sm font-semibold mb-5"></div>
 
       <!-- PERSONEL ÖZETİ -->
-      <div id="staff-totals-card" class="bg-gray-700/50 p-4 rounded-xl border border-gray-600 text-xs space-y-2">
-        <h4 class="font-bold text-gray-300 border-b border-gray-600 pb-1 mb-2">Toplam Mesai Özeti</h4>
-        <div class="flex justify-between text-gray-300">
+      <div id="staff-totals-card" class="bg-black/40 p-4 rounded-2xl border border-brate text-xs space-y-2.5">
+        <h4 class="font-bold text-amber-300 border-b border-brate pb-1.5 text-sm">Toplam Mesai Özeti</h4>
+        <div class="flex justify-between text-gray-300 text-xs">
           <span>Toplam Çalışma Süresi:</span>
-          <span id="total-hours" class="font-bold text-white">0.00 Saat</span>
+          <span id="total-hours" class="font-bold text-white text-sm">0.00 Saat</span>
         </div>
-        <div class="flex justify-between text-gray-300">
+        <div class="flex justify-between text-gray-300 text-xs">
           <span>Toplam Hak Edilen Ücret:</span>
-          <span id="total-earned" class="font-bold text-amber-400">0.00 TL</span>
+          <span id="total-earned" class="font-bold text-amber-400 text-sm">0.00 TL</span>
         </div>
       </div>
     </div>
   </div>
 
   <!-- 3. YÖNETİCİ PANELİ -->
-  <div id="admin-screen" class="hidden bg-gray-800 p-6 rounded-2xl shadow-2xl border border-gray-700 max-w-lg w-full">
-    <div class="flex justify-between items-center border-b border-gray-700 pb-3 mb-4">
-      <h3 class="text-lg font-bold text-amber-400">Yönetici Paneli</h3>
-      <button onclick="closeAdmin()" class="text-xs text-gray-400 underline">Geri Dön</button>
+  <div id="admin-screen" class="hidden bg-brate-card p-6 sm:p-8 rounded-3xl shadow-2xl border border-brate max-w-lg w-full">
+    <div class="flex justify-between items-center border-b border-brate pb-4 mb-5">
+      <h3 class="text-xl font-bold text-amber-400">Yönetici Paneli</h3>
+      <button onclick="closeAdmin()" class="text-xs text-gray-400 hover:text-white underline">Kapat / Geri Dön</button>
     </div>
 
     <div id="admin-content" class="space-y-6">
-      <form onsubmit="saveStaffForm(event)" class="space-y-2 bg-gray-700/40 p-3 rounded-xl border border-gray-600">
-        <h4 id="form-title" class="text-xs font-bold text-amber-400 uppercase">Yeni Personel Ekle</h4>
+      <form onsubmit="saveStaffForm(event)" class="space-y-3 bg-black/40 p-4 rounded-2xl border border-brate">
+        <h4 id="form-title" class="text-xs font-bold text-amber-400 uppercase tracking-wider">Yeni Personel Ekle</h4>
         <input type="hidden" id="edit-staff-id">
-        <input type="text" id="form-staff-name" placeholder="Personel Adı Soyadı" class="w-full bg-gray-700 border border-gray-600 p-2 rounded text-xs text-white" required>
-        <input type="tel" id="form-staff-phone" placeholder="Cep Telefon No (05XX XXX XX XX)" class="w-full bg-gray-700 border border-gray-600 p-2 rounded text-xs text-white">
+        <input type="text" id="form-staff-name" placeholder="Personel Adı Soyadı" class="w-full bg-brate-card border border-brate p-2.5 rounded-xl text-xs text-white focus:outline-none focus:border-red-700" required>
+        <input type="tel" id="form-staff-phone" placeholder="Cep Telefon No (05XX XXX XX XX)" class="w-full bg-brate-card border border-brate p-2.5 rounded-xl text-xs text-white focus:outline-none focus:border-red-700">
         <div class="grid grid-cols-2 gap-2">
-          <input type="password" id="form-staff-pin" placeholder="PIN (4 Haneli)" class="bg-gray-700 border border-gray-600 p-2 rounded text-xs text-white" maxlength="4" required>
-          <input type="number" step="0.01" id="form-staff-rate" placeholder="Saatlik Ücret (TL)" class="bg-gray-700 border border-gray-600 p-2 rounded text-xs text-white" required>
+          <input type="password" id="form-staff-pin" placeholder="PIN (4 Haneli)" class="bg-brate-card border border-brate p-2.5 rounded-xl text-xs text-white focus:outline-none focus:border-red-700" maxlength="4" required>
+          <input type="number" step="0.01" id="form-staff-rate" placeholder="Saatlik Ücret (TL)" class="bg-brate-card border border-brate p-2.5 rounded-xl text-xs text-white focus:outline-none focus:border-red-700" required>
         </div>
         <div class="flex items-center space-x-2 py-1">
-          <input type="checkbox" id="form-staff-is-admin" class="w-4 h-4 rounded accent-amber-500">
-          <label for="form-staff-is-admin" class="text-xs text-amber-300 font-semibold">Bu personele Yönetici Yetkisi ver</label>
+          <input type="checkbox" id="form-staff-is-admin" class="w-4 h-4 rounded accent-red-700">
+          <label for="form-staff-is-admin" class="text-xs text-amber-200 font-semibold">Bu personele Yönetici Yetkisi ver</label>
         </div>
-        <div class="flex space-x-2">
-          <button type="submit" id="btn-save-staff" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded text-xs transition">+ Kaydet</button>
-          <button type="button" id="btn-cancel-edit" onclick="resetForm()" class="hidden w-1/3 bg-gray-600 text-white font-bold py-2 rounded text-xs">İptal</button>
+        <div class="flex space-x-2 pt-1">
+          <button type="submit" id="btn-save-staff" class="w-full bg-emerald-700 hover:bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-xs transition">+ Kaydet</button>
+          <button type="button" id="btn-cancel-edit" onclick="resetForm()" class="hidden w-1/3 bg-gray-700 text-white font-bold py-2.5 rounded-xl text-xs">İptal</button>
         </div>
       </form>
 
       <div>
-        <h4 class="text-xs font-bold text-gray-400 uppercase mb-2">Kayıtlı Personeller</h4>
-        <div id="staff-list-container" class="space-y-2 max-h-40 overflow-y-auto pr-1"></div>
+        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2.5">Kayıtlı Personeller</h4>
+        <div id="staff-list-container" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
       </div>
 
-      <div id="staff-detail-modal" class="hidden bg-gray-900 p-4 rounded-xl border border-amber-500/50">
-        <div class="flex justify-between items-center mb-2 pb-2 border-b border-gray-700">
+      <div id="staff-detail-modal" class="hidden bg-black/60 p-4 rounded-2xl border border-red-900/60">
+        <div class="flex justify-between items-center mb-3 pb-2 border-b border-brate">
           <h5 id="detail-staff-name" class="font-bold text-amber-400 text-sm"></h5>
           <button onclick="document.getElementById('staff-detail-modal').classList.add('hidden')" class="text-xs text-gray-400">Kapat</button>
         </div>
 
-        <div class="bg-gray-800 p-3 rounded-lg border border-gray-700 mb-3 text-xs space-y-1">
+        <div class="bg-brate-card p-3 rounded-xl border border-brate mb-3 text-xs space-y-1">
           <div class="flex justify-between text-gray-300">
             <span>Genel Toplam Çalışma:</span>
             <span id="admin-total-hours" class="font-bold text-white">0.00 Saat</span>
@@ -140,9 +184,12 @@
     const API_URL = "https://personel-mesai-api.bratecoffee35.workers.dev";
     const urlParams = new URLSearchParams(window.location.search);
     const qrTokenFromUrl = urlParams.get('token');
+    const isAdminUrlParam = urlParams.get('admin');
 
     let userLat = null;
     let userLng = null;
+    let secretClickCount = 0;
+    let secretClickTimer = null;
 
     function getDeviceId() {
       let devId = localStorage.getItem('brate_device_id');
@@ -151,6 +198,10 @@
         localStorage.setItem('brate_device_id', devId);
       }
       return devId;
+    }
+
+    if (isAdminUrlParam === '1') {
+      openPcAdminModal();
     }
 
     if (qrTokenFromUrl) {
@@ -178,8 +229,8 @@
             qrBox.innerHTML = "";
             new QRCode(qrBox, {
               text: scanUrl,
-              width: 200,
-              height: 200,
+              width: 210,
+              height: 210,
               colorDark: "#000000",
               colorLight: "#ffffff",
               correctLevel: QRCode.CorrectLevel.H
@@ -200,6 +251,49 @@
           document.getElementById('countdown').innerText = timeLeft;
         }
       }, 1000);
+    }
+
+    // LOGOYA 5 DEFA TIKLAYINCA GİZLİ YÖNETİCİ GİRİŞİ AÇMA
+    function handleSecretClick() {
+      secretClickCount++;
+      clearTimeout(secretClickTimer);
+      secretClickTimer = setTimeout(() => { secretClickCount = 0; }, 1200);
+
+      if (secretClickCount >= 5) {
+        secretClickCount = 0;
+        openPcAdminModal();
+      }
+    }
+
+    function openPcAdminModal() {
+      document.getElementById('pc-admin-modal').classList.remove('hidden');
+      document.getElementById('pc-admin-pin').value = "";
+      document.getElementById('pc-admin-err').classList.add('hidden');
+    }
+
+    function closePcAdminModal() {
+      document.getElementById('pc-admin-modal').classList.add('hidden');
+    }
+
+    async function loginAdminFromPc() {
+      const pin = document.getElementById('pc-admin-pin').value;
+      const err = document.getElementById('pc-admin-err');
+
+      const res = await fetch(`${API_URL}/api/staff/my-summary`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pin_code: pin, device_id: getDeviceId() })
+      });
+      const data = await res.json();
+
+      if (data.success && data.is_admin === 1) {
+        closePcAdminModal();
+        document.getElementById('pc-qr-screen').classList.add('hidden');
+        document.getElementById('admin-screen').classList.remove('hidden');
+        loadAdminDashboard();
+      } else {
+        err.innerText = data.is_admin === 0 ? "Bu PIN koduna ait Yönetici Yetkisi yok!" : (data.error || "Hatalı PIN!");
+        err.classList.remove('hidden');
+      }
     }
 
     async function loginStaff() {
@@ -249,15 +343,18 @@
 
     function closeAdmin() {
       document.getElementById('admin-screen').classList.add('hidden');
-      document.getElementById('mobile-staff-screen').classList.remove('hidden');
+      if (qrTokenFromUrl) {
+        document.getElementById('mobile-staff-screen').classList.remove('hidden');
+      } else {
+        document.getElementById('pc-qr-screen').classList.remove('hidden');
+      }
     }
 
     async function submitShift(actionType) {
       const pin = document.getElementById('staff-pin').value;
       const resDiv = document.getElementById('action-result');
-      resDiv.innerHTML = `<span class="text-amber-400">Konum ve İşlem Kontrol Ediliyor...</span>`;
+      resDiv.innerHTML = `<span class="text-amber-300">Konum ve İşlem Kontrol Ediliyor...</span>`;
 
-      // Konumu tekrar tazelemeye çalış
       if (navigator.geolocation && (!userLat || !userLng)) {
         navigator.geolocation.getCurrentPosition((pos) => {
           userLat = pos.coords.latitude;
@@ -277,10 +374,10 @@
       });
       const data = await res.json();
       if (data.success) {
-        resDiv.innerHTML = `<span class="text-green-400">${data.message}</span>`;
+        resDiv.innerHTML = `<span class="text-emerald-400">${data.message}</span>`;
         loginStaff();
       } else {
-        resDiv.innerHTML = `<span class="text-red-400">${data.error}</span>`;
+        resDiv.innerHTML = `<span class="text-rose-400">${data.error}</span>`;
       }
     }
 
@@ -299,18 +396,18 @@
       container.innerHTML = "";
       staffArray.forEach(s => {
         const phone = s.phone_number ? s.phone_number : 'Tel Yok';
-        const adminTag = s.is_admin ? '<span class="bg-purple-900 text-purple-200 text-[9px] px-1 rounded ml-1 font-bold">YÖNETİCİ</span>' : '';
+        const adminTag = s.is_admin ? '<span class="bg-purple-900 text-purple-200 text-[9px] px-1.5 py-0.5 rounded ml-1 font-bold">YÖNETİCİ</span>' : '';
         container.innerHTML += `
-          <div class="flex justify-between items-center bg-gray-700/60 p-2.5 rounded-lg border border-gray-600">
+          <div class="flex justify-between items-center bg-black/40 p-3 rounded-xl border border-brate">
             <div>
               <p class="text-xs font-bold text-white">${s.full_name} ${adminTag}</p>
               <p class="text-[10px] text-gray-400">Tel: ${phone} | PIN: ${s.pin_code} | ${s.hourly_rate} TL/saat</p>
             </div>
             <div class="space-x-1 flex items-center">
-              <button onclick="resetDevice(${s.id})" title="Yeni telefona geçiş izni ver" class="bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] px-1.5 py-1 rounded">📱 Cihaz Sıfırla</button>
-              <button onclick="editStaff(${s.id}, '${s.full_name}', '${phone}', '${s.pin_code}', ${s.hourly_rate}, ${s.is_admin || 0})" class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] px-2 py-1 rounded">Düzenle</button>
-              <button onclick="inspectStaff(${s.id})" class="bg-amber-600 hover:bg-amber-700 text-white text-[10px] px-2 py-1 rounded">Mesailer</button>
-              <button onclick="deleteStaff(${s.id})" class="bg-red-600 hover:bg-red-700 text-white text-[10px] px-2 py-1 rounded">Sil</button>
+              <button onclick="resetDevice(${s.id})" title="Yeni telefona geçiş izni ver" class="bg-indigo-900/80 hover:bg-indigo-800 text-indigo-100 text-[10px] px-2 py-1 rounded-lg">📱 Cihaz Sıfırla</button>
+              <button onclick="editStaff(${s.id}, '${s.full_name}', '${phone}', '${s.pin_code}', ${s.hourly_rate}, ${s.is_admin || 0})" class="bg-blue-900/80 hover:bg-blue-800 text-blue-100 text-[10px] px-2 py-1 rounded-lg">Düzenle</button>
+              <button onclick="inspectStaff(${s.id})" class="bg-amber-800/80 hover:bg-amber-700 text-amber-100 text-[10px] px-2 py-1 rounded-lg">Mesailer</button>
+              <button onclick="deleteStaff(${s.id})" class="bg-rose-900/80 hover:bg-rose-800 text-rose-100 text-[10px] px-2 py-1 rounded-lg">Sil</button>
             </div>
           </div>
         `;
@@ -360,22 +457,22 @@
           const distText = shift.distance_meters !== null && shift.distance_meters !== undefined ? `📍 ${shift.distance_meters}m` : '📍 Konum Yok';
 
           list.innerHTML += `
-            <div class="bg-gray-800 p-2.5 rounded border border-gray-700 space-y-2">
+            <div class="bg-brate-card p-3 rounded-xl border border-brate space-y-2">
               <div class="grid grid-cols-2 gap-2 text-[10px]">
                 <div>
                   <label class="block text-gray-400">Giriş Tarih/Saat:</label>
-                  <input type="datetime-local" id="in-${shift.id}" value="${inISO}" class="bg-gray-700 border border-gray-600 p-1 rounded text-white w-full">
+                  <input type="datetime-local" id="in-${shift.id}" value="${inISO}" class="bg-black/50 border border-brate p-1.5 rounded-lg text-white w-full">
                 </div>
                 <div>
                   <label class="block text-gray-400">Çıkış Tarih/Saat:</label>
-                  <input type="datetime-local" id="out-${shift.id}" value="${outISO}" class="bg-gray-700 border border-gray-600 p-1 rounded text-white w-full">
+                  <input type="datetime-local" id="out-${shift.id}" value="${outISO}" class="bg-black/50 border border-brate p-1.5 rounded-lg text-white w-full">
                 </div>
               </div>
-              <div class="flex justify-between items-center text-[11px] pt-1 border-t border-gray-700">
+              <div class="flex justify-between items-center text-[11px] pt-1.5 border-t border-brate">
                 <span class="text-gray-300">Süre: <b>${shift.total_hours || '-'} sa</b> | Kazanç: <b class="text-amber-400">${shift.earned_amount || '-'} TL</b> | <span class="text-cyan-400 font-semibold">${distText}</span></span>
                 <div class="space-x-1">
-                  <button onclick="updateShiftTime(${shift.id})" class="bg-green-600 hover:bg-green-700 text-white text-[10px] px-2 py-0.5 rounded">Saati Kaydet</button>
-                  <button onclick="deleteShift(${shift.id})" class="bg-red-600 hover:bg-red-700 text-white text-[10px] px-2 py-0.5 rounded">Sil</button>
+                  <button onclick="updateShiftTime(${shift.id})" class="bg-emerald-800 hover:bg-emerald-700 text-white text-[10px] px-2 py-1 rounded-lg">Kaydet</button>
+                  <button onclick="deleteShift(${shift.id})" class="bg-rose-900 hover:bg-rose-800 text-white text-[10px] px-2 py-1 rounded-lg">Sil</button>
                 </div>
               </div>
             </div>
