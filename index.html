@@ -174,7 +174,7 @@
     <div class="flex justify-between items-center border-b border-brate pb-4 mb-6">
       <div>
         <h3 class="text-2xl font-bold text-amber-400">Yönetici Paneli</h3>
-        <p class="text-xs text-gray-400 mt-0.5">Personel ve Genel Mesai Takip Yönetimi</p>
+        <p class="text-xs text-gray-400 mt-0.5">Personel Yönetimi ve Hak Ediş Takibi</p>
       </div>
       <button onclick="closeAdmin()" class="bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold px-4 py-2 rounded-xl text-xs border border-gray-700 transition">Kapat / Geri Dön</button>
     </div>
@@ -182,10 +182,8 @@
     <!-- İKİ SÜTUNLU DÜZEN (GRID) -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       
-      <!-- SOL SÜTUN: PERSONEL EKLE/DÜZENLE & TÜM PERSONELLERİN HAK EDİŞ ÖZETİ -->
+      <!-- SOL SÜTUN: PERSONEL EKLE/DÜZENLE FORMU -->
       <div class="space-y-6">
-        
-        <!-- PERSONEL EKLE/DÜZENLE FORMU -->
         <form onsubmit="saveStaffForm(event)" class="space-y-3 bg-black/40 p-5 rounded-2xl border border-brate shadow-md">
           <h4 id="form-title" class="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center justify-between">
             <span>➕ Yeni Personel Ekle</span>
@@ -207,34 +205,31 @@
           </div>
         </form>
 
-        <!-- TÜM PERSONELLERİN HAK EDİŞ ÖZET KARTI (SOL MENÜ ALTINDA) -->
         <div class="bg-black/50 p-5 rounded-2xl border border-amber-600/40 space-y-3 shadow-md">
           <h4 class="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center justify-between border-b border-brate pb-2">
-            <span>📊 TÜM PERSONELLER GENEL ÖZETİ</span>
-            <span class="text-[10px] text-gray-400 font-normal">BUGÜNE KADAR</span>
+            <span>📊 TÜM İŞLETME GENEL TOPLAMI</span>
           </h4>
           <div class="grid grid-cols-2 gap-3 text-center pt-1">
             <div class="bg-brate-card/80 p-3 rounded-xl border border-brate">
-              <p class="text-[11px] text-gray-400 font-medium mb-1">Toplam Çalışma</p>
+              <p class="text-[11px] text-gray-400 font-medium mb-1">Genel Çalışma Süresi</p>
               <p id="admin-grand-total-hours" class="text-lg font-extrabold text-white">0 Sa 0 Dk</p>
             </div>
             <div class="bg-brate-card/80 p-3 rounded-xl border border-brate">
-              <p class="text-[11px] text-gray-400 font-medium mb-1">Toplam Hak Edilen</p>
+              <p class="text-[11px] text-gray-400 font-medium mb-1">Genel Hak Ediş</p>
               <p id="admin-grand-total-earned" class="text-lg font-extrabold text-amber-400">0.00 TL</p>
             </div>
           </div>
         </div>
-
       </div>
 
-      <!-- SAĞ SÜTUN: KAYITLI PERSONELLER LİSTESİ -->
+      <!-- SAĞ SÜTUN: KAYITLI PERSONELLER VE KİŞİ BAZLI KAZANÇ LİSTESİ -->
       <div class="bg-black/40 p-5 rounded-2xl border border-brate shadow-md flex flex-col justify-between">
         <div>
           <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wider mb-3 pb-2 border-b border-brate flex items-center justify-between">
-            <span>👥 Kayıtlı Personeller</span>
-            <span id="staff-count-badge" class="bg-amber-950 text-amber-300 text-[10px] px-2 py-0.5 rounded-full border border-amber-800">0 Personel</span>
+            <span>👥 Kayıtlı Personeller ve Hak Edişleri</span>
+            <span id="staff-count-badge" class="bg-amber-950 text-amber-300 text-[10px] px-2.5 py-0.5 rounded-full border border-amber-800 font-bold">0 Personel</span>
           </h4>
-          <div id="staff-list-container" class="space-y-2.5 max-h-[480px] overflow-y-auto pr-1"></div>
+          <div id="staff-list-container" class="space-y-3 max-h-[500px] overflow-y-auto pr-1"></div>
         </div>
       </div>
 
@@ -609,7 +604,6 @@
       if (data.success) {
         renderStaffList(data.staff || []);
         
-        // Genel toplam saat ve ücret miktarını çekip özet kartında göster
         let grandHours = 0;
         let grandEarned = 0;
         if (data.grand_totals) {
@@ -641,22 +635,33 @@
         const staffEarnedFormatted = `${parseFloat(s.total_earned || 0).toFixed(2)} TL`;
 
         container.innerHTML += `
-          <div class="bg-black/50 p-3.5 rounded-xl border border-brate space-y-2">
-            <div class="flex justify-between items-center border-b border-brate/60 pb-2">
+          <div class="bg-black/60 p-4 rounded-2xl border border-brate/80 space-y-3 shadow-md hover:border-amber-600/50 transition">
+            <!-- PERSONEL KİMLİK VE MESAYE GİT BUTONU -->
+            <div class="flex justify-between items-start border-b border-brate/60 pb-2.5">
               <div>
-                <p class="text-xs font-bold text-white flex items-center">${s.full_name} ${adminTag}</p>
-                <p class="text-[10px] text-gray-400 mt-0.5">Tel: ${phone} | PIN: <span class="text-amber-300 font-mono font-bold">${s.pin_code}</span> | ${s.hourly_rate} TL/saat</p>
+                <p class="text-sm font-bold text-white flex items-center">${s.full_name} ${adminTag}</p>
+                <p class="text-[11px] text-gray-400 mt-0.5">Tel: ${phone} | PIN: <span class="text-amber-300 font-mono font-bold">${s.pin_code}</span> | ${s.hourly_rate} TL/saat</p>
               </div>
-              <button onclick="inspectStaffAsAdmin(${s.id})" class="bg-amber-800 hover:bg-amber-700 text-amber-100 font-bold text-[11px] px-2.5 py-1.5 rounded-lg border border-amber-600/50 shadow-sm transition">Mesailer ➔</button>
+              <button onclick="inspectStaffAsAdmin(${s.id})" class="bg-amber-800 hover:bg-amber-700 text-amber-100 font-bold text-xs px-3 py-1.5 rounded-xl border border-amber-600/50 shadow-sm transition">Detaylar / Mesailer ➔</button>
             </div>
             
-            <div class="flex justify-between items-center text-[11px] text-gray-300 pt-1">
-              <span>Toplam: <b class="text-white">${staffHoursFormatted}</b> | Hak Edilen: <b class="text-amber-400">${staffEarnedFormatted}</b></span>
-              <div class="space-x-1 flex items-center">
-                <button onclick="resetDevice(${s.id})" title="Yeni telefona geçiş izni ver" class="bg-indigo-900/80 hover:bg-indigo-800 text-indigo-100 text-[10px] px-2 py-1 rounded">📱 Cihaz Sıfırla</button>
-                <button onclick="editStaff(${s.id}, '${s.full_name}', '${phone}', '${s.pin_code}', ${s.hourly_rate}, ${s.is_admin || 0})" class="bg-blue-900/80 hover:bg-blue-800 text-blue-100 text-[10px] px-2 py-1 rounded">Düzenle</button>
-                <button onclick="deleteStaff(${s.id})" class="bg-rose-900/80 hover:bg-rose-800 text-rose-100 text-[10px] px-2 py-1 rounded">Sil</button>
+            <!-- KİŞİ BAZLI TOPLAM ÇALIŞMA VE KAZANÇ KARTLARI -->
+            <div class="grid grid-cols-2 gap-2 text-center bg-brate-card/60 p-2.5 rounded-xl border border-brate/40">
+              <div>
+                <p class="text-[10px] text-gray-400 font-semibold uppercase">Toplam Çalışma</p>
+                <p class="text-xs font-extrabold text-white mt-0.5">${staffHoursFormatted}</p>
               </div>
+              <div>
+                <p class="text-[10px] text-gray-400 font-semibold uppercase">Hak Edilen Ücret</p>
+                <p class="text-xs font-extrabold text-amber-400 mt-0.5">${staffEarnedFormatted}</p>
+              </div>
+            </div>
+
+            <!-- AKSİYON BUTONLARI -->
+            <div class="flex justify-end space-x-1.5 pt-1">
+              <button onclick="resetDevice(${s.id})" title="Yeni telefona geçiş izni ver" class="bg-indigo-950 hover:bg-indigo-900 text-indigo-200 text-[10px] px-2.5 py-1 rounded-lg border border-indigo-800">📱 Cihaz Sıfırla</button>
+              <button onclick="editStaff(${s.id}, '${s.full_name}', '${phone}', '${s.pin_code}', ${s.hourly_rate}, ${s.is_admin || 0})" class="bg-blue-950 hover:bg-blue-900 text-blue-200 text-[10px] px-2.5 py-1 rounded-lg border border-blue-800">Düzenle</button>
+              <button onclick="deleteStaff(${s.id})" class="bg-rose-950 hover:bg-rose-900 text-rose-200 text-[10px] px-2.5 py-1 rounded-lg border border-rose-800">Sil</button>
             </div>
           </div>
         `;
