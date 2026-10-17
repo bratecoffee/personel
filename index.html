@@ -861,23 +861,71 @@
 
       staffArray.forEach(s => {
         const phone = s.phone_number ? s.phone_number : 'Tel Yok';
+        const isArchived = s.full_name.includes('[AYRILDI]');
         const adminTag = s.is_admin ? '<span class="bg-purple-900 text-purple-200 text-[9px] px-1.5 py-0.5 rounded ml-1 font-bold">YÖNETİCİ</span>' : '';
+        const archivedTag = isArchived ? '<span class="bg-rose-950 text-rose-300 text-[9px] px-1.5 py-0.5 rounded border border-rose-800 ml-1 font-bold">ESKİ ÇALIŞAN</span>' : '';
+
+        const deleteBtnText = isArchived ? 'Kalıcı Sil' : 'İşten Çıkar';
+        const deleteBtnClass = isArchived ? 'bg-red-950 hover:bg-red-900 text-red-200 border border-red-800' : 'bg-rose-900/80 hover:bg-rose-800 text-rose-100';
 
         container.innerHTML += `
-          <div class="flex justify-between items-center bg-black/40 p-3 rounded-xl border border-brate">
+          <div class="flex justify-between items-center bg-black/40 p-3 rounded-xl border border-brate ${isArchived ? 'opacity-60' : ''}">
             <div>
-              <p class="text-xs font-bold text-white">${s.full_name} ${adminTag}</p>
-              <p class="text-[10px] text-gray-400">Tel: ${phone} | PIN: ${s.pin_code} | ${s.hourly_rate} TL/saat</p>
+              <p class="text-xs font-bold text-white">${s.full_name} ${adminTag} ${archivedTag}</p>
+              <p class="text-[10px] text-gray-400">Tel: ${phone} | PIN: ${isArchived ? 'KİLİTLİ' : s.pin_code} | ${s.hourly_rate} TL/saat</p>
             </div>
             <div class="space-x-1 flex items-center">
-              <button onclick="resetDevice(${s.id})" title="Yeni telefona geçiş izni ver" class="bg-indigo-900/80 hover:bg-indigo-800 text-indigo-100 text-[10px] px-2 py-1.5 rounded-lg">📱 Cihaz Sıfırla</button>
-              <button onclick="editStaff(${s.id}, '${s.full_name}', '${phone}', '${s.pin_code}', ${s.hourly_rate}, ${s.is_admin || 0})" class="bg-blue-900/80 hover:bg-blue-800 text-blue-100 text-[10px] px-2 py-1.5 rounded-lg">Düzenle</button>
+              ${!isArchived ? `<button onclick="resetDevice(${s.id})" title="Yeni telefona geçiş izni ver" class="bg-indigo-900/80 hover:bg-indigo-800 text-indigo-100 text-[10px] px-2 py-1.5 rounded-lg">📱 Cihaz Sıfırla</button>
+              <button onclick="editStaff(${s.id}, '${s.full_name.replace(/'/g, "\\'")}', '${phone}', '${s.pin_code}', ${s.hourly_rate},${s.is_admin || 0})" class="bg-blue-900/80 hover:bg-blue-800 text-blue-100 text-[10px] px-2 py-1.5 rounded-lg">Düzenle</button>` : ''}
               <button onclick="inspectStaffAsAdmin(${s.id})" class="bg-amber-800 hover:bg-amber-700 text-amber-100 font-bold text-[10px] px-2.5 py-1.5 rounded-lg border border-amber-600/50">Mesailer ➔</button>
-              <button onclick="deleteStaff(${s.id})" class="bg-rose-900/80 hover:bg-rose-800 text-rose-100 text-[10px] px-2 py-1.5 rounded-lg">Sil</button>
+              <button onclick="archiveOrDeleteStaff(${s.id}, '${s.full_name.replace(/'/g, "\\'")}', '${phone}', ${s.hourly_rate})" class="${deleteBtnClass} text-[10px] px-2 py-1.5 rounded-lg transition">${deleteBtnText}</button>
             </div>
           </div>
         `;
       });
+    }
+
+    // YENİ İŞTEN ÇIKARMA (ARŞİVLEME) VEYA KALICI SİLME FONKSİYONU
+    async function archiveOrDeleteStaff(id, name, phone, rate) {
+      if (name.includes('[AYRILDI]')) {
+        // Zaten işten çıkarılmış, kalıcı olarak SİL
+        if(!confirm("DİKKAT!\n\nBu personel zaten işten çıkarılmış.\nVeritabanından TAMAMEN SİLMEK ve tüm mesai/ücret loglarını yok etmek istediğinize emin misiniz? (Bu işlem geri alınamaz!)")) return;
+        
+        await fetch(`${API_URL}/api/admin/staff/delete`, {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ staff_id: id })
+        });
+        loadAdminDashboard();
+      } else {
+        // Aktif personel, logları koruyarak ARŞİVLE
+        if(!confirm(`"${name}" isimli personeli işten çıkarmak istediğinize emin misiniz?\n\nNot: Personelin sisteme girişi tamamen engellenecek, yetkileri alınacak ancak geçmiş mesai logları ve hak edişleri saklanmaya devam edecektir.`)) return;
+
+        const payload = {
+          staff_id: id,
+          full_name: `[AYRILDI] ${name}`,
+          phone_number: phone,
+          pin_code: Math.floor(1000 + Math.random() * 9000).toString(), // Rastgele yeni PIN vererek kilitler
+          hourly_rate: rate,
+          is_admin: 0
+        };
+
+        const res = await fetch(`${API_URL}/api/admin/staff/update`, {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        // Arşivlenen personelin aktif telefon cihaz kildini de kopar
+        await fetch(`${API_URL}/api/admin/staff/reset-device`, {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ staff_id: id })
+        });
+
+        if(data.success) {
+          alert("Personel başarıyla işten çıkarıldı (Arşivlendi).\nArtık sisteme giremez, ancak tüm loglarına 'Mesailer' butonundan ulaşabilirsiniz.");
+          loadAdminDashboard();
+        }
+      }
     }
 
     // --- TEŞHİR ÜRÜNLERİ CANLI TAKİP FONKSİYONLARI ---
@@ -1430,15 +1478,6 @@
         resetForm();
         loadAdminDashboard();
       }
-    }
-
-    async function deleteStaff(staffId) {
-      if(!confirm("Silmek istediğinize emin misiniz?")) return;
-      await fetch(`${API_URL}/api/admin/staff/delete`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ staff_id: staffId })
-      });
-      loadAdminDashboard();
     }
 
     function logout() { window.location.href = window.location.pathname; }
