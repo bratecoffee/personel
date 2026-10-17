@@ -38,7 +38,7 @@
     <div id="unauthorized-menu" class="hidden relative z-20 space-y-4 max-w-sm mx-auto">
       <div class="bg-rose-950/40 border border-rose-900/50 p-6 rounded-2xl text-center shadow-lg">
         
-        <!-- YENİ: YETKİSİZ ERİŞİM LOGOSU VE GİZLİ TIKLAMA -->
+        <!-- YETKİSİZ ERİŞİM LOGOSU VE GİZLİ TIKLAMA -->
         <div class="flex justify-center mb-4 cursor-pointer select-none group" onclick="handleUnauthorizedSecretClick()" title="Personel Girişi İçin 5 Kez Tıklayın">
           <div class="bg-rose-950/80 p-4 rounded-full border-2 border-rose-800/50 shadow-[0_0_15px_rgba(225,29,72,0.3)] transition transform group-active:scale-95 duration-200 flex items-center justify-center w-20 h-20 mx-auto">
             <svg class="w-10 h-10 text-rose-400 group-hover:text-rose-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -468,11 +468,14 @@
         if (view === 'qr') {
           selectMode('QR');
         } 
-        else if (view === 'pc-login') {
-          selectMode('PC');
+        else if (view === 'pc-login' || view === 'backdoor-login') {
+          selectMode(view === 'pc-login' ? 'PC' : 'BACKDOOR');
         }
         else if (view === 'staff-dash' || view === 'admin-from-staff' || view === 'shifts-personal') {
-          selectedLoginMode = 'PC';
+          // Eğer BACKDOOR olarak kalmışsa PC yapmayalım ki hata vermesin
+          const wasBackdoor = localStorage.getItem('brate_is_backdoor') === '1';
+          selectedLoginMode = wasBackdoor ? 'BACKDOOR' : 'PC';
+          
           document.getElementById('mobile-staff-screen').classList.remove('hidden');
           const savedPin = localStorage.getItem('brate_staff_pin');
           if (savedPin) {
@@ -630,15 +633,31 @@
       }
     }
 
+    // YENİ: BACKDOOR MODU İLE PC HATASINI GİDERME
     function selectMode(mode) {
       selectedLoginMode = mode;
       document.getElementById('landing-screen').classList.add('hidden');
+      
       if (mode === 'QR') {
         saveState('qr');
+        localStorage.removeItem('brate_is_backdoor');
         document.getElementById('pc-qr-screen').classList.remove('hidden');
         startQrLoopWithCountdown();
-      } else if (mode === 'PC') {
-        saveState('pc-login');
+      } else if (mode === 'PC' || mode === 'BACKDOOR') {
+        saveState(mode === 'BACKDOOR' ? 'backdoor-login' : 'pc-login');
+        
+        if (mode === 'BACKDOOR') {
+          localStorage.setItem('brate_is_backdoor', '1');
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition((pos) => {
+              userLat = pos.coords.latitude;
+              userLng = pos.coords.longitude;
+            }, () => {});
+          }
+        } else {
+          localStorage.removeItem('brate_is_backdoor');
+        }
+
         document.getElementById('mobile-staff-screen').classList.remove('hidden');
         focusInput('staff-pin');
       }
@@ -646,6 +665,7 @@
 
     function backToLanding() {
       saveState('landing');
+      localStorage.removeItem('brate_is_backdoor');
       if (qrInterval) clearInterval(qrInterval);
       selectedLoginMode = null;
       document.getElementById('pc-qr-screen').classList.add('hidden');
@@ -695,7 +715,6 @@
       }, 1000);
     }
 
-    // MEVCUT LOGO TIKLAMASI (Admin)
     function handleSecretClick() {
       secretClickCount++;
       clearTimeout(secretClickTimer);
@@ -707,7 +726,7 @@
       }
     }
 
-    // YENİ: YETKİSİZ ERİŞİM EKRANINDAKİ KİLİT LOGOSU TIKLAMASI (Personel Girişi)
+    // YETKİSİZ EKRANDA GİZLİ GEÇİT (PC MODU GİBİ DAVRANMAZ)
     function handleUnauthorizedSecretClick() {
       unauthSecretClickCount++;
       clearTimeout(unauthSecretClickTimer);
@@ -715,7 +734,7 @@
 
       if (unauthSecretClickCount >= 5) {
         unauthSecretClickCount = 0;
-        selectMode('PC'); // Bu fonksiyon PIN ekranını açıp hafızaya kaydeder
+        selectMode('BACKDOOR'); 
       }
     }
 
@@ -810,7 +829,7 @@
 
     function closeAdmin() {
       document.getElementById('admin-screen').classList.add('hidden');
-      if (qrTokenFromUrl || selectedLoginMode === 'PC') {
+      if (qrTokenFromUrl || selectedLoginMode === 'PC' || selectedLoginMode === 'BACKDOOR') {
         saveState('staff-dash');
         document.getElementById('mobile-staff-screen').classList.remove('hidden');
         if (document.getElementById('pin-section').classList.contains('hidden') === false) {
@@ -828,6 +847,7 @@
       const resDiv = document.getElementById('action-result');
       resDiv.innerHTML = `<span class="text-amber-300">İşlem Kontrol Ediliyor...</span>`;
 
+      // EĞER CİHAZ BACKDOOR İSE PC MODU FALSE GÖNDERİLİR!
       const isPcMode = selectedLoginMode === 'PC';
 
       if (!isPcMode && navigator.geolocation && (!userLat || !userLng)) {
@@ -1625,6 +1645,7 @@
 
     function logout() { 
       localStorage.removeItem('brate_staff_pin');
+      localStorage.removeItem('brate_is_backdoor');
       saveState('landing');
       window.location.href = window.location.pathname; 
     }
