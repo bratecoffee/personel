@@ -420,7 +420,7 @@
     let displayTimerInterval = null;
     let displayAuthPin = null;
 
-    // YENİ: EKRAN DURUMUNU HAFIZAYA KAYDETME FONKSİYONU
+    // EKRAN DURUMUNU HAFIZAYA KAYDETME FONKSİYONU
     function saveState(viewName) {
       localStorage.setItem('brate_view', viewName);
     }
@@ -429,7 +429,6 @@
     document.addEventListener("DOMContentLoaded", () => {
       applyLandingScreenState();
 
-      // 1. Eğer Linkte Özel Parametre Varsa (QR veya Admin Linki) Onu Çalıştır
       if (isAdminUrlParam === '1') {
         openPcAdminModal();
       } else if (qrTokenFromUrl) {
@@ -444,7 +443,6 @@
           }, () => {});
         }
       } else {
-        // 2. Özel link yoksa tarayıcı hafızasını (Session) kontrol et ve kaldığı yeri aç
         const savedView = localStorage.getItem('brate_view');
         if (savedView && savedView !== 'landing') {
           restoreView(savedView);
@@ -452,7 +450,6 @@
       }
     });
 
-    // HAFIZADAKİ EKRANI GERİ YÜKLEME (OTOMATİK GİRİŞ YAPAR)
     async function restoreView(view) {
       document.getElementById('landing-screen').classList.add('hidden');
 
@@ -469,7 +466,7 @@
           const savedPin = localStorage.getItem('brate_staff_pin');
           if (savedPin) {
             document.getElementById('staff-pin').value = savedPin;
-            await loginStaff(); // Pin girilmiş gibi otomatik giriş yap
+            await loginStaff(); 
             
             if (view === 'admin-from-staff') {
               openAdminPanel();
@@ -477,7 +474,6 @@
               openPersonalShiftsPage();
             }
           } else {
-            // Hafızada pin yoksa giriş ekranına at
             document.getElementById('pin-section').classList.remove('hidden');
             document.getElementById('shift-section').classList.add('hidden');
           }
@@ -510,7 +506,6 @@
       }
     }
 
-    // YETKİLİ BİLGİSAYAR KONTROLÜ
     function applyLandingScreenState() {
       const isCafePc = localStorage.getItem('brate_cafe_pc') === '1';
       const authMenu = document.getElementById('authorized-menu');
@@ -722,7 +717,7 @@
       const data = await res.json();
 
       if (data.success && data.is_admin === 1) {
-        saveState('admin'); // Admin ekranını kaydet
+        saveState('admin'); 
         closePcAdminModal();
         document.getElementById('landing-screen').classList.add('hidden');
         document.getElementById('pc-qr-screen').classList.add('hidden');
@@ -750,7 +745,6 @@
         currentStaffData = data;
         displayAuthPin = pin;
         
-        // Personel paneli durumunu ve pin'i kaydet
         localStorage.setItem('brate_staff_pin', pin);
         saveState('staff-dash');
 
@@ -840,15 +834,35 @@
     }
 
     async function loadAdminDashboard() {
-      updateDeviceAuthUI(); // Yetki ekranını yükle
+      updateDeviceAuthUI(); 
       
       const res = await fetch(`${API_URL}/api/admin/staff/list`, {
         method: "POST", headers: { "Content-Type": "application/json" }
       });
       const data = await res.json();
+      
       if (data.success) {
-        renderStaffList(data.staff || []);
-        renderStaffSummaryList(data.staff || []);
+        let staffArray = data.staff || [];
+        
+        // YENİ: Akıllı Sıralama Mantığı (Şener > Emre > Alfabetik)
+        staffArray.sort((a, b) => {
+          const nameA = a.full_name.toLocaleLowerCase('tr-TR');
+          const nameB = b.full_name.toLocaleLowerCase('tr-TR');
+          
+          const pA = (nameA.includes('şener') || nameA.includes('sener')) ? 1 : (nameA.includes('emre') ? 2 : 3);
+          const pB = (nameB.includes('şener') || nameB.includes('sener')) ? 1 : (nameB.includes('emre') ? 2 : 3);
+          
+          if (pA !== pB) return pA - pB;
+          
+          // Kalanları özel etiketleri (AYRILDI) sökerek temiz isme göre sıralar
+          const cleanA = a.full_name.replace(/\[.*?\]/g, '').trim();
+          const cleanB = b.full_name.replace(/\[.*?\]/g, '').trim();
+          
+          return cleanA.localeCompare(cleanB, 'tr-TR');
+        });
+
+        renderStaffList(staffArray);
+        renderStaffSummaryList(staffArray);
         renderCatalogList(data.catalog || []);
       }
     }
@@ -878,7 +892,6 @@
     function renderCatalogList(catalogArray) {
       catalogList = catalogArray;
       
-      // KATALOGU TÜRKÇE ALFABETİK SIRALA
       catalogList.sort((a, b) => a.product_name.localeCompare(b.product_name, 'tr'));
 
       const container = document.getElementById('catalog-products-list');
@@ -1031,7 +1044,6 @@
       }
     }
 
-    // --- TEŞHİR ÜRÜNLERİ CANLI TAKİP FONKSİYONLARI ---
     async function openDisplayPage() {
       saveState('display');
       document.getElementById('landing-screen').classList.add('hidden');
@@ -1082,7 +1094,7 @@
 
       if (data.success) {
         displayAuthPin = pin;
-        localStorage.setItem('brate_display_pin', pin); // Dolap için PIN'i kaydet
+        localStorage.setItem('brate_display_pin', pin); 
         closeDisplayAuthModal();
         
         document.getElementById('display-staff-name-text').innerText = data.staff_name;
