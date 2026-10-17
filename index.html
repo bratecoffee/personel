@@ -796,6 +796,10 @@
 
     function renderCatalogList(catalogArray) {
       catalogList = catalogArray;
+      
+      // KATALOGU TÜRKÇE ALFABETİK SIRALA
+      catalogList.sort((a, b) => a.product_name.localeCompare(b.product_name, 'tr'));
+
       const container = document.getElementById('catalog-products-list');
       container.innerHTML = "";
 
@@ -962,7 +966,6 @@
       }
     }
 
-    // HATANIN ÇÖZÜLDÜĞÜ YER - KATALOG VERİSİ ARTIK ADMİN ADRESİNDEN ÇEKİLİYOR
     async function fetchDisplayProducts() {
       try {
         const res = await fetch(`${API_URL}/api/display/list`);
@@ -975,7 +978,14 @@
 
         if (data.success) {
           displayProductsList = data.products || [];
+          
+          // DOLAP ÜRÜNLERİNİ TÜRKÇE ALFABETİK SIRALA
+          displayProductsList.sort((a, b) => a.product_name.localeCompare(b.product_name, 'tr'));
+          
           catalogList = adminData.catalog || [];
+          
+          // KATALOG MENÜSÜNÜ TÜRKÇE ALFABETİK SIRALA
+          catalogList.sort((a, b) => a.product_name.localeCompare(b.product_name, 'tr'));
 
           populateCatalogSelectOptions(catalogList);
           renderDisplayTableWithCountdown();
