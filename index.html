@@ -881,7 +881,7 @@
       document.getElementById('landing-screen').classList.add('hidden');
       document.getElementById('display-products-page').classList.remove('hidden');
       
-      updateDisplayAuthUI();
+      updateDisplayAuthUIForm();
       await fetchDisplayProducts();
 
       if (displayTimerInterval) clearInterval(displayTimerInterval);
@@ -962,15 +962,26 @@
       }
     }
 
+    // HATANIN ÇÖZÜLDÜĞÜ YER - KATALOG VERİSİ ARTIK ADMİN ADRESİNDEN ÇEKİLİYOR
     async function fetchDisplayProducts() {
-      const res = await fetch(`${API_URL}/api/display/list`);
-      const data = await res.json();
-      if (data.success) {
-        displayProductsList = data.products || [];
-        catalogList = data.catalog || [];
+      try {
+        const res = await fetch(`${API_URL}/api/display/list`);
+        const data = await res.json();
+        
+        const adminRes = await fetch(`${API_URL}/api/admin/staff/list`, {
+          method: "POST", headers: { "Content-Type": "application/json" }
+        });
+        const adminData = await adminRes.json();
 
-        populateCatalogSelectOptions(catalogList);
-        renderDisplayTableWithCountdown();
+        if (data.success) {
+          displayProductsList = data.products || [];
+          catalogList = adminData.catalog || [];
+
+          populateCatalogSelectOptions(catalogList);
+          renderDisplayTableWithCountdown();
+        }
+      } catch (e) {
+        console.error("Veri çekme hatası:", e);
       }
     }
 
