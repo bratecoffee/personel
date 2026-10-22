@@ -1284,62 +1284,66 @@
       }
     }
 
-    function renderDisplayTableWithCountdown() {
-      const tbody = document.getElementById('display-products-tbody');
-      tbody.innerHTML = "";
+function renderDisplayTableWithCountdown() {
+  const tbody = document.getElementById('display-products-tbody');
+  tbody.innerHTML = "";
 
-      if (displayProductsList.length === 0) {
-        const colSpan = displayAuthPin ? "5" : "4";
-        tbody.innerHTML = `<tr><td colspan="${colSpan}" class="p-6 text-center text-gray-500">Dolapta aktif teşhir ürünü bulunmuyor.</td></tr>`;
-        return;
+  if (displayProductsList.length === 0) {
+    const colSpan = displayAuthPin ? "5" : "4";
+    tbody.innerHTML = `<tr><td colspan="${colSpan}" class="p-6 text-center text-gray-500">Dolapta aktif teşhir ürünü bulunmuyor.</td></tr>`;
+    return;
+  }
+
+  const now = Math.floor(Date.now() / 1000);
+
+  displayProductsList.forEach(p => {
+    const createdStr = new Date(p.created_at * 1000).toLocaleString('tr-TR');
+    const expireStr = new Date(p.expire_at * 1000).toLocaleString('tr-TR');
+
+    const diffSeconds = p.expire_at - now;
+    let countdownStr = "";
+    let badgeClass = "bg-emerald-950 text-emerald-300 border-emerald-800";
+
+    if (diffSeconds > 0) {
+      const days = Math.floor(diffSeconds / (24 * 3600));
+      const hours = Math.floor((diffSeconds % (24 * 3600)) / 3600);
+      const minutes = Math.floor((diffSeconds % 3600) / 60);
+      const seconds = diffSeconds % 60;
+
+      countdownStr = `${days} Gün ${hours} Sa ${minutes} Dk ${seconds} Sn`;
+
+      if (diffSeconds < 12 * 3600) {
+        badgeClass = "bg-amber-950 text-amber-300 border-amber-800";
       }
-
-      const now = Math.floor(Date.now() / 1000);
-
-      displayProductsList.forEach(p => {
-        const createdStr = new Date(p.created_at * 1000).toLocaleString('tr-TR');
-        const expireStr = new Date(p.expire_at * 1000).toLocaleString('tr-TR');
-
-        const diffSeconds = p.expire_at - now;
-        let countdownStr = "";
-        let badgeClass = "bg-emerald-950 text-emerald-300 border-emerald-800";
-
-        if (diffSeconds > 0) {
-          const days = Math.floor(diffSeconds / (24 * 3600));
-          const hours = Math.floor((diffSeconds % (24 * 3600)) / 3600);
-          const minutes = Math.floor((diffSeconds % 3600) / 60);
-          const seconds = diffSeconds % 60;
-
-          countdownStr = `${days} Gün ${hours} Sa ${minutes} Dk ${seconds} Sn`;
-
-          if (diffSeconds < 12 * 3600) {
-            badgeClass = "bg-amber-950 text-amber-300 border-amber-800";
-          }
-        } else {
-          countdownStr = "🚨 İMHA EDİLMELİ (Süre Doldu)";
-          badgeClass = "bg-rose-950 text-rose-300 border-rose-800 animate-pulse";
-        }
-
-        const actionButtonsTd = displayAuthPin ? `
-          <td class="p-3 text-right space-x-1">
-            <button onclick="renewDisplayProduct(${p.id})" class="bg-amber-800 hover:bg-amber-700 text-amber-100 font-bold text-[10px] px-2.5 py-1.5 rounded-lg border border-amber-600">Yenile (3 Gün)</button>
-            <button onclick="removeDisplayProduct(${p.id})" class="bg-rose-900/80 hover:bg-rose-800 text-rose-100 font-bold text-[10px] px-2.5 py-1.5 rounded-lg border border-rose-700">Kaldır</button>
-          </td>
-        ` : '';
-
-        tbody.innerHTML += `
-          <tr class="hover:bg-black/30 transition">
-            <td class="p-3 font-bold text-white">${p.product_name}</td>
-            <td class="p-3 text-gray-300">${createdStr}</td>
-            <td class="p-3 text-amber-200/90 font-mono">${expireStr}</td>
-            <td class="p-3">
-              <span class="px-2.5 py-1 rounded-lg border text-[11px] font-bold font-mono ${badgeClass}">${countdownStr}</span>
-            </td>
-            ${actionButtonsTd}
-          </tr>
-        `;
-      });
+    } else {
+      countdownStr = "🚨 İMHA EDİLMELİ (Süre Doldu)";
+      badgeClass = "bg-rose-950 text-rose-300 border-rose-800 animate-pulse";
     }
+
+    // Nilky ürünleri için buton yazısını dinamik olarak ayarlama
+    const isNilky = p.product_name && p.product_name.toLowerCase().includes("nilky");
+    const renewBtnText = isNilky ? "Yenile (6 Gün)" : "Yenile (3 Gün)";
+
+    const actionButtonsTd = displayAuthPin ? `
+      <td class="p-3 text-right space-x-1">
+        <button onclick="renewDisplayProduct(${p.id})" class="bg-amber-800 hover:bg-amber-700 text-amber-100 font-bold text-[10px] px-2.5 py-1.5 rounded-lg border border-amber-600">${renewBtnText}</button>
+        <button onclick="removeDisplayProduct(${p.id})" class="bg-rose-900/80 hover:bg-rose-800 text-rose-100 font-bold text-[10px] px-2.5 py-1.5 rounded-lg border border-rose-700">Kaldır</button>
+      </td>
+    ` : '';
+
+    tbody.innerHTML += `
+      <tr class="hover:bg-black/30 transition">
+        <td class="p-3 font-bold text-white">${p.product_name}</td>
+        <td class="p-3 text-gray-300">${createdStr}</td>
+        <td class="p-3 text-amber-200/90 font-mono">${expireStr}</td>
+        <td class="p-3">
+          <span class="px-2.5 py-1 rounded-lg border text-[11px] font-bold font-mono ${badgeClass}">${countdownStr}</span>
+        </td>
+        ${actionButtonsTd}
+      </tr>
+    `;
+  });
+}
 
     async function renewDisplayProduct(id) {
       if (!displayAuthPin) {
