@@ -306,14 +306,14 @@
     <p id="admin-msg" class="text-xs text-center font-semibold mt-3"></p>
   </div>
 
-  <!-- 4. TEŞHİR ÜRÜNLERİ TAKİP CANLI EKRANI -->
+<!-- 4. TEŞHİR ÜRÜNLERİ TAKİP CANLI EKRANI -->
   <div id="display-products-page" class="hidden fixed inset-0 bg-brate-dark z-50 overflow-y-auto p-4 sm:p-8 flex flex-col items-center">
     <div class="max-w-4xl w-full bg-brate-card p-6 sm:p-8 rounded-3xl border border-brate shadow-2xl my-auto space-y-6">
       
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-brate pb-4 gap-3">
         <div>
           <h2 class="text-2xl font-extrabold text-pink-400 flex items-center">🍰 Teşhir Ürünleri Tazelik Takibi</h2>
-          <p class="text-xs text-gray-400 mt-1">Dolaptaki ürünlerin 3 günlük (72 Saat) canlı geri sayımı</p>
+          <p class="text-xs text-gray-400 mt-1">Dolaptaki ürünlerin canlı geri sayımı</p>
         </div>
         
         <div class="flex items-center space-x-2">
@@ -341,7 +341,7 @@
             <option value="">-- Ürün Seçin --</option>
           </select>
         </div>
-        <button onclick="addDisplayProductFromSelect()" class="w-full sm:w-auto bg-pink-800 hover:bg-pink-700 text-white font-bold px-6 py-3.5 rounded-xl text-xs shadow-md transition self-end">+ DOLABA KOY (3 Gün Başlat)</button>
+        <button onclick="addDisplayProductFromSelect()" class="w-full sm:w-auto bg-pink-800 hover:bg-pink-700 text-white font-bold px-6 py-3.5 rounded-xl text-xs shadow-md transition self-end">+ DOLABA KOY (Başlat)</button>
       </div>
 
       <div class="overflow-x-auto">
@@ -350,7 +350,7 @@
             <tr class="border-b border-brate text-xs text-amber-300 uppercase">
               <th class="p-3">Ürün Adı</th>
               <th class="p-3">Teşhir Zamanı</th>
-              <th class="p-3">İmha Zamanı (+3 Gün)</th>
+              <th class="p-3">İmha Zamanı</th>
               <th class="p-3">Kalan Zaman (Canlı)</th>
               <th id="th-display-actions" class="hidden p-3 text-right">İşlem</th>
             </tr>
