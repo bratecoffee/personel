@@ -193,6 +193,13 @@
           <h4 class="font-bold text-amber-300 text-sm">Toplam Mesai Özeti</h4>
           <button onclick="openPersonalShiftsPage()" class="text-[11px] font-bold text-amber-400 hover:text-amber-300 bg-amber-950/60 px-2.5 py-1 rounded-lg border border-amber-800/60">Tüm Detaylar ➔</button>
         </div>
+        
+        <!-- YENİ: PERSONEL KENDİ ÇALIŞMA AYI SÜZGEÇİ -->
+        <div class="flex items-center justify-between bg-black/50 p-2 rounded-xl border border-brate mb-2">
+          <span class="text-[11px] font-semibold text-gray-300">Çalışma Ayı:</span>
+          <input type="month" id="staff-summary-month" onchange="loginStaff()" class="bg-brate-card border border-brate p-1.5 rounded-lg text-white text-xs text-center focus:outline-none focus:border-amber-500">
+        </div>
+
         <div class="flex justify-between text-gray-300 text-xs">
           <span>Toplam Çalışma Süresi:</span>
           <span id="total-hours" class="font-bold text-white text-sm">0 Sa 0 Dk</span>
@@ -215,7 +222,21 @@
       <button onclick="closeAdmin()" class="bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold px-4 py-2 rounded-xl text-xs border border-gray-700 transition">Kapat / Geri Dön</button>
     </div>
 
-    <!-- YENİ EKLENEN BİLDİRİM AÇMA / KAPAMA PANELİ -->
+    <!-- YENİ EKLENEN AYLIK WHATSAPP KOTA TAKİP KARTI -->
+    <div class="bg-black/50 border border-emerald-600/40 p-4 rounded-2xl mb-6 shadow-md">
+      <div class="flex justify-between items-center mb-2">
+        <h4 class="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center space-x-2">
+          <span>💬 AYLIK WHATSAPP MESAJ KOTASI Takibi</span>
+        </h4>
+        <span id="waQuotaText" class="text-xs font-bold bg-emerald-950 text-emerald-300 px-2.5 py-1 rounded-lg border border-emerald-800">Yükleniyor...</span>
+      </div>
+      <div class="w-full bg-gray-900 rounded-full h-3 border border-brate overflow-hidden">
+        <div id="waQuotaBar" class="bg-emerald-500 h-full transition-all duration-500" style="width: 0%"></div>
+      </div>
+      <p class="text-[10px] text-gray-400 mt-2">Her ayın 1'i saat 03:00'da sayaç otomatik sıfırlanır (Limit: 1.000 Ücretsiz Mesaj).</p>
+    </div>
+
+    <!-- OTOMATİK BİLDİRİM KANALLARI (GENEL ŞARTEL) -->
     <div class="bg-black/50 border border-amber-600/40 p-4 rounded-2xl mb-6 shadow-md">
       <h4 class="text-xs font-bold text-amber-300 uppercase tracking-wider mb-3 flex items-center space-x-2">
         <span>🔔 OTOMATİK BİLDİRİM KANALLARI</span>
@@ -236,6 +257,28 @@
             <p class="text-[10px] text-gray-400">Yönetici numaralarına bildirimleri aç / kapat</p>
           </div>
         </label>
+      </div>
+    </div>
+
+    <!-- YENİ EKLENEN KİŞİSEL BİLDİRİM İZİN MATRİSİ -->
+    <div class="bg-black/50 border border-amber-600/40 p-4 rounded-2xl mb-6 shadow-md overflow-hidden">
+      <h4 class="text-xs font-bold text-amber-300 uppercase tracking-wider mb-2">📋 PERSONEL BİLDİRİM İZİN MATRİSİ</h4>
+      <p class="text-[11px] text-gray-400 mb-4">Hangi personelin WhatsApp veya Telegram üzerinden mesaj alacağını buradan özelleştirebilirsiniz.</p>
+      
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="border-b border-brate text-amber-400 uppercase text-[10px] bg-brate-card/60">
+              <th class="p-2.5">Personel Adı</th>
+              <th class="p-2.5 text-center">Kendi Mesai Bildirimi</th>
+              <th class="p-2.5 text-center">Tüm Personel Mesaileri</th>
+              <th class="p-2.5 text-center">Teşhir Süresi Doldu Uyarısı</th>
+            </tr>
+          </thead>
+          <tbody id="notification-matrix-tbody" class="divide-y divide-brate/50">
+            <tr><td colspan="4" class="text-center p-3 text-gray-500">Yükleniyor...</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
@@ -263,9 +306,13 @@
         </form>
 
         <div class="bg-black/50 p-5 rounded-2xl border border-amber-600/40 space-y-3 shadow-md">
-          <h4 class="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center justify-between border-b border-brate pb-2">
-            <span>📊 PERSONEL BAZLI TOPLAM HAK EDİŞLER</span>
-          </h4>
+          <div class="flex justify-between items-center border-b border-brate pb-2">
+            <h4 class="text-xs font-bold text-amber-300 uppercase tracking-wider">
+              📊 PERSONEL BAZLI TOPLAM HAK EDİŞLER
+            </h4>
+            <!-- YENİ: YÖNETİCİ AYLIK HAKEDİŞ SÜZGEÇİ -->
+            <input type="month" id="admin-summary-month" onchange="loadAdminDashboard()" class="bg-brate-card border border-brate p-1 rounded-lg text-white text-[11px] text-center focus:outline-none focus:border-amber-500">
+          </div>
           <div id="admin-staff-summary-list" class="space-y-2 max-h-36 overflow-y-auto pr-1 text-xs"></div>
         </div>
 
@@ -306,7 +353,7 @@
     <p id="admin-msg" class="text-xs text-center font-semibold mt-3"></p>
   </div>
 
-<!-- 4. TEŞHİR ÜRÜNLERİ TAKİP CANLI EKRANI -->
+  <!-- 4. TEŞHİR ÜRÜNLERİ TAKİP CANLI EKRANI -->
   <div id="display-products-page" class="hidden fixed inset-0 bg-brate-dark z-50 overflow-y-auto p-4 sm:p-8 flex flex-col items-center">
     <div class="max-w-4xl w-full bg-brate-card p-6 sm:p-8 rounded-3xl border border-brate shadow-2xl my-auto space-y-6">
       
@@ -388,7 +435,7 @@
             <input type="datetime-local" id="manual-in-time" class="bg-brate-card border border-brate p-3 rounded-xl text-white w-full focus:outline-none focus:border-amber-500">
           </div>
           <div>
-            <label class="block text-gray-300 mb-1 font-semibold">Paydos Tarihi / Saati:</label>
+            <label class="block text-gray-300 mb-1 font-semibold font-semibold">Paydos Tarihi / Saati:</label>
             <input type="datetime-local" id="manual-out-time" class="bg-brate-card border border-brate p-3 rounded-xl text-white w-full focus:outline-none focus:border-amber-500">
           </div>
         </div>
@@ -455,6 +502,15 @@
     let displayTimerInterval = null;
     let displayAuthPin = null;
 
+    // 03:00 Devir Toleranslı YYYY-MM Hesaplayıcı
+    function getShiftMonthKey() {
+      const dateObj = new Date();
+      dateObj.setHours(dateObj.getHours() - 3);
+      const year = dateObj.getFullYear();
+      const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+      return `${year}-${month}`;
+    }
+
     // EKRAN DURUMUNU HAFIZAYA KAYDETME FONKSİYONU
     function saveState(viewName) {
       localStorage.setItem('brate_view', viewName);
@@ -462,6 +518,10 @@
 
     // SAYFA YÜKLENDİĞİNDE KALINAN YERİ GETİR
     document.addEventListener("DOMContentLoaded", () => {
+      const defaultMonth = getShiftMonthKey();
+      if (document.getElementById('staff-summary-month')) document.getElementById('staff-summary-month').value = defaultMonth;
+      if (document.getElementById('admin-summary-month')) document.getElementById('admin-summary-month').value = defaultMonth;
+
       applyLandingScreenState();
 
       if (isAdminUrlParam === '1') {
@@ -592,7 +652,30 @@
       applyLandingScreenState();
     }
 
-    // YENİ EKLENEN BİLDİRİM AYARLARI FONKSİYONLARI
+    // AYLIK WHATSAPP KOTA BİLGİSİNİ ÇEKME
+    async function loadWaQuota() {
+      try {
+        const res = await fetch(`${API_URL}/api/admin/whatsapp/usage`);
+        const data = await res.json();
+        if (data.success) {
+          const count = data.count || 0;
+          const limit = data.limit || 1000;
+          const percent = Math.min((count / limit) * 100, 100);
+
+          document.getElementById("waQuotaText").innerText = `${count} / ${limit} Mesaj`;
+          const bar = document.getElementById("waQuotaBar");
+          bar.style.width = `${percent}%`;
+
+          if (percent > 85) bar.className = "bg-rose-600 h-full transition-all duration-500";
+          else if (percent > 60) bar.className = "bg-amber-500 h-full transition-all duration-500";
+          else bar.className = "bg-emerald-500 h-full transition-all duration-500";
+        }
+      } catch(e) {
+        console.error("WhatsApp Kota Hata:", e);
+      }
+    }
+
+    // BİLDİRİM AYARLARI FONKSİYONLARI
     async function loadNotificationSettings() {
       try {
         const res = await fetch(`${API_URL}/api/admin/settings/get`);
@@ -618,6 +701,69 @@
         });
       } catch (e) {
         alert("Ayarlar kaydedilirken hata oluştu!");
+      }
+    }
+
+    // BİLDİRİM İZİN MATRİSİNİ ÇİZME VE GÜNCELLEME
+    function renderNotificationMatrix(staffArray) {
+      const tbody = document.getElementById('notification-matrix-tbody');
+      tbody.innerHTML = "";
+
+      if (staffArray.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center p-3 text-gray-500">Kayıtlı personel bulunamadı.</td></tr>`;
+        return;
+      }
+
+      staffArray.forEach(staff => {
+        const ownShift = staff.notify_own_shift !== undefined ? staff.notify_own_shift : 1;
+        const allShifts = staff.notify_all_shifts !== undefined ? staff.notify_all_shifts : 0;
+        const display = staff.notify_display !== undefined ? staff.notify_display : 1;
+
+        const row = document.createElement("tr");
+        row.className = "hover:bg-black/30 transition border-b border-brate/30";
+        row.innerHTML = `
+          <td class="p-2.5 font-bold text-white">
+            ${staff.full_name} 
+            <span class="text-[10px] text-gray-400 block">${staff.phone_number || 'Telefon Yok'}</span>
+          </td>
+          <td class="p-2.5 text-center">
+            <input type="checkbox" class="w-4 h-4 accent-amber-500 rounded cursor-pointer" 
+              ${ownShift ? 'checked' : ''} onchange="updateStaffPermission(${staff.id}, 'own', this.checked)">
+          </td>
+          <td class="p-2.5 text-center">
+            <input type="checkbox" class="w-4 h-4 accent-amber-500 rounded cursor-pointer" 
+              ${allShifts ? 'checked' : ''} onchange="updateStaffPermission(${staff.id}, 'all', this.checked)">
+          </td>
+          <td class="p-2.5 text-center">
+            <input type="checkbox" class="w-4 h-4 accent-amber-500 rounded cursor-pointer" 
+              ${display ? 'checked' : ''} onchange="updateStaffPermission(${staff.id}, 'display', this.checked)">
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    async function updateStaffPermission(staffId, permType, isChecked) {
+      const staff = (currentStaffList || []).find(s => s.id === staffId);
+      if (!staff) return;
+
+      if (permType === 'own') staff.notify_own_shift = isChecked ? 1 : 0;
+      if (permType === 'all') staff.notify_all_shifts = isChecked ? 1 : 0;
+      if (permType === 'display') staff.notify_display = isChecked ? 1 : 0;
+
+      try {
+        await fetch(`${API_URL}/api/admin/staff/update-permissions`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            staff_id: staffId,
+            notify_own_shift: staff.notify_own_shift,
+            notify_all_shifts: staff.notify_all_shifts,
+            notify_display: staff.notify_display
+          })
+        });
+      } catch(e) {
+        alert("İzin güncellenemedi!");
       }
     }
 
@@ -826,11 +972,12 @@
 
     async function loginStaff() {
       const pin = document.getElementById('staff-pin').value;
+      const selectedMonth = document.getElementById('staff-summary-month') ? document.getElementById('staff-summary-month').value : getShiftMonthKey();
       const err = document.getElementById('login-error');
       
       const res = await fetch(`${API_URL}/api/staff/my-summary`, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pin_code: pin, device_id: getDeviceId() })
+        body: JSON.stringify({ pin_code: pin, selected_month: selectedMonth, device_id: getDeviceId() })
       });
       const data = await res.json();
 
@@ -926,17 +1073,25 @@
       }
     }
 
+    let currentStaffList = [];
+
     async function loadAdminDashboard() {
       updateDeviceAuthUI(); 
       loadNotificationSettings(); // Bildirim ayarlarını getir
+      loadWaQuota(); // WhatsApp Kota Takibini Yükle
       
+      const monthInput = document.getElementById('admin-summary-month');
+      const selectedMonth = monthInput ? monthInput.value : getShiftMonthKey();
+
       const res = await fetch(`${API_URL}/api/admin/staff/list`, {
-        method: "POST", headers: { "Content-Type": "application/json" }
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ selected_month: selectedMonth })
       });
       const data = await res.json();
       
       if (data.success) {
         let staffArray = data.staff || [];
+        currentStaffList = staffArray;
         
         staffArray.sort((a, b) => {
           const nameA = a.full_name.toLocaleLowerCase('tr-TR');
@@ -956,6 +1111,7 @@
         renderStaffList(staffArray);
         renderStaffSummaryList(staffArray);
         renderCatalogList(data.catalog || []);
+        renderNotificationMatrix(staffArray); // İzin Matrisini Render Et
       }
     }
 
@@ -1284,66 +1440,65 @@
       }
     }
 
-function renderDisplayTableWithCountdown() {
-  const tbody = document.getElementById('display-products-tbody');
-  tbody.innerHTML = "";
+    function renderDisplayTableWithCountdown() {
+      const tbody = document.getElementById('display-products-tbody');
+      tbody.innerHTML = "";
 
-  if (displayProductsList.length === 0) {
-    const colSpan = displayAuthPin ? "5" : "4";
-    tbody.innerHTML = `<tr><td colspan="${colSpan}" class="p-6 text-center text-gray-500">Dolapta aktif teşhir ürünü bulunmuyor.</td></tr>`;
-    return;
-  }
-
-  const now = Math.floor(Date.now() / 1000);
-
-  displayProductsList.forEach(p => {
-    const createdStr = new Date(p.created_at * 1000).toLocaleString('tr-TR');
-    const expireStr = new Date(p.expire_at * 1000).toLocaleString('tr-TR');
-
-    const diffSeconds = p.expire_at - now;
-    let countdownStr = "";
-    let badgeClass = "bg-emerald-950 text-emerald-300 border-emerald-800";
-
-    if (diffSeconds > 0) {
-      const days = Math.floor(diffSeconds / (24 * 3600));
-      const hours = Math.floor((diffSeconds % (24 * 3600)) / 3600);
-      const minutes = Math.floor((diffSeconds % 3600) / 60);
-      const seconds = diffSeconds % 60;
-
-      countdownStr = `${days} Gün ${hours} Sa ${minutes} Dk ${seconds} Sn`;
-
-      if (diffSeconds < 12 * 3600) {
-        badgeClass = "bg-amber-950 text-amber-300 border-amber-800";
+      if (displayProductsList.length === 0) {
+        const colSpan = displayAuthPin ? "5" : "4";
+        tbody.innerHTML = `<tr><td colspan="${colSpan}" class="p-6 text-center text-gray-500">Dolapta aktif teşhir ürünü bulunmuyor.</td></tr>`;
+        return;
       }
-    } else {
-      countdownStr = "🚨 İMHA EDİLMELİ (Süre Doldu)";
-      badgeClass = "bg-rose-950 text-rose-300 border-rose-800 animate-pulse";
+
+      const now = Math.floor(Date.now() / 1000);
+
+      displayProductsList.forEach(p => {
+        const createdStr = new Date(p.created_at * 1000).toLocaleString('tr-TR');
+        const expireStr = new Date(p.expire_at * 1000).toLocaleString('tr-TR');
+
+        const diffSeconds = p.expire_at - now;
+        let countdownStr = "";
+        let badgeClass = "bg-emerald-950 text-emerald-300 border-emerald-800";
+
+        if (diffSeconds > 0) {
+          const days = Math.floor(diffSeconds / (24 * 3600));
+          const hours = Math.floor((diffSeconds % (24 * 3600)) / 3600);
+          const minutes = Math.floor((diffSeconds % 3600) / 60);
+          const seconds = diffSeconds % 60;
+
+          countdownStr = `${days} Gün ${hours} Sa ${minutes} Dk ${seconds} Sn`;
+
+          if (diffSeconds < 12 * 3600) {
+            badgeClass = "bg-amber-950 text-amber-300 border-amber-800";
+          }
+        } else {
+          countdownStr = "🚨 İMHA EDİLMELİ (Süre Doldu)";
+          badgeClass = "bg-rose-950 text-rose-300 border-rose-800 animate-pulse";
+        }
+
+        const isNilky = p.product_name && p.product_name.toLowerCase().includes("nilky");
+        const renewBtnText = isNilky ? "Yenile (6 Gün)" : "Yenile (3 Gün)";
+
+        const actionButtonsTd = displayAuthPin ? `
+          <td class="p-3 text-right space-x-1">
+            <button onclick="renewDisplayProduct(${p.id})" class="bg-amber-800 hover:bg-amber-700 text-amber-100 font-bold text-[10px] px-2.5 py-1.5 rounded-lg border border-amber-600">${renewBtnText}</button>
+            <button onclick="removeDisplayProduct(${p.id})" class="bg-rose-900/80 hover:bg-rose-800 text-rose-100 font-bold text-[10px] px-2.5 py-1.5 rounded-lg border border-rose-700">Kaldır</button>
+          </td>
+        ` : '';
+
+        tbody.innerHTML += `
+          <tr class="hover:bg-black/30 transition">
+            <td class="p-3 font-bold text-white">${p.product_name}</td>
+            <td class="p-3 text-gray-300">${createdStr}</td>
+            <td class="p-3 text-amber-200/90 font-mono">${expireStr}</td>
+            <td class="p-3">
+              <span class="px-2.5 py-1 rounded-lg border text-[11px] font-bold font-mono ${badgeClass}">${countdownStr}</span>
+            </td>
+            ${actionButtonsTd}
+          </tr>
+        `;
+      });
     }
-
-    // Nilky ürünleri için buton yazısını dinamik olarak ayarlama
-    const isNilky = p.product_name && p.product_name.toLowerCase().includes("nilky");
-    const renewBtnText = isNilky ? "Yenile (6 Gün)" : "Yenile (3 Gün)";
-
-    const actionButtonsTd = displayAuthPin ? `
-      <td class="p-3 text-right space-x-1">
-        <button onclick="renewDisplayProduct(${p.id})" class="bg-amber-800 hover:bg-amber-700 text-amber-100 font-bold text-[10px] px-2.5 py-1.5 rounded-lg border border-amber-600">${renewBtnText}</button>
-        <button onclick="removeDisplayProduct(${p.id})" class="bg-rose-900/80 hover:bg-rose-800 text-rose-100 font-bold text-[10px] px-2.5 py-1.5 rounded-lg border border-rose-700">Kaldır</button>
-      </td>
-    ` : '';
-
-    tbody.innerHTML += `
-      <tr class="hover:bg-black/30 transition">
-        <td class="p-3 font-bold text-white">${p.product_name}</td>
-        <td class="p-3 text-gray-300">${createdStr}</td>
-        <td class="p-3 text-amber-200/90 font-mono">${expireStr}</td>
-        <td class="p-3">
-          <span class="px-2.5 py-1 rounded-lg border text-[11px] font-bold font-mono ${badgeClass}">${countdownStr}</span>
-        </td>
-        ${actionButtonsTd}
-      </tr>
-    `;
-  });
-}
 
     async function renewDisplayProduct(id) {
       if (!displayAuthPin) {
@@ -1351,7 +1506,7 @@ function renderDisplayTableWithCountdown() {
         return;
       }
 
-      if(!confirm("Bu ürünün teşhir süresini sıfırlayıp 3 gün uzatmak istediğinize emin misiniz?")) return;
+      if(!confirm("Bu ürünün teşhir süresini sıfırlayıp uzatmak istediğinize emin misiniz?")) return;
       const res = await fetch(`${API_URL}/api/display/renew`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ product_id: id, pin_code: displayAuthPin })
@@ -1639,7 +1794,7 @@ function renderDisplayTableWithCountdown() {
     }
 
     async function resetDevice(staffId) {
-      if(!confirm("Bu personelin cihaz kilidini kaldırmak istediğinize emin misiniz?")) return;
+      if(!confirm("Bu personelin cihaz kilidini kaldırıp yeni bir telefondan girişe izin vermek istediğinize emin misiniz?")) return;
       const res = await fetch(`${API_URL}/api/admin/staff/reset-device`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ staff_id: staffId })
